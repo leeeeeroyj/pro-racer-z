@@ -2,16 +2,8 @@
 import Phaser from 'phaser';
 import { HEIGHT, SCENERY, TEXT, TRACK, WIDTH } from './config';
 import type { TrackDef } from './data/tracks';
+import { mulberry32 } from './rng';
 import type { Track } from './track';
-
-function mulberry32(a: number) {
-  return () => {
-    a |= 0; a = (a + 0x6d2b79f5) | 0;
-    let t = Math.imul(a ^ (a >>> 15), 1 | a);
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
 
 function canvas(scene: Phaser.Scene, key: string, w: number, h: number, draw: (g: CanvasRenderingContext2D) => void) {
   if (scene.textures.exists(key)) return key;
@@ -96,9 +88,9 @@ function path(g: CanvasRenderingContext2D, t: Track, off: number) {
 }
 
 /** The raised ribbon: drop shadow, wall, apron, asphalt, edge lines, kerbs on the bends, centre dashes, start line. */
-export function bakeTrack(scene: Phaser.Scene, def: TrackDef, t: Track, dark = false) {
+export function bakeTrack(scene: Phaser.Scene, def: TrackDef, t: Track, dark = false, reverse = false) {
   const HW = TRACK.halfWidth, AP = TRACK.apron;
-  return canvas(scene, `track-${def.id}-${dark ? 'dark' : 'lit'}`, def.world.w, def.world.h, (g) => {
+  return canvas(scene, `track-${def.id}-${dark ? 'dark' : 'lit'}${reverse ? '-rev' : ''}`, def.world.w, def.world.h, (g) => {
     const ribbon = (width: number, style: string) => {
       path(g, t, 0);
       g.lineWidth = width; g.strokeStyle = style; g.lineJoin = 'round'; g.stroke();
@@ -143,5 +135,24 @@ export function bakeTrack(scene: Phaser.Scene, def: TrackDef, t: Track, dark = f
       g.fillRect(-4 + m * 4, k, 4, 4);
     }
     g.restore();
+  });
+}
+
+/**
+ * Small code-drawn sprites. Coolant is a pale, see-through pool; a slick is a near-black blot with a light rim. They
+ * differ in brightness, not just hue.
+ */
+export function bakeProps(scene: Phaser.Scene) {
+  canvas(scene, 'hz-coolant', 30, 20, (g) => {
+    g.fillStyle = 'rgba(90,200,255,0.38)';
+    g.beginPath(); g.ellipse(15, 10, 14, 9, 0, 0, Math.PI * 2); g.fill();
+    g.fillStyle = 'rgba(200,240,255,0.55)';
+    g.fillRect(9, 7, 4, 1); g.fillRect(17, 12, 5, 1); g.fillRect(12, 14, 2, 1);
+  });
+  canvas(scene, 'hz-slick', 24, 18, (g) => {
+    g.fillStyle = 'rgba(3,3,8,0.92)';
+    g.beginPath(); g.ellipse(12, 9, 11, 8, 0, 0, Math.PI * 2); g.fill();
+    g.strokeStyle = 'rgba(233,239,255,0.55)'; g.lineWidth = 1;
+    g.beginPath(); g.ellipse(12, 9, 7, 4.5, 0, 0, Math.PI * 2); g.stroke();
   });
 }

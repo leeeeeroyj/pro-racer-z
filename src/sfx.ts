@@ -31,6 +31,18 @@ export const SOUNDS = {
   lap: { wave: 'square', freq: 660, steps: [0, 7], sustain: 0.12, decay: 0.08, duty: 0.25, volume: 0.22 },
   finalLap: { wave: 'square', freq: 660, steps: [0, 7, 0, 7], sustain: 0.36, decay: 0.1, duty: 0.25, volume: 0.24 },
   finish: { wave: 'square', freq: 523.25, steps: [0, 4, 7, 12, 16, 19, 24], sustain: 0.7, decay: 0.3, duty: 0.25, volume: 0.3 },
+  light: { wave: 'square', freq: 440, sustain: 0.12, decay: 0.06, duty: 0.5, volume: 0.22 },
+  go: { wave: 'square', freq: 880, sustain: 0.3, decay: 0.15, duty: 0.5, volume: 0.26 },
+  dart: { wave: 'square', freq: 1400, slide: -2.2, sustain: 0.05, decay: 0.1, duty: 0.25, volume: 0.16 },
+  mine: { wave: 'triangle', freq: 300, slide: -1, sustain: 0.05, decay: 0.08, volume: 0.32 },
+  empty: { wave: 'triangle', freq: 220, sustain: 0.03, decay: 0.04, volume: 0.25 },
+  spin: { wave: 'saw', freq: 170, slide: -1.2, vibrato: [22, 0.2], sustain: 0.22, decay: 0.15, smooth: 0.5, volume: 0.3 },
+  hit: { wave: 'square', freq: 520, slide: -2, sustain: 0.06, decay: 0.1, duty: 0.4, volume: 0.2 },
+  pickup: { wave: 'square', freq: 990, steps: [0, 5, 12], sustain: 0.09, decay: 0.05, duty: 0.25, volume: 0.18 },
+  coolant: { wave: 'sine', freq: 260, slide: -1.5, sustain: 0.08, decay: 0.12, volume: 0.25 },
+  clunk: { wave: 'square', freq: 180, slide: -1, sustain: 0.03, decay: 0.05, duty: 0.5, volume: 0.18 },
+  place: { wave: 'square', freq: 523.25, steps: [0, 4, 7, 12], sustain: 0.5, decay: 0.2, duty: 0.25, volume: 0.28 },
+  lose: { wave: 'square', freq: 220, steps: [0, -3, -7], sustain: 0.5, decay: 0.25, duty: 0.5, volume: 0.24 },
 } satisfies Record<string, Voice>;
 
 export type SoundName = keyof typeof SOUNDS;

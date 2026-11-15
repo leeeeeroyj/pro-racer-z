@@ -1,16 +1,20 @@
 import Phaser from 'phaser';
-import { FONT, HEIGHT, MACHINES, SPRITES, TEXT, WIDTH, spriteAngle, type SpriteKey } from '../config';
+import { FONT, HEIGHT, MACHINES, SPRITES, TEXT, WEAPONS, WIDTH, spriteAngle, type SpriteKey } from '../config';
+import { FrameClock } from '../clock';
 import { Controls } from '../controls';
 import { TRACKS } from '../data/tracks';
+import { Race } from '../race';
+import { RaceView } from '../raceView';
 import { playSound, registerSounds, restoreMute, toggleMute } from '../sfx';
 import { TrackView } from '../trackView';
-
-/** The title camera glides round the track at this speed, px/s. */
-const GLIDE = 70;
+import { SEASON } from './RaceScene';
 
 export class TitleScene extends Phaser.Scene {
   private controls!: Controls;
-  private view!: TrackView;
+  private race!: Race;
+  private view!: RaceView;
+  private demo = 0;
+  private frames = new FrameClock();
   private padStatus: Phaser.GameObjects.Text | undefined;
   private start!: Phaser.GameObjects.Text;
   private leaving = false;
@@ -31,8 +35,8 @@ export class TitleScene extends Phaser.Scene {
     this.controls = new Controls(this);
     registerSounds(this);
     restoreMute(this);
-    this.view = new TrackView(this, TRACKS[0]);
-    this.glide();
+    this.frames = new FrameClock();
+    this.startDemo();
     this.cameras.main.fadeIn(250);
 
     // Everything below is fixed to the screen, over a dark veil.
@@ -65,15 +69,22 @@ export class TitleScene extends Phaser.Scene {
     this.padStatus = text(cx, 214, '', 8, TEXT.dim);
   }
 
-  /** Puts the camera on the point the title glide has reached, a little ahead of the centreline. */
-  private glide() {
-    const t = this.view.track, i = Math.floor((this.clock * GLIDE) / 6) % t.n, p = t.pts[i];
-    this.view.look(p.x - WIDTH / 2, p.y - HEIGHT / 2);
+  /** An attract race behind the title: the autopilot drives your car against the three rivals, from GO. */
+  private startDemo() {
+    const def = TRACKS[0];
+    this.race = new Race(def, { seed: 1000 + this.demo++, machine: MACHINES[0], autopilot: true });
+    this.race.go();
+    this.view = new RaceView(this, this.race, new TrackView(this, def, this.race.track));
   }
 
-  update(_time: number, delta: number) {
-    this.clock += Math.min(0.05, delta / 1000);
-    this.glide();
+  update(time: number) {
+    const steps = this.frames.steps(time);
+    const dt = steps.reduce((a, b) => a + b, 0);
+    this.clock += dt;
+    for (const s of steps) this.race.step(s);
+    this.view.sync(dt, this.race.takeEvents());
+    this.view.follow(dt);
+    if (this.race.phase === 'results' && !this.leaving) this.scene.restart();
     const input = this.controls.read();
     if (input.mute) toggleMute(this);
     if (input.confirm) this.begin();
@@ -86,6 +97,8 @@ export class TitleScene extends Phaser.Scene {
     if (this.leaving) return;
     this.leaving = true;
     playSound(this, 'start');
+    this.registry.set(SEASON.score, 0);
+    this.registry.set(SEASON.charges, WEAPONS.startCharges);
     this.cameras.main.fadeOut(250);
     this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => this.scene.start('race', { track: 0, mk: 0 }));
   }

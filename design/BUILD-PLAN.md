@@ -160,17 +160,21 @@ Each one ends playable, tested, committed, pushed and live. Default rhythm: show
 - **No rival weapons (2026-11-14),** confirmed by the user for every league, Blackout included.
 - **Vex is the grey hover car 627208 (2026-11-14, the user's),** nose up. The first pick (981721) was green like the Mk III.
 - **The user is colour blind (2026-11-14).** Nothing may be told apart by hue alone: rivals carry letters or labels on the minimap and results, warnings flash or change shape, and paired colours differ in brightness too. The bend kerbs alternate pink and white (the mockup's pink and cyan were close in brightness).
+- **Rival colours follow the sprites (2026-11-15):** Halo silver `#d4dcf0`, Vex teal `#5fd4c0`, Dynamo violet `#a979ff`, you pink. Light, mid and dark, so they differ in brightness; names always go with them (results board), initials on the minimap.
+- **Races step by real time (2026-11-15).** Phaser's `delta` is smoothed toward 60 fps, so a slow device (and headless Chrome at about 35 fps) ran races in slow motion. `clock.ts` measures the frame from its timestamp and splits it into steps of at most 1/60 s, the rate the physics is tested at.
+- **Presses come from key events, not `JustDown` (2026-11-15).** In Phaser 4 a key that goes down and up between two frames never shows in `JustDown`; the test caught lost darts and mines. Fire, drop, confirm, back and mute listen to `keydown-<KEY>` (repeats ignored). Hedge-Hogger's controls rely on `JustDown` for taps and may lose quick ones the same way.
+- **One race module (2026-11-15).** The demo autopilot is `Race.aiControl(car, stats, pilot = true)` in `race.ts`, not a separate `pilot.ts`: the rivals and the pilot share the line-following code.
+- **The finish (2026-11-15):** after you cross the line the others get 3.2 s (`RACE.doneHold`), then the results board; unfinished cars show `--` and are placed by distance. The board waits at least 1.5 s so the place banner always shows.
 
 ## Open questions
 
-- **Rival HUD colours.** Halo's sprite is grey, Vex's grey-teal and Dynamo's purple, while their HUD colours are cyan, lime and amber. Decide in milestone 2, when the rivals arrive; whatever the colours, each rival also gets its initial on the minimap and the results board.
 - **Name check.**
   - Searches on 2026-11-14 found no game, store listing or trademark called "Pro Racer Z".
   - Nearby: Sega's *Pro-Racer* (1978 arcade, also a top-down racer), Tamsoft's *Pro Racer* (PlayStation, 1999, Europe), Codemasters' *Pro Race Driver* (2002). Third-party trademark aggregators show only dead marks ("RACE Z", "Z RACING") and "RACER X", a separate mark.
   - Fine for a free personal project. Search USPTO directly before any commercial use.
 - **Repo and Pages URL:** `leeeeeroyj/pro-racer-z`, `https://leeeeeroyj.github.io/pro-racer-z/`.
 
-## Status (2026-11-14: milestone 1 built and tested; waiting for the user's go-ahead to commit and publish)
+## Status (2026-11-15: milestone 2 done)
 
 - **Folder set up (A1).**
   - `git init -b main` with repo-local leeeeeroyj identity, the leeeeeroyj SSH key, and `origin` on the `github-leeeeeroyj` alias.
@@ -210,4 +214,12 @@ Each one ends playable, tested, committed, pushed and live. Default rhythm: show
   - Dev hooks: `window.__proRacerZ`; `RaceScene.snapshot()`, `teleport(frac, lat, turn)`, `played`.
   - `tools/m1-test.mjs`: 28/28 pass. The track round-trips every sample at the centre and both walls in both directions, bend radius 52.3 px (needs > 38), sections at least 111 px apart (needs > 84). All three machines hold their top speed exactly, reaching 95 % in about 0.77 s. 300 random flat-out runs never pass the wall, and the car never jumps to another part of the track. Live: top speed, turning on the spot and at speed, both walls, laps, finish, M and Esc.
   - README and the hero screenshot (`docs/screenshot.png`).
-- **Next:** on the go-ahead, the first commit and push, Pages, licence check and repo settings (C1–C5), then milestone 2.
+- **Milestone 1 published (2026-11-15):** first commit and push as leeeeeroyj, Pages on (workflow build), deploy green, licence detected as MIT, description, homepage, topics, actions limited to GitHub's own, "Protect main" ruleset, and the security checks (secret scanning and push protection on, read-only workflow token, HTTPS enforced, leeeeeroyj the only collaborator, no keys, hooks, secrets or variables).
+- **Milestone 2 built (2026-11-15):**
+  - `race.ts` is now a pure `Race`: grid lights, four cars, line-following rivals (lane, slick and coolant avoidance, braking for bends, catch-up), darts with homing, mines that arm, charge cells, coolant and slicks, car contact, standings, finish order, scoring and events for the scene. `raceView.ts` draws it; the title runs an autopilot attract race.
+  - HUD: place of 4, lap, time, charges, score, grid lights, results board with NEXT RACE and TITLE. Score and charges carry to the next race (registry).
+  - Antenna Row placements: 3 charge cells, 3 coolant spills, 2 slicks.
+  - Sounds for lights, GO, darts, mines, empty, spins, hits, pickups, coolant, contact, places.
+  - `tools/m2-test.mjs` 36/36 and `tools/m1-test.mjs` 29/29 (adapted: solo race from GO, results board instead of an instant return). Six seeded autopilot races finish with all four pilots in 52–54 s; standings matched the test's own progress count in all 1,800 sampled pairs; a dart hits a rival 60 px ahead in 0.2 s, a mine arms at 0.500 s and spins the next car through, coolant caps top speed at exactly 60 %, charges stay in 0–9 under spamming.
+  - The autopilot wins every seeded race by about 2 s; balance is milestone 7.
+- **Next:** milestone 3 (full roster).

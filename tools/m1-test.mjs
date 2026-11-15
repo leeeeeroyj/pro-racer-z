@@ -1,4 +1,5 @@
 // Milestone 1 check: title → race, the track's geometry, hover physics (top speed, turning, walls), laps and the finish.
+// The live part races solo (rivals removed with the `solo` hook) from GO, so only the player's car is on the track.
 // Usage: node tools/m1-test.mjs <project-dir> <out-dir>
 import { session } from './cdp.mjs';
 
@@ -79,8 +80,9 @@ await until(() => evaluate(`${G}.scene.isActive('race') && ${G}.scene.isActive('
 await sleep(600);
 const s0 = await snap();
 const hud0 = await evaluate(`${G}.registry.get('hud')`);
-check('race starts on the grid behind the line, lap 1 of 2, 1st', s0.laps === -1 && s0.seg > s0.n * 0.9 && hud0.lap === 1 && hud0.laps === 2 && hud0.place === 1, `seg ${s0.seg}/${s0.n}, hud ${JSON.stringify(hud0)}`);
+check('race starts on the grid behind the line, lap 1 of 2', s0.phase === 'grid' && s0.laps === -1 && s0.seg > s0.n * 0.9 && hud0.lap === 1 && hud0.laps === 2, `seg ${s0.seg}/${s0.n}, hud ${JSON.stringify(hud0)}`);
 await shot('2-grid');
+await evaluate(`(${R}.race.solo(), ${R}.race.go())`);
 
 // Longest straight, from the track's own curvature.
 const straight = await evaluate(`(async () => {
@@ -157,13 +159,16 @@ await sleep(200);
 await shot('5-final-lap');
 const l2 = await cross();
 const hud2 = await evaluate(`${G}.registry.get('hud')`);
-check('the last crossing finishes the race', l2.finished && l2.laps === 2 && hud2.banner?.text.startsWith('FINISH'), hud2.banner?.text);
+check('the last crossing finishes the race in 1st', l2.finished && l2.laps === 2 && hud2.banner?.text.startsWith('1ST'), hud2.banner?.text);
 await sleep(300);
 await shot('6-finish');
 const played = await evaluate(`${R}.played`);
-check('lap sounds played', ['finalLap', 'finish'].every((s) => played.includes(s)), played.join(','));
+check('lap sounds played', ['finalLap', 'place'].every((s) => played.includes(s)), played.join(','));
+await until(() => evaluate(`!!${G}.registry.get('hud')?.results`), 6000);
+check('the finish brings up the results board', true);
+await tap('Escape');
 await until(() => evaluate(`${G}.scene.isActive('title') && !${G}.scene.isActive('hud')`), 9000);
-check('the finish returns to the title', true);
+check('Esc on the results board returns to the title', true);
 
 // Esc leaves a race; M toggles sound.
 await tap('Enter');
