@@ -43,6 +43,14 @@ export const SOUNDS = {
   clunk: { wave: 'square', freq: 180, slide: -1, sustain: 0.03, decay: 0.05, duty: 0.5, volume: 0.18 },
   place: { wave: 'square', freq: 523.25, steps: [0, 4, 7, 12], sustain: 0.5, decay: 0.2, duty: 0.25, volume: 0.28 },
   lose: { wave: 'square', freq: 220, steps: [0, -3, -7], sustain: 0.5, decay: 0.25, duty: 0.5, volume: 0.24 },
+  shieldHit: { wave: 'sine', freq: 660, slide: -1.5, vibrato: [30, 0.05], sustain: 0.1, decay: 0.15, volume: 0.35 },
+  boost: { wave: 'saw', freq: 520, slide: 1.2, sustain: 0.15, decay: 0.12, smooth: 0.6, volume: 0.2 },
+  upgrade: { wave: 'square', freq: 660, steps: [0, 4, 7], sustain: 0.15, decay: 0.08, duty: 0.25, volume: 0.2 },
+  letter: { wave: 'triangle', freq: 784, steps: [0, 12], sustain: 0.1, decay: 0.1, volume: 0.35 },
+  overdrive: { wave: 'square', freq: 392, steps: [0, 4, 7, 12, 16, 19, 24, 28], sustain: 0.9, decay: 0.3, duty: 0.25, volume: 0.28 },
+  glitch: { wave: 'noise', freq: 120, slide: 2, vibrato: [40, 0.4], sustain: 0.2, decay: 0.1, smooth: 0.7, volume: 0.3 },
+  warn: { wave: 'square', freq: 1200, steps: [0, 5, 0, 5], sustain: 0.3, duty: 0.5, volume: 0.1 },
+  grudge: { wave: 'saw', freq: 110, slide: 1, vibrato: [8, 0.1], sustain: 0.45, decay: 0.2, smooth: 0.4, volume: 0.32 },
 } satisfies Record<string, Voice>;
 
 export type SoundName = keyof typeof SOUNDS;

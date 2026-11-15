@@ -139,11 +139,32 @@ export const WEAPONS = {
 
 export const PICKUP = { r: 10, respawn: 6, cellCharges: 2 } as const;
 
+/** Upgrades per level, up to `max` each: thruster ×(1 + accel·n), core +top·n px/s, grip +turn·n rad/s and +grip·n. */
+export const UPGRADE = { max: 3, accel: 0.1, top: 8, turn: 0.12, grip: 0.8 } as const;
+export type Upgrade = 'thruster' | 'core' | 'grip';
+
+/** Collect all nine letters for the next machine (or, in the Mk III, points and a retry). */
+export const WORD = 'OVERDRIVE';
+export const OVERDRIVE = { points: 25000, topPoints: 50000 } as const;
+
+/** Dynamo's grudge: every rival you spin adds 1 heat (to `max`); at `max` he runs at `boost`× pace for the rest of the race. */
+export const HEAT = { max: 5, boost: 1.3, perRace: 1 } as const;
+
 export const HAZARD = {
   /** Coolant spill: top speed × `factor` while wet, and you stay wet `hold` s after leaving it. */
   coolant: { r: 13, factor: 0.6, hold: 0.35 },
   /** Oil slick: spins anyone crossing it faster than `minSpeed`. */
   slick: { r: 10, spin: 0.9, minSpeed: 40 },
+  /** Boost pad: `secs` of `top`× top speed and `accel`× acceleration; it can't retrigger until `secs - rearm` have passed. */
+  boost: { r: 12, secs: 0.9, rearm: 0.3, top: 1.35, accel: 1.6 },
+  /** Glitch skull: eats `charges` (player only), then rests `rest` s. */
+  glitch: { r: 10, charges: 2, rest: 1.5 },
+  /** Storm cloud: drifts round the track at `speed` laps/s; under it (within `r`) top speed × `top`, grip × `grip`. */
+  cloud: { r: 40, lat: 6, speed: 0.006, speedStep: 0.002, top: 0.85, grip: 0.55 },
+  /** Laser gate: `off`, then a flashing `warn`, then the beam `on`; the beam spins and stops anyone within one sample. */
+  gate: { off: 2.9, warn: 1.0, on: 0.7, spin: 1.2, stop: 0.1, warnRange: 260 },
+  /** Security drone: sweeps across the track at `rate` rad/s, within `edge` px of the edges; touching it spins you. */
+  drone: { r: 10, rate: 1.3, edge: 4, spin: 1.0 },
 } as const;
 
 /** A spinning car turns at `rate` rad/s and its speed bleeds away; no control until it stops. */
@@ -152,7 +173,7 @@ export const SPIN = { rate: 11, fwdDrag: 2.4, sideDrag: 1.2 } as const;
 /** Cars are circles: closer than `dist` they push apart and share `transfer` of the closing speed. */
 export const CONTACT = { dist: 11, transfer: 0.5, hard: 40 } as const;
 
-export const SCORE = { place: [5000, 3000, 1500, 0], hit: 200, pickup: 100 } as const;
+export const SCORE = { place: [5000, 3000, 1500, 0], hit: 200, pickup: 100, letter: 250 } as const;
 
 export const SPRITES = [
   'player', 'player_mk2', 'player_mk3', 'rival_halo', 'rival_vex', 'rival_dynamo',

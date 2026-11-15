@@ -1,6 +1,6 @@
 // Code-drawn textures, baked once per track: the city far below and the raised track ribbon. From the concept mockup.
 import Phaser from 'phaser';
-import { HEIGHT, SCENERY, TEXT, TRACK, WIDTH } from './config';
+import { FONT, HEIGHT, SCENERY, TEXT, TRACK, WIDTH, WORD } from './config';
 import type { TrackDef } from './data/tracks';
 import { mulberry32 } from './rng';
 import type { Track } from './track';
@@ -155,4 +155,20 @@ export function bakeProps(scene: Phaser.Scene) {
     g.strokeStyle = 'rgba(233,239,255,0.55)'; g.lineWidth = 1;
     g.beginPath(); g.ellipse(12, 9, 7, 4.5, 0, 0, Math.PI * 2); g.stroke();
   });
+  // Boost pad: three bright chevrons pointing along the track (drawn pointing right; the image turns with the track).
+  canvas(scene, 'hz-boost', 20, 20, (g) => {
+    g.strokeStyle = '#a8ff4f'; g.lineWidth = 2; g.lineCap = 'square';
+    for (let k = 0; k < 3; k++) {
+      g.beginPath(); g.moveTo(3 + k * 5, 2); g.lineTo(8 + k * 5, 10); g.lineTo(3 + k * 5, 18); g.stroke();
+    }
+  });
+  // Letter tiles: a pink tile with a dark letter, so the letter itself is the cue.
+  for (let i = 0; i < WORD.length; i++) {
+    canvas(scene, `letter-${i}`, 11, 12, (g) => {
+      g.fillStyle = TEXT.kerb; g.fillRect(0, 0, 11, 12);
+      g.fillStyle = '#ffd6ec'; g.fillRect(0, 0, 11, 1); g.fillRect(0, 0, 1, 12);
+      g.fillStyle = '#1b0614'; g.font = `8px ${FONT}`; g.textAlign = 'center'; g.textBaseline = 'middle';
+      g.fillText(WORD[i], 6, 6.5);
+    });
+  }
 }

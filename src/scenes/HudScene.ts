@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { COLORS, FONT, HEIGHT, HUD_H, HUD_SCALE, HUD_STATE, TEXT, WIDTH } from '../config';
+import { COLORS, FONT, HEIGHT, HUD_H, HUD_SCALE, HUD_STATE, TEXT, WIDTH, WORD } from '../config';
 import type { Device } from '../controls';
 import { MUTED, toggleMute } from '../sfx';
 import { fitCamera } from '../view';
@@ -19,11 +19,14 @@ const RESULT_HINTS: Record<Device, string> = {
   touch: 'TAP A BUTTON',
 };
 const SPEAKER = { x: W - 28, y: 6, w: 20, h: 16 };
+/** The OVERDRIVE letter row: one box per letter, collected ones solid. */
+const LETTERS = { x: 548, y: 5, w: 16, gap: 2 };
+const SHIELD = { x: 740, y: 14 };
 /** Results board, centred below the bar. Buttons are 48 units tall: 36 CSS px or more on a landscape phone. */
 const BOARD = { x: W / 2, y: BAR + (H - BAR) / 2, w: 440, h: 330 };
 const pts = (n: number) => n.toLocaleString('en');
 
-/** Top bar: place, lap, race time, charges, score, track, sound. Then grid lights, the hint strip, banners and the results board. */
+/** Top bar: place, lap, race time, charges, score, OVERDRIVE letters, shield, sound. Then grid lights, the hint strip, banners and the results board. */
 export class HudScene extends Phaser.Scene {
   private place!: Phaser.GameObjects.Text;
   private of!: Phaser.GameObjects.Text;
@@ -32,6 +35,9 @@ export class HudScene extends Phaser.Scene {
   private charges!: Phaser.GameObjects.Text;
   private score!: Phaser.GameObjects.Text;
   private trackName!: Phaser.GameObjects.Text;
+  private trackBg!: Phaser.GameObjects.Rectangle;
+  private letters: Phaser.GameObjects.Text[] = [];
+  private shield!: Phaser.GameObjects.Image;
   private hint!: Phaser.GameObjects.Text;
   private hintBg!: Phaser.GameObjects.Rectangle;
   private banner!: Phaser.GameObjects.Text;
@@ -63,7 +69,10 @@ export class HudScene extends Phaser.Scene {
     this.add.image(336, 14, 'dart').setScale(1);
     this.charges = label(348, 6, '', TEXT.ink);
     this.score = label(520, 6, '', TEXT.ink).setOrigin(1, 0);
-    this.trackName = label(SPEAKER.x - 16, 6, '').setOrigin(1, 0);
+    this.letters = [...WORD].map((ch, i) => label(LETTERS.x + i * (LETTERS.w + LETTERS.gap) + LETTERS.w / 2, 14, ch).setOrigin(0.5).setDepth(1));
+    this.shield = this.add.image(SHIELD.x, SHIELD.y, 'shield');
+    this.trackBg = this.add.rectangle(W / 2, 104, 10, 26, COLORS.panel, 0.92);
+    this.trackName = label(W / 2, 104, '', TEXT.ink).setOrigin(0.5);
     this.hintBg = this.add.rectangle(W / 2, H - 46, 10, 22, COLORS.panel, 0.7);
     this.hint = label(W / 2, H - 46, '').setOrigin(0.5);
     this.banner = this.add.text(W / 2, 92, '', { fontFamily: FONT, fontSize: '32px', color: TEXT.amber, stroke: '#04050b', strokeThickness: 6 }).setOrigin(0.5);
@@ -120,7 +129,15 @@ export class HudScene extends Phaser.Scene {
     this.clock.setText(fmtTime(s.raceTime));
     this.charges.setText(`×${s.charges}`).setColor(s.charges ? TEXT.ink : TEXT.hurt);
     this.score.setText(String(s.score).padStart(7, '0'));
-    this.trackName.setText(s.track);
+    this.trackName.setVisible(s.lights !== null && !s.results).setText(`${s.track}  ·  ${s.league}`);
+    this.trackBg.setVisible(this.trackName.visible).setSize(this.trackName.width + 24, 26).setOrigin(0.5);
+    this.shield.setAlpha(s.shield ? 1 : 0.18);
+    s.letters.forEach((got, i) => {
+      const x = LETTERS.x + i * (LETTERS.w + LETTERS.gap);
+      if (got) g.fillStyle(COLORS.kerb).fillRect(x, LETTERS.y, LETTERS.w, 18);
+      else g.lineStyle(2, COLORS.line).strokeRect(x + 1, LETTERS.y + 1, LETTERS.w - 2, 16);
+      this.letters[i].setColor(got ? '#1b0614' : TEXT.dim);
+    });
     this.hint.setVisible(s.hint && !s.results).setText(HINTS[s.device]);
     this.hintBg.setVisible(s.hint && !s.results).setSize(this.hint.width + 20, 22).setOrigin(0.5);
     this.banner.setVisible(!!s.banner && !s.results);

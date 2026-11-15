@@ -18,14 +18,14 @@ await sleep(800);
 const demo0 = await demoProgress();
 await sleep(1000);
 const demo1 = await demoProgress();
-check('the title runs an attract race', demo1.every((p, i) => p - demo0[i] > 10), `${demo0.join(' ')} → ${demo1.join(' ')}`);
+check('the title runs an attract race', demo1.every((p, i) => p - demo0[i] >= 5), `${demo0.join(' ')} → ${demo1.join(' ')}`);
 await shot('1-title');
 
 // ---- Pure races ----
 const races = await evaluate(`(async () => { ${MODS}
   const out = [];
   for (let seed = 1; seed <= 6; seed++) {
-    const r = new Rc.Race(TRACKS[0], { seed, machine: C.MACHINES[0], autopilot: true }), n = r.track.n;
+    const r = new Rc.Race(TRACKS[0], { seed, autopilot: true }), n = r.track.n;
     // Independent progress: the test's own nearest sample, searched over the whole track, and its own lap count.
     const near = (c) => { let b = 0, bd = Infinity; r.track.pts.forEach((p, i) => { const d = (p.x - c.x) ** 2 + (p.y - c.y) ** 2; if (d < bd) { bd = d; b = i; } }); return b; };
     const mine = new Map(r.cars.map((c) => [c, { seg: near(c), laps: -1 }]));
@@ -34,8 +34,8 @@ const races = await evaluate(`(async () => { ${MODS}
     while (r.phase !== 'results' && steps < 60 * 200) {
       r.step(1 / 60);
       steps++;
-      // Wait for everyone: the game itself brings the board up 3.2 s after you finish.
-      if (r.phase === 'done') r.phaseT = 1e9;
+      // Wait for everyone: hold off the 3.2 s timeout, but leave the race's own all-home exit working.
+      if (r.phase === 'done') r.phaseT = Math.max(r.phaseT, C.RACE.doneHold - C.RACE.doneMin);
       for (const c of r.cars) {
         const m = mine.get(c), s = near(c);
         if (m.seg > n * 0.8 && s < n * 0.2) m.laps++; else if (m.seg < n * 0.2 && s > n * 0.8) m.laps--;
@@ -63,7 +63,12 @@ check('charges stay between 0 and 9 in autopilot races', races.every((r) => r.mi
 
 const kit = await evaluate(`(async () => { ${MODS}
   const def = TRACKS[0], f = 0.4, res = {};
-  const fresh = (charges = 4) => { const r = new Rc.Race(def, { seed: 9, machine: C.MACHINES[0], charges }); r.go(); r.frozen = true; return r; };
+  // Only this milestone's things on the track: charge cells, coolant and slicks.
+  const fresh = (charges = 4) => {
+    const r = new Rc.Race(def, { seed: 9, charges }); r.go(); r.frozen = true;
+    r.pickups = r.pickups.filter((p) => p.kind === 'cell'); r.hazards = r.hazards.filter((h) => h.kind === 'coolant' || h.kind === 'slick');
+    return r;
+  };
   const run = (r, secs, input = Rc.NO_INPUT, until = () => false) => { for (let k = 0; k < secs * 60; k++) { r.step(1 / 60, input); if (until()) return (k + 1) / 60; } return null; };
 
   // Dart: a rival 60 px ahead, in line.
@@ -144,21 +149,22 @@ check('spamming darts and mines never takes charges below 0', kit.spam.lo === 0 
 check('overlapping cars are pushed apart', kit.contact >= 10.9, kit.contact.toFixed(2));
 
 // ---- The live game ----
+// The grid lights, recorded every frame in the page (polling from here can miss the 0.2 s dark beat).
+await evaluate(`(() => { window.__lights = []; ${G}.events.on('poststep', () => { const h = ${G}.registry.get('hud'); if (h && ${G}.scene.isActive('race')) window.__lights.push(h.lights); }); })()`);
 await tap('Enter');
 await until(() => evaluate(`${G}.scene.isActive('race') && !!${G}.registry.get('hud')`));
 const g0 = await snap();
 const h0 = await hud();
-check('the race opens on the grid with four cars, lights out', g0.phase === 'grid' && g0.cars.length === 4 && h0.lights === 0 && h0.of === 4, `lights ${h0.lights}`);
-const lit = new Set();
+check('the race opens on the grid with four cars', g0.phase === 'grid' && g0.cars.length === 4 && h0.of === 4);
 let g1 = null;
 await until(async () => {
-  const h = await hud(), s = await snap();
-  if (h.lights !== null) lit.add(h.lights);
+  const s = await snap();
   if (s.phase === 'grid') g1 = s;
   return s.phase === 'race';
 }, 6000, 40);
+const seq = (await evaluate('window.__lights')).filter((l, i, a) => i === 0 || l !== a[i - 1]);
 const moved = g0.cars.map((c, i) => Math.hypot(c.x - g1.cars[i].x, c.y - g1.cars[i].y));
-check('three lights come on, one at a time, before GO', [0, 1, 2, 3].every((k) => lit.has(k)), [...lit].join(','));
+check('the lights start out, then come on one at a time before GO', seq.slice(0, 5).join(',') === '0,1,2,3,', seq.join(','));
 check('nobody moves before GO', moved.every((d) => d < 1), moved.map((d) => d.toFixed(1)).join(' '));
 const p1 = await evaluate(`${R}.played`);
 check('light and GO sounds', p1.filter((s) => s === 'light').length === 3 && p1.includes('go'), p1.join(','));

@@ -39,8 +39,9 @@ export const angDiff = (a: number, b: number) => {
   return d;
 };
 
+/** `reverse` runs the other way round from the same start line (the first control point). */
 export function buildTrack(ctrl: ReadonlyArray<readonly [number, number]>, reverse = false): Track {
-  const P = reverse ? [...ctrl].reverse() : ctrl, n = P.length, raw: Array<[number, number]> = [];
+  const P = reverse ? [ctrl[0], ...ctrl.slice(1).reverse()] : ctrl, n = P.length, raw: Array<[number, number]> = [];
   for (let i = 0; i < n; i++) {
     const p0 = P[(i - 1 + n) % n], p1 = P[i], p2 = P[(i + 1) % n], p3 = P[(i + 2) % n];
     for (let k = 0; k < 40; k++) {

@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { FONT, HEIGHT, MACHINES, SPRITES, TEXT, WEAPONS, WIDTH, spriteAngle, type SpriteKey } from '../config';
+import { FONT, HEIGHT, MACHINES, SPRITES, TEXT, WIDTH, spriteAngle, type SpriteKey } from '../config';
 import { FrameClock } from '../clock';
 import { Controls } from '../controls';
 import { TRACKS } from '../data/tracks';
@@ -7,7 +7,8 @@ import { Race } from '../race';
 import { RaceView } from '../raceView';
 import { playSound, registerSounds, restoreMute, toggleMute } from '../sfx';
 import { TrackView } from '../trackView';
-import { SEASON } from './RaceScene';
+import { newCareer } from '../season';
+import { CAREER } from './RaceScene';
 
 export class TitleScene extends Phaser.Scene {
   private controls!: Controls;
@@ -72,7 +73,7 @@ export class TitleScene extends Phaser.Scene {
   /** An attract race behind the title: the autopilot drives your car against the three rivals, from GO. */
   private startDemo() {
     const def = TRACKS[0];
-    this.race = new Race(def, { seed: 1000 + this.demo++, machine: MACHINES[0], autopilot: true });
+    this.race = new Race(def, { seed: 1000 + this.demo++, autopilot: true });
     this.race.go();
     this.view = new RaceView(this, this.race, new TrackView(this, def, this.race.track));
   }
@@ -97,9 +98,8 @@ export class TitleScene extends Phaser.Scene {
     if (this.leaving) return;
     this.leaving = true;
     playSound(this, 'start');
-    this.registry.set(SEASON.score, 0);
-    this.registry.set(SEASON.charges, WEAPONS.startCharges);
+    this.registry.set(CAREER, newCareer());
     this.cameras.main.fadeOut(250);
-    this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => this.scene.start('race', { track: 0, mk: 0 }));
+    this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => this.scene.start('race', { track: 0, league: 0 }));
   }
 }

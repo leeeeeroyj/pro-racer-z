@@ -22,8 +22,10 @@ A top-down arcade racer on raised circuits high above the streets. It runs in th
 
 Pro Racer Z is an original arcade game inspired by the mechanics of Rare's 1988 NES game *R.C. Pro-Am*. You pilot a hover car round circuits built on the rooftops of a city at night.
 
-- **Four to a race.** You against three rival pilots: Halo, Vex and Dynamo. Finish in the top three to score.
+- **Four to a race.** You against three rival pilots, each with a way of driving: Halo, Vex and Dynamo. Finish in the top three to score.
 - **Darts and mines.** Fire darts that home in on the car ahead, or leave a mine behind you. A hit spins them out.
+- **OVERDRIVE.** Collect the nine letters of OVERDRIVE, a few a race, to step up to a faster machine.
+- **Upgrades that carry.** Thrusters, cores and grip kits stack up from race to race.
 - **Free steering.** The car turns smoothly to any angle, and it slides a little through the bends, like a hovercraft.
 - **A track above the city.** The streets and rooftops far below scroll slower than the track, so it feels high up.
 - **A camera that looks ahead.** The view leads the car the way it's going, so you see the next bend sooner.
@@ -37,27 +39,50 @@ The track for now is **Antenna Row**: two laps against Halo, Vex and Dynamo.
 - **The apron,** the dark strip between the white edge line and the wall, slows the car to 62 % of its top speed and makes it slide more.
 - **The walls** stop you leaving the track. Hit one hard and you bounce off it.
 - **Laps:** each lap time shows as you cross the line, and the last lap is called **FINAL LAP**.
-- **The finish:** the others get a few seconds to cross the line, then the results board shows the order and the times. From there, race again (your score and charges carry over) or go back to the title.
+- **The finish:** the others get a few seconds to cross the line, then the results board shows the order and the times. From there, race again or go back to the title.
 - **Charges** power your weapons. You start with 4 and can hold 9. Each dart or mine costs one.
 - **Darts** fly ahead and bend toward the nearest car in front. **Mines** drop behind you and arm after half a second; until then they're harmless. Either one spins the car it hits for about a second.
-- **Contact:** cars bump and push each other, but only weapons and slicks spin them.
-- **The rivals** drive the racing line and steer round slicks and coolant. Halo is the quickest, then Vex, then Dynamo, and a rival who falls a long way behind you speeds up a little.
+- **Contact:** cars bump and push each other, but only weapons and hazards spin them.
+- **The rivals** steer round slicks and coolant, and a rival who falls a long way behind you speeds up a little.
+  - **Halo** is the quickest and takes the inside of every bend.
+  - **Vex** moves across in front of you when you're close behind him.
+  - **Dynamo** holds a grudge. Each rival you spin adds one heat; at five he overdrives at 1.3× his top speed for the rest of the race. His heat drops by one each race.
+- **Letters:** each race lays out the next three letters of OVERDRIVE you still need. Letters you've collected stay collected between races. The top bar shows them: a solid tile for each one you hold.
+- **OVERDRIVE:** the ninth letter steps you up to the next machine with fresh upgrades, and scores 25,000. In the Mk III it scores 50,000 instead.
+- **Upgrades:** each kind goes up to 3 and stays with you between races until your next OVERDRIVE.
+- **What carries to the next race:** your score, charges, machine, letters, upgrades and Dynamo's heat.
 
-Your machine is the **Mk I Glider**.
+**Machines**
+
+| | Top speed | Acceleration | Turning | Grip |
+| --- | --- | --- | --- | --- |
+| Mk I Glider | 150 | 190 | 3.1 | 5.4 |
+| Mk II Striker | 170 | 215 | 3.25 | 6.0 |
+| Mk III Zenith | 190 | 240 | 3.4 | 6.6 |
+
+You start in the Mk I.
 
 **On the track**
 
 | | |
 | --- | --- |
-| **Charge cell** | +2 charges, up to 9. Comes back 6 seconds after you take it. |
+| **Charge cell** | +2 charges, up to 9. Comes back 6 seconds after you take it, like every pickup except letters. |
+| **Shield** | Soaks up the next spin, from a weapon or a hazard. A ring round your car shows it's on, and the shield icon in the top bar lights up. |
+| **Thruster** | +10 % acceleration per level. |
+| **Core** | +8 top speed per level. |
+| **Grip kit** | Sharper turning and less slide, per level. |
+| **Letter** | A pink tile with a letter on it. |
+| **Boost pad** | Three bright chevrons. Drive over it for a burst to 1.35× top speed that eases off. |
 | **Coolant spill** | A pale pool. Drive through it and your top speed drops to 60 % until it dries off, a moment after you leave it. |
-| **Oil slick** | A black blot with a light rim. Cross it at speed and you spin. |
+| **Oil slick** | A black blot with a light rim. Drive on to it at speed and you spin. |
 
 | | Points |
 | --- | --- |
 | 1st / 2nd / 3rd | 5,000 / 3,000 / 1,500 |
 | Spinning a rival with a dart or mine | 200 |
-| Charge cell | 100 |
+| Any pickup | 100 |
+| Letter | 250 |
+| OVERDRIVE | 25,000 (50,000 in the Mk III) |
 
 ## Controls
 
@@ -96,12 +121,13 @@ src/
   config.ts          tunables: screen, track, machines, rivals, weapons, hazards, scoring
   data/tracks.ts     the tracks: control points, laps, pickups and hazards
   track.ts           the track spline, nearest-point lookup and lap crossing
-  race.ts            one race: hover physics, rival driving, weapons, standings
+  race.ts            one race: hover physics, rival driving, weapons, pickups, hazards, standings
+  season.ts          what carries from race to race
   rng.ts             seeded random numbers
   clock.ts           real-time frame steps
   bake.ts            the city, the track and the hazards, drawn in code
   trackView.ts       city parallax and the camera
-  raceView.ts        cars, darts, mines and pickups on screen
+  raceView.ts        cars, weapons, pickups and hazards on screen
   controls.ts        keyboard and controller input
   sfx.ts             procedural sound effects
   scenes/            title screen with an attract race, the race, and the HUD

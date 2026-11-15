@@ -165,6 +165,13 @@ Each one ends playable, tested, committed, pushed and live. Default rhythm: show
 - **Presses come from key events, not `JustDown` (2026-11-15).** In Phaser 4 a key that goes down and up between two frames never shows in `JustDown`; the test caught lost darts and mines. Fire, drop, confirm, back and mute listen to `keydown-<KEY>` (repeats ignored). Hedge-Hogger's controls rely on `JustDown` for taps and may lose quick ones the same way.
 - **One race module (2026-11-15).** The demo autopilot is `Race.aiControl(car, stats, pilot = true)` in `race.ts`, not a separate `pilot.ts`: the rivals and the pilot share the line-following code.
 - **The finish (2026-11-15):** after you cross the line the others get 3.2 s (`RACE.doneHold`), then the results board; unfinished cars show `--` and are placed by distance. The board waits at least 1.5 s so the place banner always shows.
+- **Storm reverses from the same start line (2026-11-15).** Reversing the control points moved the start line to the old last point; the reverse now keeps the first point and reverses the rest, so the grid and the chequered line stay put.
+- **A slick spins you as you drive on to it (2026-11-15),** not again while you pull away. Before, a car that spun out stopped on the slick and spun again as soon as it passed the slick's minimum speed; the rivals had simply never touched one in Neon.
+- **The rivals aim wide in bends (2026-11-15).** Chasing a point L ahead round a bend of curvature κ settles L²κ/2 inside the line, about 8 px on Antenna Row, so no rival held its lane and a swerve away from an inside hazard barely moved it. The aim point is now offset by that much. In twelve Neon and Storm autopilot races the rivals now never hit a slick (about 70 hits before).
+- **Halo has no coolant exception (2026-11-15).** The plan says only that Halo drives the ideal line; an earlier draft had Halo drive through coolant, which made Halo the slowest rival.
+- **Rivals dodge drones where they will be (2026-11-15),** from the drone's sweep and their own speed. Drone spins in six Blackout races fell from 88 to 24.
+- **The HUD's top bar carries the OVERDRIVE letters and the shield (2026-11-15).** Collected letters are solid pink tiles, missing ones outlines; the shield icon is bright with a shield and dim without. The track name and league moved under the grid lights.
+- **Warning lines are light pink, not red (2026-11-15).** The gate's warning dashes and the drone's scan line read by brightness and by being dashed and blinking. A live beam is a thick line with a white core.
 
 ## Open questions
 
@@ -174,7 +181,7 @@ Each one ends playable, tested, committed, pushed and live. Default rhythm: show
   - Fine for a free personal project. Search USPTO directly before any commercial use.
 - **Repo and Pages URL:** `leeeeeroyj/pro-racer-z`, `https://leeeeeroyj.github.io/pro-racer-z/`.
 
-## Status (2026-11-15: milestone 2 done)
+## Status (2026-11-15: milestone 3 done)
 
 - **Folder set up (A1).**
   - `git init -b main` with repo-local leeeeeroyj identity, the leeeeeroyj SSH key, and `origin` on the `github-leeeeeroyj` alias.
@@ -222,4 +229,13 @@ Each one ends playable, tested, committed, pushed and live. Default rhythm: show
   - Sounds for lights, GO, darts, mines, empty, spins, hits, pickups, coolant, contact, places.
   - `tools/m2-test.mjs` 36/36 and `tools/m1-test.mjs` 29/29 (adapted: solo race from GO, results board instead of an instant return). Six seeded autopilot races finish with all four pilots in 52–54 s; standings matched the test's own progress count in all 1,800 sampled pairs; a dart hits a rival 60 px ahead in 0.2 s, a mine arms at 0.500 s and spins the next car through, coolant caps top speed at exactly 60 %, charges stay in 0–9 under spamming.
   - The autopilot wins every seeded race by about 2 s; balance is milestone 7.
-- **Next:** milestone 3 (full roster).
+- **Milestone 2 published (2026-11-15):** committed and pushed as leeeeeroyj, deploy green.
+- **Milestone 3 built (2026-11-15):**
+  - `race.ts`: rival personalities (Halo's inside line, Vex's block, Dynamo's lane and heat), shields, thruster, core and grip upgrades (3 each), letters and OVERDRIVE (the next machine with fresh upgrades; in the Mk III 50,000 and a retry), boost pads, glitch skulls, storm clouds that drift, laser gates that cycle off, warning and beam, and drones that sweep the width. Hazards come in by league. Spawn hooks: `spawn(kind, frac, lat)`, `spawnPickup(kind, frac, lat, letter)`, `clear()`.
+  - `season.ts`: the career (score, charges, machine, letters, upgrades, heat, retries) kept in the registry and written at the results board; heat cools by one a race.
+  - `raceView.ts` draws things as they come and go: letters, boost chevrons, glitch skulls, cloud shadow and rain, gate posts, warning and beam, drones and their scan line, the shield bubble and boost streaks.
+  - Sounds for shields, boosts, upgrades, letters, OVERDRIVE, glitches, gate warnings and Dynamo's grudge.
+  - `tools/m3-test.mjs` 47/47, `m2` 36/36, `m1` 29/29. Six autopilot races in each league finish with everyone inside 54 s (Neon), 62 s (Storm) and 63 s (Blackout). The gate's warning precedes the beam by 1.000 s every cycle, and it only ever spun a car while the beam was on. Dynamo's top speed ratio over six hits is 1, 1, 1, 1, 1.3, 1.3.
+  - Test fixes: m2's kit keeps only its own milestone's items on the track; m2 records the grid lights every frame in the page, since polling could miss the 0.2 s dark beat; m2's wait-for-everyone loop no longer blocks the race's own all-home exit.
+  - Storm and Blackout are built and tested here but not reachable in play until the season (milestone 4).
+- **Next:** milestone 4 (season structure).

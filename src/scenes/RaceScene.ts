@@ -1,15 +1,16 @@
 import Phaser from 'phaser';
-import { HUD_STATE, LEAGUES, MACHINES, RACE, TEXT, WEAPONS } from '../config';
+import { HEAT, HUD_STATE, LEAGUES, MACHINES, RACE, TEXT, WORD } from '../config';
 import { FrameClock } from '../clock';
 import { Controls, type Device } from '../controls';
 import { TRACKS, type TrackDef } from '../data/tracks';
 import { NO_INPUT, Race, lightsLit, speedOf, type RaceEvent } from '../race';
 import { RaceView } from '../raceView';
+import { heatForNextRace, newCareer, type Career } from '../season';
 import { playSound, registerSounds, restoreMute, toggleMute, type SoundName } from '../sfx';
 import { TrackView } from '../trackView';
 
-/** Registry keys that last between races: the running score and the charges you carry. */
-export const SEASON = { score: 'score', charges: 'charges' } as const;
+/** Registry key for what carries between races (`season.ts`). */
+export const CAREER = 'career';
 
 export interface ResultRow {
   place: number;
@@ -30,6 +31,10 @@ export interface HudState {
   raceTime: number;
   charges: number;
   score: number;
+  /** Letters of OVERDRIVE collected so far. */
+  letters: boolean[];
+  shield: boolean;
+  machine: string;
   device: Device;
   /** Controls hint on the grid and early in the race. */
   hint: boolean;
@@ -50,7 +55,8 @@ export class RaceScene extends Phaser.Scene {
   private controls!: Controls;
   private frames = new FrameClock();
   private trackIndex = 0;
-  private mk = 0;
+  private league = 0;
+  private career!: Career;
   private banner: { text: string; color: string; until: number } | null = null;
   private clock = 0;
   private resultsAt = 0;
@@ -62,19 +68,19 @@ export class RaceScene extends Phaser.Scene {
     super('race');
   }
 
-  create(data: { track?: number; mk?: number; seed?: number }) {
+  create(data: { track?: number; league?: number; seed?: number }) {
     this.trackIndex = data.track ?? 0;
-    this.mk = data.mk ?? 0;
+    this.league = data.league ?? 0;
     this.def = TRACKS[this.trackIndex];
     this.controls = new Controls(this);
     registerSounds(this);
     restoreMute(this);
-    if (!this.registry.has(SEASON.score)) this.registry.set(SEASON.score, 0);
-    if (!this.registry.has(SEASON.charges)) this.registry.set(SEASON.charges, WEAPONS.startCharges);
+    if (!this.registry.has(CAREER)) this.registry.set(CAREER, newCareer());
+    this.career = this.registry.get(CAREER) as Career;
+    const k = this.career;
     this.race = new Race(this.def, {
       seed: data.seed ?? Math.floor(Math.random() * 2 ** 31),
-      machine: MACHINES[this.mk],
-      charges: this.registry.get(SEASON.charges),
+      mk: k.mk, charges: k.charges, letters: k.letters, up: k.up, heat: k.heat, league: this.league,
     });
     const track = new TrackView(this, this.def, this.race.track, this.race.league);
     this.view = new RaceView(this, this.race, track);
@@ -122,27 +128,44 @@ export class RaceScene extends Phaser.Scene {
         this.cue(e.place <= 3 ? 'place' : 'lose');
         this.showBanner(e.place <= 3 ? `${ordinal(e.place)}!  +${pts(e.points)}` : `${ordinal(e.place)}  ·  NO POINTS`, e.place <= 3 ? TEXT.kerb : TEXT.hurt, RACE.doneHold);
         break;
-      case 'results':
+      case 'results': {
         this.resultsAt = this.clock;
-        this.registry.set(SEASON.score, this.registry.get(SEASON.score) + r.score);
-        this.registry.set(SEASON.charges, r.charges);
+        const k = this.career;
+        Object.assign(k, {
+          score: k.score + r.score, charges: r.charges, mk: r.mk, letters: [...r.letters], up: { ...r.up },
+          heat: heatForNextRace(r.heat), retries: k.retries + r.retriesWon,
+        });
         this.banner = null;
         break;
+      }
       case 'wall': if (e.car === you) this.cue('bump', { volume: Math.min(1, e.speed / 150) }); break;
       case 'bump': if (e.a === you || e.b === you) this.cue('clunk'); break;
       case 'fire': this.cue('dart'); break;
       case 'drop': this.cue('mine'); break;
       case 'empty': this.cue('empty'); break;
       case 'spin': this.cue(e.car === you ? 'spin' : 'hit', { volume: e.car === you || e.by === you ? 1 : 0.4 }); break;
-      case 'pickup': this.cue('pickup'); break;
+      case 'pickup': if (e.kind === 'cell') this.cue('pickup'); break;
       case 'coolant': if (e.car === you) this.cue('coolant'); break;
+      case 'shield': this.cue(e.car === you ? 'shieldHit' : 'hit'); break;
+      case 'boost': if (e.car === you) this.cue('boost'); break;
+      case 'upgrade': this.cue('upgrade', { detune: e.level * 200 }); break;
+      case 'letter': this.cue('letter', { detune: e.idx * 100 }); break;
+      case 'overdrive':
+        this.cue('overdrive');
+        this.showBanner(e.retry ? 'OVERDRIVE!  +RETRY' : `OVERDRIVE!  ${MACHINES[e.mk].name}`, TEXT.kerb, 2.4);
+        break;
+      case 'glitch': this.cue('glitch'); break;
+      case 'gateWarn': this.cue('warn'); break;
+      case 'heat':
+        if (e.heat >= HEAT.max) { this.cue('grudge'); this.showBanner('DYNAMO OVERDRIVE', TEXT.amber, 2); }
+        break;
     }
   }
 
   private publishHud(device: Device) {
     const r = this.race, c = r.player;
     if (this.banner && this.clock > this.banner.until) this.banner = null;
-    const score = this.registry.get(SEASON.score) + (r.phase === 'results' ? 0 : r.score);
+    const score = this.career.score + (r.phase === 'results' ? 0 : r.score);
     const hud: HudState = {
       track: this.def.name,
       league: LEAGUES[r.league].name,
@@ -153,6 +176,9 @@ export class RaceScene extends Phaser.Scene {
       raceTime: c.finishT ?? r.raceT,
       charges: r.charges,
       score,
+      letters: r.letters,
+      shield: c.shield,
+      machine: r.machine.name,
       device,
       hint: r.phase === 'grid' || r.raceT < 5,
       lights: r.phase === 'grid' ? lightsLit(r.phaseT) : null,
@@ -194,7 +220,7 @@ export class RaceScene extends Phaser.Scene {
         this.scene.stop('hud');
         this.scene.start('title');
       } else {
-        this.scene.restart({ track: this.trackIndex, mk: this.mk });
+        this.scene.restart({ track: this.trackIndex, league: this.league });
       }
     });
   }
@@ -207,7 +233,8 @@ export class RaceScene extends Phaser.Scene {
     return {
       x: c.x, y: c.y, a: c.a, vx: c.vx, vy: c.vy, speed: speedOf(c), seg: c.seg, lat: c.lat, laps: c.laps, spin: c.spin, wet: c.wet,
       finished: c.finished, n: r.track.n, lapTimes: [...r.lapTimes], phase: r.phase, raceT: r.raceT, charges: r.charges, score: r.score,
-      top: r.machine.top, machine: r.machine.name, place: r.placeOf(c),
+      top: r.statsOf(c).top, machine: r.machine.name, mk: r.mk, slot: c.slot, place: r.placeOf(c), shield: c.shield, heat: r.heat,
+      letters: r.letters.map((l) => (l ? 1 : 0)).join(''), up: { ...r.up }, word: WORD,
       cars: r.cars.map((o) => ({ kind: o.kind, seg: o.seg, laps: o.laps, lat: o.lat, spin: o.spin, finished: o.finished, x: o.x, y: o.y })),
       darts: r.darts.length, mines: r.mines.map((m) => ({ arm: m.arm, x: m.x, y: m.y })),
     };
