@@ -1,0 +1,1352 @@
+<title>Pro Racer Z Concept Sheet</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tilt+Neon&family=Barlow+Semi+Condensed:ital,wght@0,400;0,500;0,600;1,400&family=Silkscreen:wght@400;700&display=swap">
+<style>
+/* Layout: a race-night programme for the rooftop league. The live race leads, then the machines, the rival pilots, what's on the track, then the rules and the season card. One deliberate dark look: wet asphalt under neon kerbs. */
+:root {
+  --asphalt: #0b0c19;   /* page ground */
+  --deck: #151729;      /* raised surfaces */
+  --line: #2a2d4c;      /* hairlines, empty cells */
+  --ink: #e9efff;       /* primary text */
+  --dim: #9aa2c8;       /* secondary text */
+  --kerb: #ff3ea5;      /* accent: your machine, selection, numbers */
+  --cyan: #36e2ff;      /* the other kerb colour, links */
+  --amber: #ffb23e;     /* warnings, Dynamo */
+  --font-display: "Tilt Neon", "Barlow Semi Condensed", "Arial Narrow", sans-serif;
+  --font-pixel: "Silkscreen", "Courier New", monospace;
+  --font-body: "Barlow Semi Condensed", "Arial Narrow", "Segoe UI", system-ui, sans-serif;
+  --step--1: 0.9375rem; --step-0: 1.125rem; --step-1: 1.375rem; --step-2: 2.3rem; --step-3: clamp(3.2rem, 11vw, 6.4rem);
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--asphalt); color: var(--ink); font-family: var(--font-body); font-size: var(--step-0); line-height: 1.45;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0 48px;
+}
+.wrap { max-width: 1264px; margin: 0 auto; display: grid; gap: 56px; }
+h1, h2 { font-family: var(--font-display); font-weight: 400; text-wrap: balance; margin: 0; }
+h3, .label { font-family: var(--font-pixel); font-weight: 400; text-wrap: balance; margin: 0; }
+h1 { font-size: var(--step-3); line-height: 0.92; color: var(--kerb); text-shadow: 0 0 18px rgba(255, 62, 165, 0.55), 0 0 2px #fff; letter-spacing: 0.01em; }
+h1 .z { color: var(--cyan); text-shadow: 0 0 18px rgba(54, 226, 255, 0.6), 0 0 2px #fff; }
+h2 { font-size: var(--step-2); line-height: 1.05; }
+h3 { font-size: var(--step-0); letter-spacing: 0.04em; }
+p { margin: 0; }
+.label { font-size: 0.75rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--dim); }
+.muted { color: var(--dim); }
+em { color: var(--ink); }
+a { color: var(--cyan); }
+
+header.top { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 16px 32px; padding-top: 40px; }
+header.top .pitch { max-width: 58ch; margin-top: 14px; color: var(--dim); font-size: var(--step-1); line-height: 1.3; }
+.kerbline { height: 6px; width: 168px; background: repeating-linear-gradient(90deg, var(--kerb) 0 14px, var(--cyan) 14px 28px); margin-bottom: 18px; box-shadow: 0 0 14px rgba(255, 62, 165, 0.4); }
+.actions { display: grid; gap: 8px; justify-items: end; }
+button.primary {
+  font-family: var(--font-pixel); font-size: 0.8125rem; letter-spacing: 0.08em; text-transform: uppercase;
+  background: var(--kerb); color: var(--asphalt); border: 0; padding: 12px 18px; cursor: pointer;
+  box-shadow: 4px 4px 0 var(--line);
+}
+button.primary:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0 var(--line); }
+button:focus-visible, canvas:focus-visible { outline: 2px solid var(--cyan); outline-offset: 3px; }
+#copy-status { font-size: var(--step--1); color: var(--dim); min-height: 1.5em; }
+#picks-text { width: min(420px, 100%); height: 140px; background: var(--deck); color: var(--ink); border: 1px solid var(--line); font: 12px/1.4 monospace; }
+
+/* Screen */
+.screen-block { display: grid; gap: 16px; }
+.bezel { background: #05060c; border: 1px solid var(--line); padding: clamp(6px, 1.5vw, 16px); box-shadow: 0 0 0 4px var(--deck), 0 24px 60px -30px #000; }
+#screen { display: block; width: 100%; max-width: 100%; height: auto; aspect-ratio: 416 / 228; image-rendering: pixelated; touch-action: none; }
+.controls { display: grid; gap: 10px; }
+.keys { display: flex; flex-wrap: wrap; gap: 10px 22px; align-items: center; }
+.keys > .label { min-width: 104px; }
+.key { display: inline-flex; gap: 4px; align-items: center; }
+kbd {
+  font-family: var(--font-pixel); font-size: 0.75rem; min-width: 26px; padding: 4px 6px; text-align: center;
+  background: var(--deck); border: 1px solid var(--line); border-bottom-width: 3px; color: var(--ink);
+}
+.pad-status { font-size: var(--step--1); color: var(--dim); }
+.pad-status[data-on="true"] { color: var(--cyan); }
+.seg { display: inline-flex; flex-wrap: wrap; border: 1px solid var(--line); }
+.seg button { font-family: var(--font-pixel); font-size: 0.75rem; background: var(--deck); color: var(--dim); border: 0; padding: 6px 10px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--kerb); color: var(--asphalt); }
+.screen-notes { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr)); gap: 12px 24px; }
+.screen-notes div { display: grid; gap: 2px; min-width: 0; align-content: start; }
+
+/* Slot panels */
+.section { display: grid; gap: 20px; }
+.section-head { display: grid; gap: 6px; max-width: 72ch; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 228px), 1fr)); gap: 16px; }
+.card { background: var(--deck); border: 1px solid var(--line); padding: 16px; display: grid; gap: 14px; align-content: start; min-width: 0; }
+.card-head { display: grid; grid-template-columns: auto 1fr; gap: 14px; align-items: center; }
+.hero-sprite { width: 96px; height: 96px; image-rendering: pixelated; background: var(--asphalt); border: 1px solid var(--line); }
+.card-title { display: grid; gap: 4px; min-width: 0; justify-items: start; }
+.chip { font-family: var(--font-pixel); font-size: 0.6875rem; color: var(--asphalt); background: var(--kerb); padding: 2px 6px; font-variant-numeric: tabular-nums; }
+.chip.cyan { background: var(--cyan); }
+.chip.lime { background: #a8ff4f; }
+.chip.amber { background: var(--amber); }
+.chip.ghost { background: transparent; color: var(--dim); border: 1px solid var(--line); }
+.card p { font-size: 1.0625rem; }
+.cands { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.cand { padding: 0; aspect-ratio: 1; background: var(--asphalt); border: 1px solid var(--line); cursor: pointer; display: grid; place-items: center; }
+.cand img { width: 75%; height: 75%; image-rendering: pixelated; }
+.cand:hover { border-color: var(--dim); }
+.cand[aria-pressed="true"] { border-color: var(--kerb); box-shadow: inset 0 0 0 1px var(--kerb); }
+.meta { font-size: 0.8125rem; color: var(--dim); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.nose { font-family: var(--font-pixel); font-size: 0.6875rem; background: transparent; color: var(--cyan); border: 1px solid var(--line); padding: 3px 8px; cursor: pointer; }
+.sizes { display: flex; gap: 12px; align-items: end; }
+.sizes figure { margin: 0; display: grid; gap: 4px; justify-items: center; }
+.sizes img { image-rendering: pixelated; background: var(--asphalt); }
+.sizes figcaption { font-size: 0.8125rem; color: var(--dim); }
+
+/* Rules */
+.rules { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 270px), 1fr)); gap: 16px 32px; }
+.rules div { display: grid; gap: 4px; border-top: 1px solid var(--line); padding-top: 12px; align-content: start; }
+.rules strong { font-family: var(--font-pixel); font-weight: 400; color: var(--kerb); font-variant-numeric: tabular-nums; }
+.tables { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr)); gap: 16px; }
+.table-wrap { overflow-x: auto; border: 1px solid var(--line); background: var(--deck); min-width: 0; }
+table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; font-size: 1rem; }
+caption { text-align: left; padding: 10px 10px 4px; font-family: var(--font-pixel); font-size: 0.75rem; letter-spacing: 0.1em; color: var(--dim); text-transform: uppercase; }
+th, td { padding: 6px 10px; text-align: right; border-bottom: 1px solid var(--line); white-space: nowrap; }
+th:first-child, td:first-child { text-align: left; }
+th { font-family: var(--font-pixel); font-weight: 400; font-size: 0.6875rem; letter-spacing: 0.08em; color: var(--dim); }
+td.lg { color: var(--kerb); }
+td.what { text-align: left; white-space: normal; min-width: 18ch; }
+.lineage { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 16px; }
+.lineage div { background: var(--deck); border: 1px solid var(--line); padding: 16px; display: grid; gap: 8px; align-content: start; min-width: 0; }
+.lineage ul { margin: 0; padding-left: 1.1em; display: grid; gap: 4px; }
+footer { border-top: 1px solid var(--line); padding-top: 16px; font-size: var(--step--1); color: var(--dim); display: grid; gap: 6px; }
+@media (prefers-reduced-motion: reduce) { button.primary:active { transform: none; } }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <div class="kerbline" aria-hidden="true"></div>
+      <p class="label">Concept sheet · v0.1</p>
+      <h1>Pro Racer <span class="z">Z</span></h1>
+      <p class="pitch">Night falls on the rooftop league. Fly a hover racer across lit roofs and sky bridges against three rival pilots. Finish in the top three or you're out, and spell OVERDRIVE to earn a faster machine.</p>
+    </div>
+    <div class="actions">
+      <button class="primary" id="copy-picks" type="button">Copy my picks</button>
+      <span id="copy-status" role="status"></span>
+      <textarea id="picks-text" hidden readonly aria-label="Your picks as JSON"></textarea>
+    </div>
+  </header>
+
+  <section class="screen-block" aria-labelledby="screen-h">
+    <div class="section-head">
+      <h2 id="screen-h">Race night: Antenna Row</h2>
+      <p class="muted">A live mockup at the game's real resolution (416&times;228). A demo pilot races two laps against Halo, Vex and Dynamo. Click the screen and take over; the demo comes back after a few idle seconds. Sprites you pick below swap in straight away.</p>
+    </div>
+    <div class="bezel"><canvas id="screen" width="832" height="456" tabindex="0" aria-label="Game screen mockup. Click it, then turn with the left and right arrows, go with up, brake with down, fire a dart with Z and drop a mine with X."></canvas></div>
+    <div class="controls">
+      <div class="keys" aria-label="Keyboard">
+        <span class="label">Keyboard</span>
+        <span class="key"><kbd>&larr;</kbd><kbd>&rarr;</kbd>&nbsp;turn</span>
+        <span class="key"><kbd>&uarr;</kbd>&nbsp;go</span>
+        <span class="key"><kbd>&darr;</kbd>&nbsp;brake, reverse</span>
+        <span class="key"><kbd>Z</kbd>&nbsp;/&nbsp;<kbd>Space</kbd>&nbsp;fire dart</span>
+        <span class="key"><kbd>X</kbd>&nbsp;/&nbsp;<kbd>Shift</kbd>&nbsp;drop mine</span>
+        <span class="key"><kbd>Esc</kbd>&nbsp;pause</span>
+        <span class="key"><kbd>M</kbd>&nbsp;sound</span>
+      </div>
+      <div class="keys" aria-label="Controller">
+        <span class="label">Controller</span>
+        <span class="key"><kbd>L stick</kbd>&nbsp;point the way</span>
+        <span class="key"><kbd>D-pad</kbd>&nbsp;turn</span>
+        <span class="key"><kbd>A</kbd>&nbsp;/&nbsp;<kbd>RT</kbd>&nbsp;go</span>
+        <span class="key"><kbd>B</kbd>&nbsp;/&nbsp;<kbd>LT</kbd>&nbsp;brake</span>
+        <span class="key"><kbd>X</kbd>&nbsp;fire</span>
+        <span class="key"><kbd>Y</kbd>&nbsp;/&nbsp;<kbd>LB</kbd>&nbsp;mine</span>
+        <span class="pad-status" id="pad-status" role="status">No controller yet. Press any button on it.</span>
+      </div>
+      <div class="keys" aria-label="Touch">
+        <span class="label">Touch</span>
+        <span class="key">Left thumb: point the way, push farther to go faster</span>
+        <span class="key">Right thumb: FIRE and MINE</span>
+        <span class="seg" role="group" aria-label="Touch controls"><button type="button" id="touch-off" data-touch="off" aria-pressed="true">Hide</button><button type="button" id="touch-on" data-touch="on" aria-pressed="false">Show</button></span>
+      </div>
+      <div class="keys" aria-label="Preview">
+        <span class="label">Preview</span>
+        <span class="seg" role="group" aria-label="Your machine"><button type="button" id="mk-0" data-mk="0" aria-pressed="true">Mk I</button><button type="button" id="mk-1" data-mk="1" aria-pressed="false">Mk II</button><button type="button" id="mk-2" data-mk="2" aria-pressed="false">Mk III</button></span>
+        <span class="seg" role="group" aria-label="League"><button type="button" id="lg-0" data-league="0" aria-pressed="true">Neon</button><button type="button" id="lg-1" data-league="1" aria-pressed="false">Storm</button><button type="button" id="lg-2" data-league="2" aria-pressed="false">Blackout</button></span>
+        <span class="seg" role="group" aria-label="How cars rotate"><button type="button" id="fc-0" data-facings="0" aria-pressed="true">Free turn</button><button type="button" id="fc-32" data-facings="32" aria-pressed="false">32 facings</button><button type="button" id="fc-16" data-facings="16" aria-pressed="false">16 facings</button></span>
+        <span class="muted" id="preview-note">Neon league: coolant spills, slicks and boost pads.</span>
+      </div>
+    </div>
+    <div class="screen-notes">
+      <div><span class="label">Top bar</span><span>Your place and lap on the left, the OVERDRIVE letters you hold in the middle, then score, darts and the sound toggle. Every piece is tappable where it does something.</span></div>
+      <div><span class="label">Minimap</span><span>Top right: the whole track with a dot for each pilot, laser gates in red while they're live.</span></div>
+      <div><span class="label">Bottom strip</span><span>Speed, your three upgrade levels and Dynamo's heat. The bottom corners stay clear for thumbs.</span></div>
+      <div><span class="label">Rotation</span><span>Cars are single top-down sprites turned in code. Free turn rotates the pixels; 16 or 32 facings bake true 16&nbsp;px turns. Pick the look you want shipped.</span></div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="mk-h">
+    <div class="section-head">
+      <h2 id="mk-h">Your machine</h2>
+      <p class="muted">You start in a Mk I. Spell OVERDRIVE to step up. Cars are drawn from above and turned in code, so the art has to be top-down. Set which way each sprite's nose points; the card turns it nose-up when that's right.</p>
+    </div>
+    <div class="grid" id="mk-grid"></div>
+  </section>
+
+  <section class="section" aria-labelledby="rival-h">
+    <div class="section-head">
+      <h2 id="rival-h">Rival pilots</h2>
+      <p class="muted">Three every race, each with one habit you can learn and use. Their pace rises a little each race and jumps with each league.</p>
+    </div>
+    <div class="grid" id="rival-grid"></div>
+  </section>
+
+  <section class="section" aria-labelledby="kit-h">
+    <div class="section-head">
+      <h2 id="kit-h">On the track</h2>
+      <p class="muted">Pickups float a pixel above the asphalt and come back a few seconds after you take them. Only you collect them. Icons show at half size (8&nbsp;px) in the top bar, still pixel-exact because the game renders at 4&times;.</p>
+    </div>
+    <div class="grid" id="kit-grid"></div>
+  </section>
+
+  <section class="section" aria-labelledby="haz-h">
+    <div class="section-head">
+      <h2 id="haz-h">Hazards</h2>
+      <p class="muted">Every hazard warns you first. Coolant spills, slicks, boost pads and laser gates are drawn in code; these three are sprites. A shield soaks up one hit from any of them.</p>
+    </div>
+    <div class="grid" id="haz-grid"></div>
+  </section>
+
+  <section class="section" aria-labelledby="roof-h">
+    <div class="section-head">
+      <h2 id="roof-h">Rooftops &amp; the podium</h2>
+      <p class="muted">Scenery on the roofs below the track, drawn with a little parallax so the track feels raised. The trophy appears on the results board.</p>
+    </div>
+    <div class="grid" id="roof-grid"></div>
+  </section>
+
+  <section class="section" aria-labelledby="rules-h">
+    <div class="section-head"><h2 id="rules-h">How a season plays</h2></div>
+    <div class="rules">
+      <div><strong>Top three or out</strong><span>Four pilots a race. Finish 1st to 3rd and you go on to the next track. Finish 4th and you spend a retry: the race runs again and its points are lost. You start with two retries. With none left, the season is over.</span></div>
+      <div><strong>Darts &amp; mines</strong><span>Both cost one charge. A dart flies ahead and bends a little towards the nearest pilot in front. A mine drops behind you and arms after half a second; it spins anyone who touches it, you included. Charge cells give two (you can hold nine), and charges carry over between races.</span></div>
+      <div><strong>O·V·E·R·D·R·I·V·E</strong><span>Two or three letters float on each track, and the ones you take stay with you. Spell the word for 25,000 points and the next machine. After the Mk III, each spelling pays 50,000 and a retry.</span></div>
+      <div><strong>Thruster · Core · Grip</strong><span>Upgrade pickups for acceleration, top speed and cornering, up to level 3 each. They last until you change machine. The pit board between races shows where you stand.</span></div>
+      <div><strong>Shield</strong><span>Soaks up the next spin or crash, from a dart, mine, slick, drone or gate. You can see it round your car.</span></div>
+      <div><strong>Dynamo's grudge</strong><span>Each time you hit a rival, Dynamo's heat goes up one. At five he overdrives for the rest of the race, faster than anything you can build. Heat drops by one each race, so pick your shots.</span></div>
+      <div><strong>Warned first</strong><span>Gate posts flash a beat before the beam rises. Drones sweep a red line ahead of them. A storm's shadow reaches the track before its rain does.</span></div>
+      <div><strong>Hover handling</strong><span>No wheels: the car can turn on the spot, so you never get stuck facing a wall. It slides wide if you carry too much speed into a bend, less with Grip.</span></div>
+    </div>
+    <div class="tables">
+      <div class="table-wrap">
+        <table>
+          <caption>The season · 24 races</caption>
+          <thead><tr><th>League</th><th>Races</th><th>Laps</th><th>Rival pace</th><th>New on the track</th></tr></thead>
+          <tbody>
+            <tr><td class="lg">Neon</td><td>1–8</td><td>2–3</td><td>100%</td><td class="what">Coolant spills, slicks, boost pads</td></tr>
+            <tr><td class="lg">Storm</td><td>9–16</td><td>3</td><td>106%</td><td class="what">The same eight tracks run in reverse, storm clouds, more slicks</td></tr>
+            <tr><td class="lg">Blackout</td><td>17–24</td><td>3–4</td><td>112%</td><td class="what">Laser gates, security drones, glitch skulls, the city lights go down</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <caption>Points</caption>
+          <thead><tr><th>For</th><th>Points</th></tr></thead>
+          <tbody>
+            <tr><td>Finish 1st · 2nd · 3rd</td><td>5,000 · 3,000 · 1,500</td></tr>
+            <tr><td>Hit a rival with a dart or mine</td><td>200</td></tr>
+            <tr><td>Pickup</td><td>100</td></tr>
+            <tr><td>Letter</td><td>250</td></tr>
+            <tr><td>Spell OVERDRIVE</td><td>25,000</td></tr>
+            <tr><td>New lap record on a track</td><td>1,000</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <p class="muted">The eight tracks: Antenna Row, Coolant Bay, Billboard Bend, Helipad Loop, Night Market, Tower Nine, Static Heights, Zenith Spire. Finish all 24 races to take the league crown; the high-score board keeps the top eight in your browser.</p>
+  </section>
+
+  <section class="section" aria-labelledby="lineage-h">
+    <div class="section-head">
+      <h2 id="lineage-h">From the 1988 original</h2>
+      <p class="muted">Pro Racer Z borrows the shape of Rare's <em>R.C. Pro-Am</em>: a top-down race against three rivals, weapons and pickups on the track, letters that earn a faster car, and elimination for last place. The setting, names, cars, tracks, art and sound are new.</p>
+    </div>
+    <div class="lineage">
+      <div><span class="label">Kept</span><ul>
+        <li>Four racers, top three go on, last place is out</li>
+        <li>Weapons ahead and behind, ammo that carries over</li>
+        <li>Letters spelling a word earn a faster vehicle</li>
+        <li>Speed, acceleration and handling pickups</li>
+        <li>Slicks, puddles, rain and pop-up barriers</li>
+        <li>A rival who gets faster if you rely on weapons</li>
+        <li>Two retries that cost the race's points</li>
+      </ul></div>
+      <div><span class="label">Changed</span><ul>
+        <li>Night rooftop league; hover racers, not toy trucks</li>
+        <li>A top-down camera that follows and looks ahead, not isometric</li>
+        <li>Three named rivals, each with a habit</li>
+        <li>Three leagues of eight tracks with a real ending</li>
+        <li>Barriers are laser gates on a timer</li>
+      </ul></div>
+      <div><span class="label">Added</span><ul>
+        <li>Minimap with every pilot on it</li>
+        <li>Steering by pointing, for sticks and touch</li>
+        <li>Every hazard warns before it bites</li>
+        <li>Shield bubble, boost pads, security drones</li>
+        <li>Lap records, a pit board and a high-score table</li>
+        <li>Controller and touch from day one</li>
+      </ul></div>
+    </div>
+  </section>
+
+  <footer>
+    <span>Sprites: <a href="https://huggingface.co/spaces/cfahlgren1/pixel-search" target="_blank" rel="noopener">Pixel Search</a> catalog of <a href="https://huggingface.co/datasets/Angais/pixel-art-atlas-1.4m" target="_blank" rel="noopener">Angais/pixel-art-atlas-1.4m</a>, CC0, AI-generated. Numbers under each sprite are its catalog id. Track, kerbs, spills, gates and city are drawn in code.</span>
+    <span>Fonts: Silkscreen, Tilt Neon and Barlow Semi Condensed (SIL OFL). Inspired by R.C. Pro-Am (Rare, 1988); not affiliated with or endorsed by its rights holders.</span>
+  </footer>
+</div>
+
+<script>
+const SPRITES = {"player":[{"id":627201,"subject":"hover car","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA8klEQVR42mNgQAKMjNz/0fnYxBiwAZDEAx81uAYQ/XNt3P8PuaooYqetlP5jNQQm+anOAKzgbazG/1+b/cEGbDKXB4uB2EQZcMROE8MAECZogI6+x/8GOVkwRjcgWUYOjEFq8IYDDMMMANEwL2ALVJwG+Yem/w9Nr/nv7pv2X1HOjDiNyAbolaz633v/C5gWl/KkowEwf4I0+s25jGIAQUNACmbqqcIDERTiIAwLA5gcTs2wlAeKLmzRCGLjNARmKwjnicngNAA5aWMYkFw9F4xBbJghMBfB5NPqV+NPibCUBjMEhGF8kJyJqS/hlEgsHwQAEqgIAqrawt0AAAAASUVORK5CYII="},{"id":627205,"subject":"hover car","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA30lEQVR42mNgQAJMTPz/GQgAnGpAEj8mu/8H0fgwTA2G5jcZOmDJBz5qYPb7KisMDJKDqUExBN2AfiXF/6V3PqLgaWpy+A0oal/4v3POPrAELgNAciA1Nd2bMb3ByyX9H4S9xRX/C8tgOh8kBpKDqcMZkIQMwBtTVDMAFEh1K2+DNcEwSAyvAbA4BgUgLgNAcj8WeGA3BCwJNAAWTdgMgMmD1GLYjm4AsmZsBmCkA5jTQfiYmwo4YcFSJIgGicHkcRogIqkKxiDF2DBMHsMA5NQIS2XYMLI8zpjAF8/Y5AHiNVsFgx0vNwAAAABJRU5ErkJggg=="},{"id":627213,"subject":"hover car","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABIElEQVR42mNgQAPMTAL/GXAAfHJwBTdC1P+DaGwYJofXgJVmav+1hdT+5ynoo2CQ2Ew9VcIGOIrp/b+ZoPf/45oIsI0gNgjvNVcGG0LQgIqzt8AaYQbAMMgA/fAFuA0ASYBsQjcAJIZsAMg7WA1BNiBDWg2MkcMAxCfKAJCCzAO3/z/6/QFMwzBIMyh8iDag8dM70g0AST7N1fl/0E8frAEZg8IAhEGGYBgAEgBpAtEgRbCAg2FYVMJsB6UVuCEgBshWkEJQQnk0W+//z4cxKDEAokFiIDmY2lp5E4gh6AaA+OgxAMK+4lr/kdWiGDBt68n/04/d+R/QvA9nPoDhrTce/G/bdPm/vlEJqjdAmg2sa/8Tyo041cFsYCAA0NUBAOBvTlHq9mD2AAAAAElFTkSuQmCC"},{"id":627215,"subject":"hover car","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABF0lEQVR42mNgwAI42GT+Y8MMxACQwp/vr/3/1myHgt+7mRM2BKTg153U/x9Tzf7zcauBMUgMRB+SNwEbhNMQsM0fjoINEBGz+D/n6+f/DlOugLGCVy/YEJABd6xwuARs++uN/58lGP43Duz/v/Xb9//OC26hGHBRxwC/ASDNKqZFYFegh8MzS4i3KqQc6GAAKBBBGNkAkNOJMgCk2LzlAkYgggIWZAhWA2BxD4sBrAZIOeGOCWQDQE7H5QKYt0CxgWHAn5vhYPy1yBBsGCwhwTAoEH8+WY7bAJCEdd+Z/9+nWWNNyjADQK7DagDIXyBngpyMrhnmb5AcLHljDUhQegeZDqKR8WZFh/9TZSExgDMa8WVjfNkaAI5Vj+DcBK0DAAAAAElFTkSuQmCC"},{"id":627202,"subject":"hover car","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA80lEQVR42mNgwAlY/qNiogFEw4anr1EwkQax/L/tpAPWEF114H/qtMv/FRSC/2tq5v3P3HDjf5y4FT5DWP6/TI4Caw5pP/UfBqZfego2jAhDWP5/rMz8v+cJqgEgNrIB6eIeuA1AdwGIhmGiXIBsADJOarvwX9+ohHwDQLYTHQYgA2AaYBhke/ahg4TDAGSAhIgeWDE2DJLDa8CnjjJwOgApxIZBcgRdcMdcC6wQhLGxK6QccBvwPFzp/++P3f//PAhF0QSiQeK/r3n+75Qywm2At6j9/1ctdmAMYoMwKNRBGFkcb3KG+Rc9N6KKE5EbiRUHAH5fXwT2uj6MAAAAAElFTkSuQmCC"},{"id":627204,"subject":"hover car","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA00lEQVR42mNgwA7+48BEgf97lZT/v/NRRcEgMWIM+W/Fp4vTAJAcIUOoZ4BB0hoUTJIBIA0Pfv0B485rb8DYxH8O6QbANJNkAMipyJqQ2cTEBFgRSDE2TMgAsGSemAzOWIgXkMKZqMCKfizwACvCZUCwgOr/T+EK/7+v9Mcw5P9qafn/zxzV/qvzy+E0QJJLFKwOxMcwwCai+3/dyttgRTDgJC4NxjAAknNKmw9Wh2GAtIQ+OKBAbHXnLKwYpg5kGVYDQBhPTvyPRR3WLEwwwyGrAwCyOTvezZXICQAAAABJRU5ErkJggg=="},{"id":627211,"subject":"hover car","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABD0lEQVR42mNgwApY/mPHRAGW/5970/+/nVnw/3mI3v9uKWU4JsIQFrBGEH7no4qCH+tpEzKEBWzjM0e1/0ICWljxZRMdfIawgCVBCkFeAGFkF8AMxmsASEHnmYf/bzvpgDUgawZhi8zVYDV4XVBx9tb/UjFJOEYORNuifWAxLAawgG0ABR7Ihu9/fsMxyEAYBsmBXIfFGyxgiU9V3nADkDWSZACIxqYZhEFyOKIT4gWQAhgG8UGK0cVxJCpIAP7YbPb/151UsCYONlEUDBL7MkHn/++P3biikgXF9KaJq/8v23n2/6SF6/+Xdk7/jy7PQCgT+QQlw2139oohNVNBEpWJqS8YgwwhITfiytLYAQBIcU68JdH/TAAAAABJRU5ErkJggg=="},{"id":627197,"subject":"hover car","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABMElEQVR42mNgQAOMDNz/8WEGQgCkKDGp/v/CDcf/t7Svg+OQ4ALiDIAZoqvpDbcVxiZa86sWu/82rjko+FOvHWFDQApmWdr/f+JuANYAwu9bzcDYWNb4/8t4AoaYWSWDNYHon/dm/v/5ZDnYNSAxVVUvMBskh9MAkKL1hhZgxSDNIJtBmnyCkv/D5DT1Iv7j9cJk7UiwYpA3YLhVzQYs1i7nRnw41N15/D9q07n/mQdu/9f26AYbQnQ6qJU3+R+6ZRsYgzSDMEiMaNtBgWYkoomCp6k7gsMEryGgAIIp/HUq4v+v1xshNBCDvAAKD5eAYvwGvMnQQRgAxSAxkMGgGCEYCyCbQqccAWsC4a8Lwv4fc7cGixEMSFi6vzfJFuxvUNSBbASlQpAYiE9UQJKSnQG9gxkAii8cKwAAAABJRU5ErkJggg=="}],"player_mk2":[{"id":981933,"subject":"race car","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA1ElEQVR42mNgwACc/3FjgoDzf5+YzP/Hetr/vx86BaaRMQFDOP9raLjAFaMbADMYjyGc/7XUzMGKQAaFxnWAaRjm5Zb8/9RcB6wGhyGcYEUgA0A0NjxfBiKH0wAQDhZQ/X9ERen/t+mTULygZ5X430ZADZ8BEEN0DfxxGkBAMxUNAAUWKOBAbCL9j5oGQJrT63ehGAAL4FYJOWyGQNIAsgHoLkA2AEtUQqIQZgCuaIQlKCxeQTUAH8ZhAMQQUDyDFODDJnyq+AMSpAAfJiJX4svOmJoByCIaQze4cPYAAAAASUVORK5CYII="},{"id":1178050,"subject":"sports car","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAxklEQVR42mNgwA7+48BEgf/3NVSwYmIM+T9dTAqsuE9MBoxBfBANEgOxCRkCN4CHSxYFE2PAf5gBIBs1tLz+J5VtBmMQGySOZMB/rP6GScIMQMbImrGFB1hQVEwTLBEsoIrhBZAYSA6kBqsBHaIScAkvXiWMGADJwywCuRCrN2C2wAxDxmV8gv+R1eCNBZCT0QMRJEZUNIKcBzMAGRNtACXpAMUAWLzDMNEGTNv0Eq4BHYPkiMoPSW0XMFxQ2nOBtBxJbHYGAIbdATIUO6d1AAAAAElFTkSuQmCC"},{"id":1177829,"subject":"sports car","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA/0lEQVR42mNgwA7+48BEgf8vZ8b9Pxap+79bVgqMC4VE/6eLiBNlyP9HpdZgTU7e1f/Z2XjgWJGHhyhD/jfIyf6/nGnw/9vGCjANwyBxkCEEDRDj5IYbcCZCHoxBfJA3QC4hygUqKs7/p6+89V/PJArFG+HCYsQZANIMMgRZM9EGvGqxA3sDXTNIbKa+FGEDQH4HxQJyIK5xUADbDgoPfAaAoxCkEWQTNgNgsYHLEHDiwecCEBtfWkAxAOQakAaQs5G9gNcAkKIZ87aCDUBOAzCbJ05a/d9SSBi3ASDNoAQDSnHosQDCIEOystrxByTIkAUr9mBgkEZCmgllZayaAW70GYasn4O6AAAAAElFTkSuQmCC"},{"id":193880,"subject":"car","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA2ElEQVR42mNgwA7+48BEgf+/3sz6/3V1zv+PFVoomBhDwJq/Ndv9f+Cj9v+6pxKYvhGi/n+1hCRRhvz/WmT4X0vd/n/ljjdgDGKDMC+3JNhAvAaAFEiLafz/dmUehvMfxsqDDTlip4nfBUndB/AaQNALIOeiaybJAB1RccoMiPHxAgcWNgwynKABoChTVzYAx4CmXgTYVhgmGAswA7BpBmGQHFEGoGskyQWgFJclLf0/RkoOBYPEWiXkCBvwfV8AGKMHIEycoAF2Tqlw7BJQjIGJylAEMAoAABWhFyfc7RsqAAAAAElFTkSuQmCC"},{"id":194102,"subject":"car","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAs0lEQVR42mNgwA7+48BEgf+/X7X937rz2P8DR67A8fd59kQZAtb85O13DAPmLt1MlCFgzTxcIhhY18IBbAhBA0C2aWgb/Q/Lmfg/unDhf4+I9v8yCppgQ0qrevEaAFYAUggyAKQZ3QCiDAEpArkCBJDDYNLMFWA5gl4YRgagY6INACkWE1MCRyMII6cFkCFEGQBSjBx1JBlwRF4VnJzRvfDraDpYjqABXv4xeDFRGYoARgEAjE49JBKx8egAAAAASUVORK5CYII="},{"id":627199,"subject":"hover car","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAxklEQVR42mNgwAT/CWC84P81Jdn/noJ6WHG+mCpeQ8Ca5QR1/n9OzwCz0TFIbrqYFE5DwIoKNzzCaYB3+nbiDMCmmSQDQIqwYaIM6BCV+B8FNOTYl3dgGhmDApKgASAFuAyIEVbBb8AzS7P/ovxyGBgU+jAarwFvIr3grkAPQJgYLgP+G+s5/X+ZHEWUASDXoBtCuQEgQeQoA8UGMoaJgwISrwG/d7qBMXpAfl/hBMa4XAA2JCe/FwOX1E4FY2QxvBmKSAwHAG6IVWQgBJddAAAAAElFTkSuQmCC"},{"id":627210,"subject":"hover car","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA6ElEQVR42mNgwAAs//FjvIDl/68NDv9/vj31/5aqEgr++XIXWA6PISxghb8eXcHQDMMwORyGsPxvEhACK1CVtMOKQXIgNTgN0FO0/d8rKPI/88Dt/0veP/u/9ctzMBuGQZqlxTRwG6AupPy/eM51nF5InXb5vym3HH4vDKwBpWKSeA0AyRE0YLW0PJgGYZCLkDEogAkaALIJFOINTy/9n/bh3v+IyTfgGCSH0wBeLmmwDYTSAcgAkFqsLoAZgA/jTUhPc3XA6R1kEDb/g+RuJujhNgCUygz1fVGwrXkUChtPSiQmK2NmaQBZSE88jdbniQAAAABJRU5ErkJggg=="},{"id":627217,"subject":"hover car","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA4klEQVR42mNgQAPMjHz/8WEGfACk4FuaJl6M0xCQxG0fk/9x4uJ4MUgNhiEggc0GmmAF3BySKBgkh8wHqQGpRTEEZgBMkbW6PBjDNMP4MHm8BuhLS//vTrcBYxAbnQ9Ti9MAkE34DCDogvr2qf+3fvsOxj2XLv0PmLb2f9nmq2CcnFaA3wXp+e1ghTAD8hq6/8tp+sJxaef0/7qusbgNAMUzzIATP35gNQCkBq8BvzY44ExEMLlBaoCentP/w0Ya/3+/SQErwIZBciA1ILVYkzNIYpqaHJjGhmFyeDMUMRhZDwDVJH2r0VZUPwAAAABJRU5ErkJggg=="}],"player_mk3":[{"id":981935,"subject":"race car","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA0klEQVR42mNgQAEs/4nDOAHL/7xzgXgxQQNkMh3xYgIGILyhqGT+HxubgTiAywAiNMKwxXJ7uL+tVngRH4iW9iH/YWEh6qYGxjADYHJ4DZCQ1P7vsjnwPy+X+H+twCn/MzfcALNBYiA5kgxQC2qFGwDyElEGgBQbTPQE0yANIENAbOUmiBhBA0BYyNYR7G/kQASJEQhESCA5e8VgxAKIDRIDyeEJSEh8w+IcWzQiy+M1ABZoIAzSDKJBYgQNACmCBRTIzzAs4eb/H12eYEokNjsDAKpo8nHltv5+AAAAAElFTkSuQmCC"},{"id":981934,"subject":"race car","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA4klEQVR42mNgwAlY/6NiggBVg6qq0f9///+DMYhNhIGs/42NLP+LCMn9f6ynjWEASAwkB1JD0IDF+++BFa1ZdRyMQWyQGEEDQApAGMR294iD80FsmLycrDx+A5A1w/yLbgieQEVVjIxRDcUTEyBFgQHZ1DFg7spDYAxig8SIMABhSHThwv+znn4E49i2zYT9joxBitHTAXKgoiUmSPwjJyJcKRE5MSGlB1QDdtx4A/YvugHhETlgOawGgBIHCHNxCIFDG0SjGwCTgyUupASFSIHoiQeWlNHFUdViBCKh7IwqBgCNsCv3O4m86AAAAABJRU5ErkJggg=="},{"id":981724,"subject":"race car","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAyElEQVR42mNgGISA7T9+TIQBN6RlsGICBmDaNl1MCoyJcAnbfytrDzBWVFQHK9irpAxXDGOD5GDq0AwBSiqZg7GQoATYuWHcvP/jkyeCcQq/CFgMJAdTh2EATCMMgwyAKQaxkeVAapEMQDgfJAFSDMIgv3+bPgmsAcSGiYPUoHmD7b+GthEYI0yGBCDMRuSABKmBqYcbAHImsgHIYYHsd5wGgASrhcTAikE0zDbU+GeDqwEFKkY4oCcamGJ0Np5ERSgJk5yk6QQARyjoV4UMBI8AAAAASUVORK5CYII="},{"id":981717,"subject":"race car","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA1klEQVR42mNgQID/UMxAhhhEQkVFBVny/+U6u/9THaVRxNDU4DTgf4+DDNyAeDVhuDheA0QEhcCS67Ye+V9lKo1iQFpi/H9kNVgNgGF8BuALA7hBIANAmlvnzwNjkHcSoiMJakQxINFC9b+0jDoYW4iJgg0h2gCQ89Gc+19LQGIIGABXDAr1eXMX/n/x5hGYDg6OQTYAq0HwBALSADIAFH3I0QgyACSHKzHBBd2dAnAaAJLDaQBSCgNHGzYDYPLYUiO64P8QBUE4RgtA7AZgCZz/RIgzAACWpfCgv8u8fwAAAABJRU5ErkJggg=="},{"id":981937,"subject":"race car","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAv0lEQVR42mNgwA7+48BEgf+zl+787xtZAqYfvv0Npo9feEyUIf+VFAxxGqCnbUXQEJwG7D3+gDgDRPnlwBpgbBBmZ+MHG2Bg6EKcASAsxCv0f+L9m2AM4oNsB9FEhQNMoUV0+v/MWdv/w7xGbEzADQA5HYRBbJAXiDYAFAYgQxydw//7+CSC/U6yAaHpNRixQJT/QbbhMoCoWACF9sAaAAq8r236GAb8Oe5IfDoAuQKUlMsa5oJtBtHE2E5WdgYApZcU7r48aGoAAAAASUVORK5CYII="},{"id":536331,"subject":"go-kart","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA/UlEQVR42mNgIBqw/kdgkgHr/9zaRf9fvn3/f/25J+QYgjCgbfo2YgxAdi4EH5SXAxtAQDNEsbqm7X9jPScwDcOrJST/b5OSwxcOrP9lxZT+P1dX/c/LJYoVg1wBUmNi6otuCCtc4qKcPFgxsu0gTJQBIAwzAD0MQGIg18HUYRgAcybMAJBiZAxzAUwdhgEw3CQgBMYw2+SkdcBsmDiWBMUKVgTyF8hkZ14xMEY3IFtAEiwOUoMWDhD/g6IN2e8gTSDNMAOQwwItHBABCFIIim8QRjcAWRzDAOR4/hQaDcboBsAwKDFhCUiI80L4pP9PExTBi0HhgDc1EsaoAACluReXWMJEVAAAAABJRU5ErkJggg=="},{"id":536329,"subject":"go-kart","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABHUlEQVR42mNggAO2/xCMzscljgLY/rt4+IMxTMHDmlAUDBNHVYdkgLamDhjDNJeKScJxlrQ03BBkdVgNEBXT+79aWh6sCdmQ5yF6YDmcBoiLSoMxiH1HXx1sABeHOFgTiA0SQ1eHEQ4wfN/QCKw5iF/4fwq/CJgNMwBHIKIaBFIM0giyGYYRBhAEEAOwYaINANkOcj7IK79ORfyfJCEG5hNtAMjPoJh4aq4DxiDb/cqn4TMAOWDY/suquoNthBlwykD7v4SiNYoaJMNQUxdMsTMXP9yAxaIK4OgEycHUu/knwAxBTUQT1134v/fuM7ABh1W1wBgUBiAxkByWxISePNnA/m3bdBkDw+QxDMBMXeg5ETWMsKRGNmKjCEM9APGZIqHgK6OLAAAAAElFTkSuQmCC"},{"id":627025,"subject":"hover car","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA4klEQVR42mNgwABs/xlwAnxyUAXzFqz4D1GIiadPX/yfgCEQA9ZtPfL/3///YAxig3BiUjqS4Xg0wwyQk9b8r6FuBbc9ODTp/8rVm/8bGzngMoTtf3vbBLAiEBtkCLoXQIbjNQBkI8gQmAHILgBhO1vv/yJCcvi9AcIgV6CHAcJmAoGIywCQ7UQbAAtEkJ9h3iDaAFjg7T98DiMMPD1C8fsfFv+4YgE1LPAYgE0zKCERNADkZ5gBIBoUmMgpETUwsRiAHFAwjTAMEwcFLt5wACVZEAYpRMYgMQKBiBqVuDEqAACIqDHqXkJD2AAAAABJRU5ErkJggg=="}],"rival_halo":[{"id":627020,"subject":"hover car","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAoklEQVR42mNgwA7+48BEgf/fpk/6f93YEAUvVzEi2hAMzSDcKK5JmgESUnoomCQDMmdt/z/3wdP/nWcegnHcgpP/eXgkSTPg7+8ncAMsMleDXUG0AbJqFv8nbtjxP7OsHY5JcoGyqvVQNwAUYBQZANIACkhkbGXtQZwBINthNiJjQz07mCuIcwE6BhlAtBd+ro0DByQIgzSCMEiMpBxJbHYGAFqB2pkrCOluAAAAAElFTkSuQmCC"},{"id":536543,"subject":"go-kart","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABJElEQVR42mNgQID/UMxAhhjDf20ti//xmZ3Ikv8LTrwCY2QxLOogEtOWHvhfO+8ATOJ/2vbn/1VMi8AYxIaJg9TldW3FNMB16pP/1n1n/sPYymqpcE0gQ0Bi6OowDIAp0vboBtNWHiFgjCyGrA41DIAKQBgkKa0V+Z+NRei/AK/ofylpSzAbJAaSA6kBuQjDAJBCEEY2AIQlJLVRDICpwxoTMCciGwDDMANwRSNKWBBhAANBA+JDA1AwIQPgTrOoPAu2UUlZCwWDxNC8ADcIrMDA0AWsCBYb6F5AFgelRpB6mCHgkAYJwvwKSiiw+IZhp8Yr/8WlPMFqQJoxDIA5E8QHGQJKiTAaxgbJIXsPbgDMmaCEg+ZHDAxSg6YWNRAZCAMUtQAnQzqUOXSEQQAAAABJRU5ErkJggg=="},{"id":627202,"subject":"hover car","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA80lEQVR42mNgwAlY/qNiogFEw4anr1EwkQax/L/tpAPWEF114H/qtMv/FRSC/2tq5v3P3HDjf5y4FT5DWP6/TI4Caw5pP/UfBqZfego2jAhDWP5/rMz8v+cJqgEgNrIB6eIeuA1AdwGIhmGiXIBsADJOarvwX9+ohHwDQLYTHQYgA2AaYBhke/ahg4TDAGSAhIgeWDE2DJLDa8CnjjJwOgApxIZBcgRdcMdcC6wQhLGxK6QccBvwPFzp/++P3f//PAhF0QSiQeK/r3n+75Qywm2At6j9/1ctdmAMYoMwKNRBGFkcb3KG+Rc9N6KKE5EbiRUHAH5fXwT2uj6MAAAAAElFTkSuQmCC"},{"id":627207,"subject":"hover car","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAlklEQVR42mNgGFbgP4kYVbN5ywU45uaQ+R+YsBBFDCYOYyMbglVheOa8/7OvfwDjzjMPwTRIHJshcAUwjM8FIAxSD8JYDQCxYQbA+OguwDAAl02ExPEaoOm1CK4Bl4FwA77Ps/+v4NWLglVMi/6rWDXjxSgxIaLsDsf8fPpYMbIarGkBX0IhQp6Bobny4X9CyZUYNfQFAH5bGJPjLZEAAAAAAElFTkSuQmCC"},{"id":981937,"subject":"race car","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAv0lEQVR42mNgwA7+48BEgf+zl+787xtZAqYfvv0Npo9feEyUIf+VFAxxGqCnbUXQEJwG7D3+gDgDRPnlwBpgbBBmZ+MHG2Bg6EKcASAsxCv0f+L9m2AM4oNsB9FEhQNMoUV0+v/MWdv/w7xGbEzADQA5HYRBbJAXiDYAFAYgQxydw//7+CSC/U6yAaHpNRixQJT/QbbhMoCoWACF9sAaAAq8r236GAb8Oe5IfDoAuQKUlMsa5oJtBtHE2E5WdgYApZcU7r48aGoAAAAASUVORK5CYII="},{"id":194102,"subject":"car","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAs0lEQVR42mNgwA7+48BEgf+/X7X937rz2P8DR67A8fd59kQZAtb85O13DAPmLt1MlCFgzTxcIhhY18IBbAhBA0C2aWgb/Q/Lmfg/unDhf4+I9v8yCppgQ0qrevEaAFYAUggyAKQZ3QCiDAEpArkCBJDDYNLMFWA5gl4YRgagY6INACkWE1MCRyMII6cFkCFEGQBSjBx1JBlwRF4VnJzRvfDraDpYjqABXv4xeDFRGYoARgEAjE49JBKx8egAAAAASUVORK5CYII="},{"id":627216,"subject":"hover car","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA2klEQVR42mNgwAT/CWC84L+iojoYa2gYoNAgzMfHj9eQ/+Ki0mCFuGwnZAhcszwnz38NbiG4RhAbxkeyANMAkOkgzbUaCmAMMwzGB8njdQE2A0CYJANAtKWQMBjDDIDxiTIA5MfKqyf/P/7+HUxnHzr43zCxBIyRLcFpwJK9L1EMgGmGYVwGgKMQFOcgBSBbsRmALyrBgjADQIqsrD3AhsLSBojGawBMIbIBsBSIbACIxmnAr83+YEkQG5cBPxZ4YDcAZsiPye7w6ELHIDmYQVgDkkSMPUORqhkAWuoKMYUjge8AAAAASUVORK5CYII="},{"id":627203,"subject":"hover car","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAzElEQVR42mNgwA7+48BEgf+CvHJYMTGG/FdRMPnvElCMFYPk8BnyX13TFmwTLgNAciA1uAyBG4APE2XAv///UbBe+q7/6l4bCBsAUtB7/wtYE4gGafwx8wZYMwjL287DG5hwA2AYZjPRBoBCmRiMzQB49BGKRlzR+d9dQe7/78cp//+8LsNpAEgehEFqsRrwMdXs/6/N/jidDpIDqcFqAChwQpS0/lcbqoGxqVkkCoaJgzRjC0iCCQiEpcR1wJigAbhyI6GMRUy2xVADAGspL2Se+R1YAAAAAElFTkSuQmCC"}],"rival_vex":[{"id":627208,"subject":"hover car","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAsUlEQVR42mNgwAT/CWC84L+lpxcqjo1AYCCfkCFgRUqcwlgxIQPAtnCzCf0vXT4ZKwbJ4TPkv7J2MEEDQGpoawDMGzMOPfu/7PK7/xUzToH5YOcD5fAaANPsFTX1/867H8Cahfjl4AbADCHaAClpSxTNJBmATTNRBuAKQBjGbwAwjikyoFVCDoxRki8ShsnjNOD7vtj/v05F/K8WV8DwO0js+74AMMabDojBePMDkRgOAOL7N1eqxFGLAAAAAElFTkSuQmCC"},{"id":981935,"subject":"race car","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA0klEQVR42mNgQAEs/4nDOAHL/7xzgXgxQQNkMh3xYgIGILyhqGT+HxubgTiAywAiNMKwxXJ7uL+tVngRH4iW9iH/YWEh6qYGxjADYHJ4DZCQ1P7vsjnwPy+X+H+twCn/MzfcALNBYiA5kgxQC2qFGwDyElEGgBQbTPQE0yANIENAbOUmiBhBA0BYyNYR7G/kQASJEQhESCA5e8VgxAKIDRIDyeEJSEh8w+IcWzQiy+M1ABZoIAzSDKJBYgQNACmCBRTIzzAs4eb/H12eYEokNjsDAKpo8nHltv5+AAAAAElFTkSuQmCC"},{"id":981721,"subject":"race car","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA6UlEQVR42mNgQAIsTPz/icEM2ABIwm+fD1EYqyHINggYGWDYKulkSdgVMIPkWqz/N1/P+e++MAhMg/ggTFAjj6Qy3JnbXlT8Tz8QCqZhYiBDQGowDAI7MdbuPw+XLBhbZK4GYxgfGcPUohgC9yfUEHwGSAYaY4YDiBOxLwTDFdgMUCqyQI0JEOPim2K4P2EKQH6PPemLEgYwOZTohMW/ccw0og0AuQTDAJgTkWMBmYZhZHVwA0B+R09t2KIRGcNjAjlaQDQM289I+69a4AamkcWR1aIYABMgBiOrh8cEKP2TgrGmRlIwTB8AXD1tvXWdqVEAAAAASUVORK5CYII="},{"id":194105,"subject":"car","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABHElEQVR42mNgwAT/CWCC4L9n5+T/vq15YByQnPi/xNPwv2tBEdEGgA0RE1OC24rEJk6zy4wGsK1FFjr/zfMS/wf6eIJpor0gb2X3n5NdCAUrewQTZcD/gMQQsIappZFgV4DCwKqxHCwG4uM1BGaTIK/c/+hdc//Ps1L5n6kp/r/DRh5sgGFAMJjGawDM+SBb+yK9wZpTTXT/w+RAhuP1AkghKMC03MrBWFLeAR4GUNsJG6BiWvRfRMsfrhkZEzQAFmDYMChACQZiraH8/9AV/WC/g1IiKBDbo8zB3gKxCQYiLPGAEhMoJkCaQGyQGCww8Rogq28ODm2QBhgGeQskDsJ4DQD573Kd3f/f7ybDNcAwSOxQlgFxqZGU7AwAWuvf4ze1lacAAAAASUVORK5CYII="},{"id":536326,"subject":"go-kart","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA/klEQVR42mNggAIWZsH/IMxADgBp/P1h4f8f32+TbghIw3s38/+/72X///OgCm4AzEUEXQaSfGqu8//XPlu4ASDsZmCEgoky5Mcpd7hmdBfgNQTdAHVprf+hcR3/9959BsbxyRP/S4nr4PYOSHCblBw4LGDeAGlwCmz+39W/Dq75S4ovSjhhGHJLVQmsKFhAFW4byAAQnSKs9v+gvBxYnigDYIaADIDxcRoAsw3kDZAifAZcUEYLCxDDwtzrf3xCHlgQFJD4MLp6uAEgDGKbL7j+3+fCK5wYXT0DLMRhIa0Qvg4nVkpb9x9dPYYBxGC8BhCTdzDUE5Vp0GIMphYABf82ktOZG5IAAAAASUVORK5CYII="},{"id":627214,"subject":"hover car","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAsUlEQVR42mNgwAqY/mPHRAGm/3a23v8nLToFpmFYVESJGEOY/nt5Rf+fOHU3imYSDGGCK0Z3PtEGwBRJyjvAMRcn/39kObwGgBSDbAN5A9krJBlgZuqEEYgku4BsA2CKPX1zkTQwEW8AyN9kGgCxvat/HU4DCEQlwgBc6YCgASDJ+0ryYIyeCkFiz9VVCXsDpADd6ZjiBPIDCBvpm/9v6Fj+PyWj6b+6mjapORJblsYOAD661+GytDoBAAAAAElFTkSuQmCC"},{"id":627206,"subject":"hover car","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAp0lEQVR42mNgwApY/mPHRAGW/7/22f6/pquFgkFiRBrC8v+slhaGASBMtAEgxSL8iiiYJANKRHX/J3Uf+D/tw73//U+e/Q+YthYsRrQBcWUrMZwPEiPaADkpAwwDQN4g2gDvxE4MA1wCiok3ABZoZLuAYgNAIQ4KfWTcKK5JugGg6INhkg1A1kyyASDFIENAGMSGYaINeK6u+l+PTwcFg8RIypHEZmcAFZ7aq0IYxJ0AAAAASUVORK5CYII="},{"id":1177834,"subject":"sports car","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAvUlEQVR42mNgoCZQV9P+TwhLSUn/x6X/Pz+fIBiD2Ngwmjx2Q0AYl+1IhmHXDFMEsiUnvxduI7LNSAahata1cPgPoz2Cs7AagM8QuCTIAGuPWLwGYAsHuGaQ6TADcAUktrD4H51QCdYMUoArEJHlkA1A0UzIAGQ1MEPAnPCInP9L1h4gaABIDUgtigEwTaDQnzFvK9bAQ9eMHJDwwAElU5CkkZEtVgxTg54iUUIXX1ImGBPoaR5bGiCUnEkGAGWK/SkXlo47AAAAAElFTkSuQmCC"}],"rival_dynamo":[{"id":536325,"subject":"go-kart","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABKUlEQVR42mNgwANYGAX+gzADMQCmGKYBRM9Luvd/Q/NVFDEYjtMo+I+iefmcl/+f3//8//yJV3BFyAbA1Lx7+QNMo7gMxHGznfx/1+zbYANAGpFtA+Eok9lgjSA1IDaG12CGrEs6BJacanACBYPEZoQfAKvBGS4gCV+D2v/V2hv++8lnomCQISA5vJphGGQAuheyNRv/owc0imYHzbD/oZZdYElHmRQwrSPt9t/NMBtFDFkdigESInpgDGIrCDmAnQwKcRAGsUFi6OqwOh+E1UXdcRqA4Q0Qw1TT439l5AYwDZNENwAmDvMCSD3YEJggSADmNHwGgNTALIQbAPMXLM5BCtANAAUoTB4lHJANAIU0egJCxyA1GAEJcx5IkhiMM5eihzIujKwHAJ9Xb9UrARb/AAAAAElFTkSuQmCC"},{"id":536528,"subject":"go-kart","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABB0lEQVR42mNgQAEc/yEYF8Arz/G/tKz+/9dvH3Eo4vhfXT3h/4s3j3AZwvHfwtzr/45Td/8jbELFejp2/0PCy3Eb4GgX+n/tqdtwxcgYJubskYHbAEU5s/85+b1ghSJCcigYJAZyIY5wQNj4bYU+WANITEpCE2woiA0S+7bdAcVFKAbAbAIZANMMsw3EhsnB1OE0YIad4v/f1zz///m8GW4biA/CuVoKuA2AYUIGoMYMmv+JNQAUmEjhgHD+nweh/+/VquE0ACQHUoPmDYQBMEUwDdgMANF4DQDZgMsAGMYSkJBAWR2kA44qGEaOWhgGqcGTqSCGwPD2IG04honhz61oUYodowIALE9lPjae3hoAAAAASUVORK5CYII="},{"id":536327,"subject":"go-kart","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA8klEQVR42mNgwAOYGHn+gzADOQCk8duVADAmyhBk20D0nVaj/zCxZ5PMUeQwDITZ9vPD0f8SIsr/cRnAxSEOVwc3BKYY2bnf9wX81zPx/G9l6wfHIDGQ3JulELUwC7AacDZVB+wSZAwSw2oAzBUgW4JDk+A2oRsAc5m2jvV/N/8E1HAAcdTV9MCYkAEwdRgGwBR+3GAPlgTZBAtEGBskh2wg1miE+RWEbZwiwIEJ48MMx5ouYBLoCnGJYWgG+QsWOPgMgEUrzkDMrp3x/9frjVgxSI5gICLnAXSMrg6r/0H4Ur4uGIMCFIZBfHR1BDMWMRoAAYtIWUjB5x8AAAAASUVORK5CYII="},{"id":981936,"subject":"race car","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAoklEQVR42mNgGHbgPxImSf7/pXzd/7+vecIxmmIwxiIP0fyoxgBFEoTNrJL///6wEI6ftZlgqIEZgiHBzSH4f/H+exjiKkp6YLlXbSpgA+EGgCSQMUiRc2Q+TgNg6vAaEBhXT7wB2LwAUvB6igGYDcM4w+CsrypYADkwQX7s11f4X6sBwSA+Mt4pp4YaE5u9FcG2qKvYgmls0YhFnnoJaQgDAEVCDdrg74/GAAAAAElFTkSuQmCC"},{"id":193879,"subject":"car","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABIklEQVR42mNgQAPMTLz/8WEGfACk4Pe7yTjxj4MeuA2Baf623YEgxmoISBAkCQKd195g4IjJN8D4aZk6fgOwaUY24EGeMnEGoAceXheABL6/XPN/ob88HPPzSv83NXQFYxB7VZQ6HHc426IaAuL8uRgLdgEspEEat+y98b+6afp/HWXj/zAXYgQkLPS/T7P+/zxcCS4JMgCk2csjC8UAmLoJDooQQ2ASr22d/h+RV4UbAHI2SCMIg9gwdQ+drP5fUNbBNGCqrPn/FGE1FCeCNCJrBuHlKkb/Y4RVUA3Yd/EeHIMCCRSIIBoWA7DAQw5kI/sihAHxuTPwYnVDPzDWs0oEY5BmEI0SkKJC6mBMKDMhq0OJRqwSWBIbTgOIyq5Y1AIAwhuXVx5OZ7YAAAAASUVORK5CYII="},{"id":536555,"subject":"go-kart","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA90lEQVR42mNgoCZgYuT+D8JkyYMkEpPq/x968wOrIpDYqt3X/5fUTsVuCLIBvsH5/2G2wTBIbMeNN2A1eF3R0DkHrMDA0AUFg8Rw2o7sP5BieQWT/2IianDbQWyQGMwgDENAAlYWPmAMYoMU/34V8d/JLRGM/3xfCRaDWQDzIk4Dfj30AWuCOR/EB2Fkr2EYAHImCN9LVcNpAEgOpg7DABiGG/B5M1YDkNXCNSP7i5ALYN4FhQ3YEGR/wRTCMDbxPzfDwV6AhwOy/9936///Ps8ejmHiIPaPOQYY4hgGgNg3QtThGCaOLIauHsMAYjBGTBDKhfhyJQDdDUsyWes+vgAAAABJRU5ErkJggg=="},{"id":627218,"subject":"hover car","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABKElEQVR42mNgQAPMTIL/8WEGfACk4FOV9/+PBY7/n7gb/L/tpAOmkTFOQ2CaQZoU5Z3/24XPgGOntPlgsc0GmmB5DENAAuEROWAbQAoXn378//PXn/9ffvn5X1kvDoxBBslI6P5fpKr039c3HdUQEAckCLIBpBhkALJmEDZzqwVjT0E9wgaszbUEYxBb0yILzgexcRoAch7IAHlewf/FrhpgDDIAmQ9iRwrpgtViDQeYAe56CmAMYqPzQQZgjQmKDAAJgEIXFP/Fc67/5+ZSxIpBciBLQOGAEQYwA0DxDFJYuOERBg1SAzIAwxXoBuDCIDUgjNcAWBKGJWNkGmYAVi/ki6n+//MgFIxhCtHxn8tBYIxhAMyQiKgaMAYpwIZh8ngzFDEYWQ8AXF1slfUpj2cAAAAASUVORK5CYII="},{"id":194101,"subject":"car","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA90lEQVR42mNgwAAs//FjvIDl/30NFRR8SVMdhU3AEJb/KwWF8WI8BkA0xx978//mh59guuDEq/+evdfAOGLyDTCNxxBMA2CakTEOA1j+6ygbYxgACzh0A0BqsRqCbACIryitBcbIhuD1Aiy0YZq37ToHxjBDkOUxNIOiCIRhNoA0nbn25n9WVjvcADyxwfL/96u2/9/7TFAMaG6a+d/ZIwPFgO/TrP//eV2GacDzEL3/923lUGxADgOYOEgdCGMYAJKcJyL+P1VEDo5hsYAshtMLB888AeO+KZuJwhgGmJpFwjGujISpBi0mBPmlCWQWvGqIybKYagDvHVMu3qhPHwAAAABJRU5ErkJggg=="}],"cell":[{"id":76929,"subject":"battery","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAfklEQVR42mNgwA3+o2GSwP8zL17+n7762P/0/Pb/GhpmJBkCVlzTuuC/p0fofzlpzf+cHHxEuwSsAR8mZAhYUXRc8X9b2wiwzeiYaANA9Nn338GYIgPIdgE228kyAN0gkrwA4lNkAEjDwAUiVQwgOyEhY1BGIsUAbNkYb7YGAP1r3ctnbL7ZAAAAAElFTkSuQmCC"},{"id":414448,"subject":"energy cell","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAi0lEQVR42mNgwAFYGAX+I2MGUgBIw6on91Aw0YbANP/58BWMj525+V9BIfi/XfgMwoagawbhzA03/jvHrfmvqZn338R/Dn5DsBngMv8QeQaANILYUZvO0dkAmEYQDcIUG0ByGAwDAxxrj/yvOHsLRTNIIwwTlRqRbQdpAiVjojQjG4JsK1H5gNzsDAAnNTLjYzmB+wAAAABJRU5ErkJggg=="},{"id":76903,"subject":"battery","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABG0lEQVR42mNgwAFYmPn+I2MGUgBIw7bjL/+XTtgPxoaW2XBDzha++Q/CDIRs9oqa+l9ZOxiM+fn04S6Z8/XzfxD4kP7xP06bYTh26U0wdszf+F9WL+9/57U3/2EAZND+Ce8hhsAYIAOU0tb93/rt+3/zBdf/y3rN/C/jNOG/oIQf2BUgQ1a+/ALWDLcVpBkEuma8/A8zAKQAlwEgNSC1KE6HCYAk1SOX/S848QpsKMg2EBvdAFhgYg0DkAGldz7+f/H7N9gAbC7AGwPoBoC8QZYBJ378gGOQN0g2ABSYIOcfevPjv6xZP/kGGDUeBWsm2QAQDYpKMTMv8g0AaSbZgNRpl8E4bckzsPNBGKRRxagajAnmTPRsTChbAwC9W1kHqHuQQgAAAABJRU5ErkJggg=="},{"id":414447,"subject":"energy cell","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAuElEQVR42mNgwAFYmYX/I2MGUgBIg+/Wl//D998HY/3wBcQbAtMMA5kHbv+37jvzX8W0iLAh6JpnX//w33nBLTAGuUJcyhO/ISBJkGIQ2PD0NVwzyFCSDDj67BNcM0yMaANAtlFkAMwFIINgBpLlBVj8k20AshdA2DJmCfkGgNIBiCbagLrTr+GaQM53zN9IvBdACpFtB/FBWNe9ibAByIbA0j+IBiVjBYVg0vIDyDZkTFaOJCY7AwAVJRaH2qULewAAAABJRU5ErkJggg=="},{"id":414455,"subject":"energy cell","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAz0lEQVR42mNgwALYWMX+Y8MMxACQQt/VtzCwlGoeYUNgmuc+eArG/U+egTGIrZm/E78hMM0vfv+G47o7j8EaldLWgWmchiDbjKwZJGbUeJSwIbgM0Ou7BMYgTao2fWCNBA3Y8PT1f9+tL1E0wzQRNCB8/31woIHYyJqJMwBoK0gjyAB0zUS7AJcBclZVRBoAdIX5gusomkGBBwtAdbdpuA0ASaAbANIIsl1SMRnMJpgW0J0NwjAX4NWMbAjMn9gw0fkB5GRYoCFjknIksdkZAOFliWsErDu2AAAAAElFTkSuQmCC"},{"id":76906,"subject":"battery","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA7ElEQVR42mNgwA7+48BEgf8yErooWERIEYyJMQSsIT9KFYyr8vXhbHdTSYKGgDWvO5Dy//3b62AahokxBKx5/9VSuGYhZiYUjM8QsOZZ0yA2gwwBafh5ayUYvynU/L/YRAxuSEiMMoYhYAOaO/zBBhT2WIMV/97pBsbIBoA0YnMF3ACQ7TADQBphGGaAvass8QaANCFjgi4AaQQFHogG8dEDEaQBrwEgQZArQIEJMgSWeGAYFoAgrCStgBkTIAGQH2EuAWGYBhCGRaOpmhrutABzJsgQGEY2AJ9mFENACrFhovMDuv9JyUwkZ2cAh1RDyWTsoq0AAAAASUVORK5CYII="},{"id":76907,"subject":"battery","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAiklEQVR42mNgGAVogOM/8RiL5rzy/v8rN58kiEHq0AyBmAozAEQTwiamvjBDOP53zVgHNyDQye4/H48YXoxhQGBANtwAUzW1/1PPx/zvP+0PVoxMw9gYBsA4IBqkwG2TKxiD2EGbAuC0aoI9mA1Sh2IADMME8TkfphnJAERAIksSwjijkoJ0MFQBAJml0sjOk/g0AAAAAElFTkSuQmCC"},{"id":76922,"subject":"battery","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAmUlEQVR42mNgwAFYmPj+o2MGYgFI8aRFp/6Hxpf/j8+s+W9qFkm8ATDbQJrUlE3AWFBEnThXwGxumnYSTCNjJ+9qMMZrCMwA66m2/5ffXQqmQdhqhdd/EU8z4gwA2Q4zAKQRJEa2ATB/k2wAzGaYZooMgGGKvACKRooMcFoTT74BZIUBxQaAFGPDRBuAjmHJmKABuLIxviwNABs1BrWZctskAAAAAElFTkSuQmCC"}],"dart":[{"id":787361,"subject":"missile","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAhklEQVR42mNgwA/+QzFZ4P8dK/P/U2TkyDLk/3o5TbgBvtz8JBvy38oy8H9QQOV/bQ3r/0KCEqQbYGTiOsAGgDSBsLSM+n9eHl7SDQBhkEYkzQMYBmR5gWIDQM6GaSbVgP9tyvJgAy4o64BTIcgAUlLj/1IxScoNANEwA0BskgxAUoiLDQcAY5F/cRe65yoAAAAASUVORK5CYII="},{"id":787337,"subject":"missile","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAX0lEQVR42mNgwA/+QzFZ4L+cvDIYk2MIWKOXVzSY5ubmJskQsCY7W2+4C0AGkGLIIDBAI+vQ//hjb8A0CMsaNIPxEDKA6oEIEqNbLMBtRDcAWY4+BmDDRBmAJwtjlQMAos2jfWWkW38AAAAASUVORK5CYII="},{"id":787333,"subject":"missile","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAdUlEQVR42mNgwA/+QzFZ4P+jyOD/a7TUyTLk/0N3l/9fu9v+75KQ+B/GzUuyIWADYJrJMkBDwwyMOdn5wJhkAxKT6sEYZIiogAR5LrC0DxnxBsAwWQaAok5eToOsaITHv7tnMpxNiiuoYwCyQSA2SQYQwCgAAAYvge4IfWFcAAAAAElFTkSuQmCC"},{"id":787362,"subject":"missile","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAwElEQVR42mNgYGD4jwWTBP7rWjj89wjOgmNSDfkvyC8FNiQsZ+L/hkn7/hs5BpFkyH9xGUWwASDsH177P7l67v9WCTmiDUExAIRBmp25+ElyCdiQSF5hMDbi44N7iSRDQGEBCw9YwIK8g2QIQcPALkH2krNXDNglsNiCsQm6RFZZB4zRvUKSISAMc0187gwwDTMExCdoCLJBIBfANMHCiajwQA9cJOcTZwBS0ibaZgxDQKmToswGig1yNGIEKDYJAG0TtSoTNi6YAAAAAElFTkSuQmCC"},{"id":787356,"subject":"missile","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAXUlEQVR42mNgwA/+QzFZ4L+CtO5/MUFlsgz5r+Gj9d863wRMi6lLkWzIIDAAGSxbf3YADBjagQjWxMkuAE5EIAxmE2kI3EaQJoMgnf+yBmpwA0BsQoYMBwOIxHAAAHI+o2Qx647tAAAAAElFTkSuQmCC"},{"id":787312,"subject":"missile","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAwUlEQVR42mNgAAPm/6iYJMD83zhm2v/YpTfhmESDmP8raweDDak7/RqMQYa4dx8n1hCEATAXgAyxKVlAmgEgDcjeMDB0QfIOCa4wC2kAY0l5h/8FJ14RawgzWAPIEJhBMIwasAQMEZc2ARsEwuiGgMSIiGqIJDZDhAS0wGIg73n2XiPkIoghIBfBXAVzCTi8rBKJiWbU1IluCJGJDWIbyBWwMAIZQlIq1XIrB6cRmCFk5BeIISQkbdyGUGAAcqCiAgDMt9HKZmqvZQAAAABJRU5ErkJggg=="},{"id":787311,"subject":"missile","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA2ElEQVR42mNgYGD4jwMTDf4bx0z7HzrlCAomxZD/sqru/7U9uv8HNO/733v/CxiHtJ8i2pD/cpq+cAOQDSHWJRgGwAwBGaDlVk6cIegGgDDMAB5OMYKGoIQDDIP44nwi/53S5hPnCpAhIBthGGQzyIDMDTfABhJlCEgTMraMWQI3QIBflah0AlYAUqxslQjGIENA4QEyCOQyYqMYbAjIWyBDQIkNZABIjCRDYF6BGZK2/fl/IRETcAATZQBIMchGmJeQApM0A0DhQGwgYo1ekAHkaEaJGWwSADeF6zCfUEmEAAAAAElFTkSuQmCC"},{"id":787320,"subject":"missile","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAyElEQVR42mNgYGD9j4lJAqz/D6tq/X8S4A3G82W0STWE9X++mCrYkPdu5v8PHzr2v6Z1ASmGIAxo71n+f8PeR2BMgiEQfzs6h4M1gXH3ZtINUVa1RjUEiOdtukW6IaaWASiGdE8+8t/dN43YWEIYkl82C24IzAAYnyhDYF6CYZA4yGCYNwkaIietA8fgmAK6iGRDkDHIIJghINfp6HsQE7isYP/DXAHSmJTTR0qyhxgQGlkEdwVZeQVkAMjvZGhGGEKhAciBigoASm/PbVCuAxkAAAAASUVORK5CYII="}],"mine":[{"id":696012,"subject":"landmine","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA1klEQVR42mNgwAlY/6NikgDr/5fJUf+/LloCpq/papFqCMKAqwpK/6OEZckz4ISiImUGgDT3icn89+aVINYASIBpazv8X6SvDdcMwiJCcoQClPW/mrIJGIMUgwwBYZgYsjwWQ1j/O7klgjFCASaGGYBmCEIzzAB8GKYO4SWoySABZAW4MEgdDKMY8KWk8v9BeTkUBdgwKGph6lAMAKU2dANAhoI0oBsAE0MJBytl2f9GkhI4FcMwSA0Io8UEK5q/IBhVMQSj+R9b7kMAhGL86hgIZ2ncAAAje+9tLXK4NwAAAABJRU5ErkJggg=="},{"id":967963,"subject":"proximity mine","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA1UlEQVR42mNgwAHYWQX/I2MGYgFMw/pNe/9XV88EY3UFbeIMAinwMVYB4+ammf8dDa3BWEpcB45xGgKS+P3pNgr+dCoFA19uNsM0hFjNOA1BNwCkCD0QcRoAYny5XgTX/PFYFFiy+cBVMJYy0QVjZENABkxw0IAYAjMA2QaYATDbCRrw7V4dhgEwTUQZgB5IME3IGKYOpBnDAJAANkPQAxGmGcUAWEBiMwSGQWF0b5ItigFY0wKyAnwYb2oEOQ2GFzmqYmCi8oOyugMGxpsPCGVlfDkRAEftolhKCDAIAAAAAElFTkSuQmCC"},{"id":967970,"subject":"proximity mine","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAr0lEQVR42mNgIAhY/4MwP48ECoaIE6FZW8P6v5mpOxiDNMpIKxBjAOt/GEY2AKSZCANY4RpAGGTAIwN5uGYQJmg7TDNIIwirKuv8R3YVQX+DNO/RU4QbQmSAofodhhEGEGGzo10UHHt5ZIH9T2TUQTSXli0CY5BGZEyEIQgDQBpg0YcclUQZALORLAPQnY3LGzgNQE4ouGwnGJCwZIpMI2ckoqISPdeRmPuwJyZ8mgE0i8qhkD/kBwAAAABJRU5ErkJggg=="},{"id":967973,"subject":"proximity mine","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAx0lEQVR42mNgwA3+o2GSwP+XyVH/L9ua/t+mpvY/T0yGZEPAmrtlpf73Kyn+dxKXJsmA/wryav+DAir/a2uagLG4qPR/Pg5eogyBawAZAtKEjEHi+Az5n5bSBca5hVPgbGRsZRkIxtgMAStw94j7H5nQCMZmpk4YGOQCEAaxkQ2BC8IMwKYZ2QCY92CGwA2AOZGQAeiBCjcAH0bWjC1W8BqCrhlbbGBVhA9jjQliNBJKUMgKMDDRqREUE6AoBdGEnE1sVsapGQANPfO0OOG6mwAAAABJRU5ErkJggg=="},{"id":696001,"subject":"landmine","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA3UlEQVR42mNgwAFYmYX+I2MGUgBIw6deu/8/JruDMYhNlCEw22AakPHXNn38rgErmhb4/1W5PthWdANAhj6MlQdjDENAAshO3W8qDnc+DIPEQHIYhsBshikE8T3klcEadmqJgWkQBokhGwA3BCYIMwAmAdKAjNE1YxgAsg1dEhmjay6Ul0AY8PuaJ9wQdIPQMUg+WUbu/55KdVQDYBhmCDoGhQPIVphmFANAJiMbggvDNIIwiheQnUjIAJBGGEaJSnz+Rg44DM3IiYkYA2o1FPAnZ3wGEZ0z0dMAPo0AypuPf5UhAD4AAAAASUVORK5CYII="},{"id":696005,"subject":"landmine","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABHklEQVR42mNgwACc//FjvIDzf1WMG16MxxBOJAW4cXmQMS5DOP/bqasScCbnfxM5TWINwOZ3Ig3Y1uEGVoiMM5whGvG4EiL5eFMEWMO1lX5wDPI3H4f4/+nFLrgM4Pz/4+Wi/2/O5/5vj3MAKw4xVv3voyUHxhoicmBNiRaqYANBapAMQWiGSYI0oYcByFUg20GuAanbUOMNM4QTLPD73WSwQSAvgCTRwwCkERQ2MG/BXAWPf5AgyBUgQ0D4y/Wi/5+uNYINRMYgF4K8gmIASBBkOshmkCEwGmQoKOBAMQDCIFeANGIYAHIBSBMIw8LhxFwPMIYZANIE04hmACQgYYpALgEZiG4AKGBhGtE0o+ZCWNShRyMsMInIlaRlZwCMoVpYbgLH7gAAAABJRU5ErkJggg=="},{"id":696011,"subject":"landmine","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA6ElEQVR42mNgIAow/8fERGo8ZaD9P1RZDAWXGisSYwhEs6eAEIbtdryChAyBKMzUFAcrxnQ2M5I4Fs1xUVn/9dQ04AbIS6v89/UOwzAEq2aQYpAB6BhkoCCvDH5n/z4UBlYEU4yOQWpmy0tiMwSiGYSvmsrDNbCzCsIxiN+qLfP/fbc+mEYzBBgoxkb/39SowQ3pV1KEY5CtIAySB2nG4hWIASCnT/HTB9uCDVcpiKN4B6sBoNAG0dgwenhQ0wCIIcQagDMNgDC26MO0GU9ayJKW/v/MUQ0cYDAMCnlQbOBJvoSyLu5sDABHRQF6ltGi4AAAAABJRU5ErkJggg=="},{"id":696050,"subject":"landmine","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA40lEQVR42mNgwA3+o2GSwP+9Myv+r29O+98eZQ7GpBjy38E59v/EVJf/USri/wMUhcGYi4OHKEPAinS1zcBYTFgKjpEM+I/XZhDG4n8wVlXWAWNshoA1ljXMBWMQG6YYGwa5CNkQsIbf97LBGOYKXBjkFRDemKgMNwRsKkgzzAaYYcj8s3VGcM17Cg1QAhWvZpgYTDNWA8jRjGIACIME/rwuw9AM0gCTB7HRbEcEZIa2LFwhDM8M0kPhw0IfphYlGpGi5j9ygsKWHtCjkQGHILIBhNQyYEthJBnAgCON/8cjDgYA5AwTm3vuNLAAAAAASUVORK5CYII="}],"shield":[{"id":416171,"subject":"energy shield","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAw0lEQVR42mNgQAFc/4nDWAHX/8CEhWCckrIUjkF8VVUvFIzFEC6wYi11e6xYhF8dBSMMARsEsRmk8NiXd2BsUXkWwwCQmJxVFRZD0AzIeXUTwwDzlgv/Gz+9+2+WdxS/ASCFIKzs0oJiAIhPlAtAWNujm8RwQDOAGM0kGYBNM0EvIIcDSDHI70SHASzEQRpgirGJoSUorv82rjlgCWwhDnOBkmE6Ns2I1KipF4HTzzhsxswPIAVkakY1BBsmQjOhbI0JAAw3Vrwai0PQAAAAAElFTkSuQmCC"},{"id":416216,"subject":"energy shield","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABIUlEQVR42mNgwAq4/2PHRAHu/5dvvcOKiTAEorlo9UEwLk+d9d/GtRSOw3Im4jOE+//155/+N+/Y///Tn+9gfPfKy//NB66CsVPSpP+qql64DIFoBtkK0wwzYPmUc2AMMwCLIQhngzQga37ds+J/dfVMsGYUA8xz/ydXz4UZAjEA5EyYAY/uXP3/cPrh/8cia8HhANLcFdRA2ACQKy6vvYRhMwhnGCSiGIDkDagBwMADKczr2gq2eapfHJh/0KPkf7ZdKlwzThdM3nb9v69fCxiDbANhkGYQ9jGOxjAAwwXL1p+FG2BtnQM3BNnpOAyAxATI/zAD0DXgcT5qWgAZEhLWjFNzvGchOIzwpkaYIcg4LroDjAloRjUEGyYpRxKbnQHXzq78317XnwAAAABJRU5ErkJggg=="},{"id":416215,"subject":"energy shield","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABBUlEQVR42mNgwALYWET/Y8MMxACQwu1vPvw/+PotHPc/efZ/7oOnhA2CaVafsR8FK4Sv+6+Utu5/+P77/82rd2M3BFnzla9fwBhmAEgzCIsrh4OxfvgCVENwaQY5G4RhBsAMQTEAWXPdnccommEuAInDDJCzqgIbohU4BWIIsgGuB2+D6SXvn6HwQWGQeeD2f1m9PLg38BoACnUQrVd2GIxBBoACEGY7TgNAimEGIGuGGQDSRNAAGAZpQNas7NIC14hhAMjPoADCZiu632Ga4QbAYgKkGFkzSCNMAzYDMNJB1KZz4FQGsxldA07bkQ2BSSJrRteIVTN6LkRWjK6RqFxJSnYGAAKVs/bneRuzAAAAAElFTkSuQmCC"},{"id":416217,"subject":"energy shield","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAuUlEQVR42mNgwAI4WKX+Y8MMxACQwiXvn2HFBA2BaXaZfwgrjltwErchyJr//fkDxugGyHrNxG4IMZphBmAYgqzZtn8bimZprUgwRjcAxRBkA5D9D9K49cvz/2mPDoPZSmnrCBuArLnh6SUwDt2yDawBpI4kAxy2ngRjkM0yThNIMwBmCEwxumaiDABhWApE14w3JpAxesBh1YyeFtQjl4E1wjBRmpENASnAZitBzeiGYMMk5UhiszMAHVW3CMCZMi0AAAAASUVORK5CYII="},{"id":416218,"subject":"energy shield","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABAElEQVR42mNgwAI42SX/Y8MMxACQwg1PX8Px9jcfwLhy30PChsA06/VdwsAKXr3/4xacxG0IsuYXv3+DsfmC6ygGSFq3YDcEJAByJrJmEIZpBhkEwuqRy/5LGJehGoLubGTNIE2d196AMYgNcoWMVjKqIdgMgGnOr8/4b5o58b+uayxYEwiDDEDxCswAmDPr7jyGO9emZAHcALDNoi5gjNUAkAbrvjNwA0DOBRkAolVtywgboJS2DozD99+HuwCE4f6GaiZogPOCW3DNMH8jawZjbIEIM0AzfydKaGNoJuQCkGYQxqYRhGHyGGkBJACTJIRxpkaQBDEYb34gBiPrAQDLycqDf8iUOwAAAABJRU5ErkJggg=="},{"id":416166,"subject":"energy shield","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAvklEQVR42mNgwAK42GT/Y8MMxACQwuxDB+E4dMoRMHat20TYIJBk5dWT/688fQrHiZen/a+/thqMQYbADMJp8+/Pf+AYZgAMq7tBMIYhMM0gDbgMALmAJAPQbQ/dso14A5D9T7IBoEBEdjZIIwiDNBFlQM+lS1gNcMzfSLoBMJuRbcdqALIhuPwNwh7n1+NPByBJkEaYreg24zUA2RCQQmSNIJx5dT04HAjmCWRDkDFRmtENQcZEa8aVpXGpAwDQr6TCSPSdfwAAAABJRU5ErkJggg=="},{"id":416221,"subject":"energy shield","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAwElEQVR42mNgwAHYWST+I2MGYgFMw5qPN1AwUQaBFOz/fPW//vZ5KFjaPfm/0+o5YIzTEJDEiS+PwBpANAxb7Z3/X9w6EoxVCuqxGwISmP/qPIZmmAEEDYEZAFKIrhlkKIhWaa7DbghMM0gQ2QCYzTBDiDYg4O5OeODBDADJ4TUAFE0wA9Axuma8LsBmCEgMWTNBA2A2IrPxGgCLBZAAukJsGGc0EmMAzFU4ExMsueIygKjkjGwQOiY6Z6JnZXwaAca8ooZOFBiWAAAAAElFTkSuQmCC"},{"id":416176,"subject":"energy shield","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABE0lEQVR42mNgQAOMDNz/8WEGfACkYN/p13CcXzYLjB2cY8FYXcUWtyEwzb+uJqPgZ20m/6/HKPw/66sKNgCrITDNL3cHgTX9/vMTjGEG3EtVA2OchsAM+HYvH64RpvnDRLP/LWY6cFe06qhhN6ChYzmKAdPz/P6v2n39f1JO339+TnGwZoIGfFlgDtbcmw7R/Oj5t/9d/evAAQgzhKABIFdUxbj9nzd/PzgGfHwSwRpIMgDkd2Vp1f/Gek5gTLQXQAEGM+BhsSFYIwgfc1MBi4E04zQgPrEE7GyQISDNoLAAsWE24zUAZgjIz7gMgGkkmBpLG5aDbUM3gKBmdENAmtENIKgZ2RBQAgJhgpkInyHEZGMA4n9/5b1w3IMAAAAASUVORK5CYII="}],"thruster":[{"id":718333,"subject":"lightning bolt icon","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA30lEQVR42mNggAOu/6RhFMD1v/HTOzBOufHqf8C0tf89Oyf/13WNRcFagQlwjGQIF1gTSIOYqh4c83JJ48UgA6GGQAwACSAbsPLlFziuu/MYwwCQGoQBl65i1QwSB2E1s3D8BqA7H1kzyGXYvIDXAJhmdIxsGIoByP7HpRkU8sIyOoQNAPkXFm2W/iVgzc55Xf/lFW1wewGXP0HpAWSAkq47/jDAZwDIFchOh2GQi+AGgPyHzQCbkgU4ExWKC3ApwuZ0og0AOR1fUkbyAiQ/gARgGDlNIGNkeaw5kpzsDACKhX3pRiCbWQAAAABJRU5ErkJggg=="},{"id":718296,"subject":"lightning bolt icon","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA8ElEQVR42mNgQAJsLCL/icEM2ABI4tfJaURhDENgmv/+////w+H6/9+nWWO1GSQOwiA1cEOQNcMUgMRA/N+fT0PwqSAUA0B4r7kyxBCYAT9vrUQx4NfHXXDNX9v0CRvwfaU/BCMbANSMzXYQPm2lhGnAr6MNYEGYzcgGIOP3VVbYXQCSABuApBmGQXKLzUzA8m8ydLAb8KnOAG4DiA3DyJqfJRhiNwAUULDAguEHURoYNsMwVgOQAwnZAHTNRBsAci422zEMANmCHk0gcVyaUQyApUZQvKIbgBxoyHiNrS72/ACSgGF0ProczhxJanYGAJia/Bxteu+vAAAAAElFTkSuQmCC"},{"id":718341,"subject":"lightning bolt icon","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAuklEQVR42mNgQAFs/4nDWAHb/x1TAv8fXxwJxyA+NozFELb/Z5Zm/K+J0EHB6DZjyiFprsrXB2NkBb8+rAPjHwc9MAwwM9KAGcL2f1mzE4bpMI3YNBNlwO93k4k3YHqxC07bYQaghwOKAei2I2sG4d+ngv4/LDYk3gAY/jDRDGzA+1Yz/IGI7j+YQTADboSok28ANs1EG3AzQe8/LnkUA0AcXKkQm2Y0AxiwGkKCZgYUQ4jBeHMkqdkZAL5FnuLutJ4kAAAAAElFTkSuQmCC"},{"id":718301,"subject":"lightning bolt icon","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAmklEQVR42mNgwAH+YwEMxAKQYg42cQxMlCEwzcjg69EQ4gxA1/z77XLiNSMb8PvLBbCGX1eTUQzAGxbItoMM+P2qDawZZgDBsIAZ8OfXRxTNyPh2lDVhA0AKf55ORNH4rdnu/wUPfeJcgIxBGmEYZgDewEQOKGQDiNKMzTUwA0jSjG7ALEt78g3AG+rE5gWSNaMnKgZyACkGAADHx0+mbInuuAAAAABJRU5ErkJggg=="},{"id":718303,"subject":"lightning bolt icon","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA8ElEQVR42mNgQAGs/4nDWAHr/xUFx4jCWAxh/f/58jc4rjGb+V9MUPc/H6csGIPkq7U3wDGaIRCbYZpBCkCazxa++f951UcwjW4ACOtIu8EMQRgAkwQZcKf1BtiABJ31xBkAwiAJkJNvTHj7/+Oer/93ZV0j3oB1SYfgBoBsBnkO2QBkHGaei90A5NAFaUYOZhA/WrsVrAakGcOAGe7bMJyKbICXWglY3kwhCIwxDIBowJ5g0DXjNADVdogBMGcja8YwAOR8XAbAFOI1AMTBZgA2p8OwlpgZampENwQWDtg0gxIa1vwAkiAG482RpGZnAMRLjjdMcu9YAAAAAElFTkSuQmCC"},{"id":718295,"subject":"lightning bolt icon","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAkElEQVR42mNgwAL4OGX/48IMxACQwt/fjsLx1wVh/2/7mBBnALLm7/Ps/39f4QTGJNsOshWEf1/LA9MkGfDnQRXYdpgBRGuGuwCoCRkTHZDYNIPwn5/Xwd56X2VFngHILiHofGQMCwMQJjoakQ0DBSRIM0GnEzKAZM3IBpDsdGQDXsbbka/5WzOZmqlmALGaAesz1ZfITNbBAAAAAElFTkSuQmCC"},{"id":718300,"subject":"lightning bolt icon","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAz0lEQVR42mNgwAM42OX+wzADqQCkyaLy7H/t+ssYBhA0EKRAO+Lwf58Lr/7LGjSjGAAzmKABvltf/r/+8yeKASA65car/w9+/cHtLZCETtE5sCKQITADQNi87y7YUBAGGYRhCEwzSAFIM7oBMK81fnqH3QUwA2CaQRjEh2GYIepeG/7jDDhkzchY1qz/P95ohZkMUgiiQRimGcSWVEz+T1T0ofgXmAZAriJKM1YvAQ2AOZ2slAgygGzbQaGOngpJNoAs22EGSKnmkaeZ1GwMAHtF1/3fSXGAAAAAAElFTkSuQmCC"},{"id":647178,"subject":"ion thruster","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABGUlEQVR42mNgwAOYmfj+I2MGYgCyhumrj/2/8vTp/3///4Nx35TN+A0CScIUI+MJi3eh8LEaAhJ8/ObT/713n6FgZENA8lgNgWlefPwq3PlGIppgGpchGAaA/AuilRW0wXS3jS6YFuCSQjEEpA5kCChswIbANCsqmYMFkme4gQ05cNQVTFc09qG4BKsBy3aehRuA7gIYH9kAkGasLghWN/l/PwNC/97p9r/FTAfMdxTTQzEAFFag8MDqBWJcAAtslABED4Pjd33AYtjCIDKhETMWQE4ChTjMxvmuehguAGEMzcgGgCRBhoD4IH8jRyMIJ+X04U7KIImGjuVgbGwZCsc7Tt0Fa8SrGT0jgRRn185A0Uh0biQ1GwMA/j2vne19AjIAAAAASUVORK5CYII="}],"core":[{"id":960473,"subject":"power core","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA9ElEQVR42mNgwALYWIT+Y8MMxACQwvM3nmLFBA2Baf7z6+P/T3++g2kYBom3Td+G2xBkzSDa1CwSjK0cE8AY5oqa1gWYhmDTjO5/nIaga7ZzSgVLqpgW/a84ewtMwwwBGQwzBGQg2BBkA2B+BOHw/ffB4eC7+tZ/ceVwuDgsLGCuxGkASCPIAPOWC8QZAFKMbsC0D/eINwA5mmAGZB64jdMAjDCAYZjJSobp/43zd4E1C4mYoGjGcAGIs3DD8f8nL97BGY3ommGGwqMSJDht6QGwQdsPnMNIxjg1IycmkCRMITaMUzO6IbiwgqQFcRkKH0ZXDwAmMMfeXRJmkAAAAABJRU5ErkJggg=="},{"id":960523,"subject":"power core","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAnElEQVR42mNgwAoY/2NiogHjfw0NMwxMpEEQzSkZTf8d7ULhWEFB+7+QoAQY4zEEojkmohSsCcQGaUTWjMcQhGYQNjN1B2tE9gIBQ1ANgNlOpAGomkEYpAA9EDk5+HAZghnqPj6JeGMCZBgIo7gC2WTcTmZE0oglIEkzAEs0UmgAwhBcBhDQjN8AIjQzYA1QIpIwYUNI1IwtS+MGAJ2P2OnOv7B8AAAAAElFTkSuQmCC"},{"id":960500,"subject":"power core","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABB0lEQVR42mNgwAI42IT/Y8MMRACQov+rdl+H46ScPjBW17H8D5PHqVlVRf+/h0/E/9KG5WBsZe0Bx6IiMmAsLaaB1RCwJIgGORWkCN35MDFktSgGwJwIUqRr4QCm4wWkwBjEBsnDDAC5CMMAmCBMsTOv2P9PVd7/9yopgw0haACyC0AKQJr/vC77/0VNFcMAS/sQ/C4AsT8WOP7/czOceAOQXQBigwz4Emb2/76SPOleAAXiGWlZFANAUUy0C0A2gDRdVVUFY6JcgB4LINpgntt/yXQzjGjE6gJQ4kBPNMgYXR5ragT5Mz6zBiMfgMTMvdPAGnFpRslMyHkAOR8QykwYBmHBGAAAP7keqAC33s0AAAAASUVORK5CYII="},{"id":960516,"subject":"power core","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABWklEQVR42mNgwANYmPn/gzADOQCk8XmI3v/bTjqkGwLS8KnO4P+fXx///7wR/X+TlhzxhsA0//5y//+/P3/+f7kZ9v9Drur/k5pqhA0BKRARUoQY8Dzn/++3y8EGvI3VABsAksNpCEgiLrrjv5FxMNhGkMbvK5zAhiEboKFuhWkISKBvymYw9vLI+q+h5fXfmlcSjq2kVMAYJAeWRzcExLGwiQG7oKZh3f+MzGlgdkh4OQo2M3UHa8bwCswAJQU9MA3CIK/AxGAYpBGGMQwAORukCKQR5leYAciacBsA9Ze6jOJ/HibG/0Z8fHCbQeJyrCz/YSkTqwEgDSAM0gxSDKJhBoFoZEOwRics6f46FQGmQakPZshsecn/4cJiYAyKFaxpASSYJS39/5mj2v/v06zBBoHiH5QXQGkAZghOA5BzX5WCONggkEaQoSBNrgKy/4nOnTCF6BibWgAURxYn9q7kbwAAAABJRU5ErkJggg=="},{"id":960527,"subject":"power core","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA1UlEQVR42mNgwAkY/6NikgDj/2Urr/1ftfv6/4Bpa/+LiumRYghE899fb//Pf3X+v6S8w38xMy8wTYQhCM0gHLplGxgLCiiBDQDReAyBaF7z8QZYc9/bU2CbQRjmDRAbh3cgmkFOhmGQzdgMAGE0lyBsRtYM0oSOQRqRMYohSmUz4RjkX2yYnU0YjrF6Q9QjGmyAsnYw2MkwZxOhGdMQZD8jG0AgKiEGGDR1gzHMACJtRxgC0gQzAOQSEjQzoAQqLMpI1IzqHQKpj4ABUOeTaQBylsYNABOd81ZOXZl+AAAAAElFTkSuQmCC"},{"id":960532,"subject":"power core","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA+ElEQVR42mNgwAEYGTj/I2MGUgBIw8e2iP8/3136/3VB2P9LmuqkGQI34ELm/4ty8v+bhCXJMwCkGWQ7SQaAFBpbhoKxIK8UCsZrCHKAFTRu+L9h7yMwHZo04b+dUyoY4wxUkICSYToYg9g6+h7/Gybtg7tEUc4M7gJkdXDNOa9uopgOMsA/vBbORzYAhm1KFkAMgXGQDSFkAEi9tFYkqitAgqFbtoENwoVt+7f9N82ciKoZPRAtW5eAMchAEIbxQRimkWBsgJwrIqwCV0xUNCIbAAoDF48isCEgDIoJmIFEG5BZsgxsCAwTbQDMEFDII2OyciQx2RkAxpzzaEKo1JkAAAAASUVORK5CYII="},{"id":960474,"subject":"power core","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABL0lEQVR42mNgwAOYGHn+gzADOQCk8drdl/+PnL4PNwRmIEGDQZJaCn7/3UKr/zsFNv+X5NUFa/jYFvH/94Pm/7/ezAJjuCHoJoM0gWx/+fY9GHdPPgIWNxTzhasBGQQ2AET8fLnrf4V6LhiD+CBNMAAzJDxzHoolPya7Iwz49bwXLgHyMzYDlq0/C3YZzCsozv+xwAPuJ2IMwAhEZENAfiPGAKwh/zzQBmwQyBCYQUS74I65F1jwjpX5/09V3v9/bfYHY2wGKEhaIAwBEW8ivf57ykWBBUAKQRpABj10dwG7CBnDNILkUAyASYASDcwQmEEww5AxTA8DcqKABSYoLBbr+oETEAwjOxslDGCaYHizogPcnyDXgDBMM8Fch5xpQBpBgRYc2k9ejiQq1wEBAPvlpRRNGHR8AAAAAElFTkSuQmCC"},{"id":960470,"subject":"power core","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA00lEQVR42mNgwAE4WMT+I2MGUgBIAzL4trGCeEOQNf96/xSMQQZ8nRZI2BB0m2EG/NwR/v/blXn4XYKu+cfNW2AMA99XOP3/9ez0/18np2Eagq4ZZgCKa4Aav53t/v++W///bR8ThCG4NIOcju4dkGYYXmPjAjFk4A2AeeP32+VwDAowbHiGTQgcYw3I39+O/v98PfH/21iN/3v0FDGwo5AZGGONSnQDkG1+k6FDvAHf7uVjNWCvuTJuzegZaJG+NoYBnoJ6pOUHkCHImKwcSUx2BgAkmNDwrwDZ8AAAAABJRU5ErkJggg=="}],"grip":[{"id":62083,"subject":"bar magnet","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAuUlEQVR42mNgQAPMjNz/8WEGfACk4Nv0SXB8S0MTBeeJyeA2BKYZXRNRhhCrGYarxRVQDQFx0G0x5ZaD+xvEJtoAkGZ0BSB2sIAq8QZgCyi8akg1AKsLPv35C8ZhORNxGgCS33zsIaYaECd0yhHsksQa4Ji/kaABNiULcBsAMr2kdup/Yz0nvC7AqgbEOXjmyX8728D/UuI6OA2YMW8rdjUgDshkQgbgVAPigARhGJcBeNUQk2WxqQEAYyAnu5Y/J4IAAAAASUVORK5CYII="},{"id":622375,"subject":"horseshoe magnet","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAg0lEQVR42mNgAAJmRp7/yJgBB8CqDsTY+u37/+zFN8BYN6ASqyE41Q0OA57mZfw/q6UFxnHiVjgNQFaXI2GG3QC4BLkGDFEXwAQJuQCrOnQJZFcgY3Q1KBZhU9DQOQcD4/QmiAMSJGQASA0MY3gTJKCq6kUUxpnhiDEEX27FmmUJZXUAwiZX6FJkwFQAAAAASUVORK5CYII="},{"id":622376,"subject":"horseshoe magnet","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAlUlEQVR42mNgIAqw/YdgsgDb/3///4MxGYYgNJNhCNv/ihmnwBim2WHKFTAmyxCYZjwGwAIKWRJigIJCMIoBWAxhw+NPNrABKmqRuAxhQ/EnPkPQXQI3QCt+C0ZgYfqTjbAB+AMLpwGIwMLtTwgmGJDY/IkLgyzDEp3EGQKSx5OY8BtCQDOmITAMcjIOZxPKwugYFQAASQJN9sC6MosAAAAASUVORK5CYII="},{"id":622377,"subject":"horseshoe magnet","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAkElEQVR42mNgwAIYGTj/Y8MMhABMYcKtBKwYr0EgCfONgf+z7pWBaVxYPsIcuyEwm/FphmEMA9A1KxVZ/BfVNkTBIDGchoA4yE4HaUAPQHRDMAwg5EeQmGS6GWUGgOQG1gDaeuHis5v/f377/H/qhvk4DQDJvXjzCKwWqwEgPHAGBOjqwDEuA/CqISbbYlMDAHMlKdwQef3fAAAAAElFTkSuQmCC"},{"id":622380,"subject":"horseshoe magnet","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAh0lEQVR42mNgAAJWZpH/6JgBDeBVA+J87W77v1tO9n+pmCROA2Bq0kXEMQ1439D4/4i8Kl4DQJrxGoBVklgDSu98/G/ecuG/gmYZTgNA8ljVjBpAJQNgksgKkDE2eZwGwBQhY2Q5bYNWTFdiMwQbxuVFsAHoNuFyFVYDkA3Bh3Fqxpdt8WVzANVzMWcsJv/4AAAAAElFTkSuQmCC"},{"id":62082,"subject":"bar magnet","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAfElEQVR42mNgwAG42KT/I2MGUgBIQ/zp/P/1dyf+d9wXAcZEGwJSCNJw/MNBuGaiDcGnGYSVy8LwGwJzOjbNICyT6EWaAZJBHmBMkgvQbQNhEHuYGEBUIN75ehuMJxxZDjcAxIaJDwED4qZ0wDHMAHQxgskZPQeSnSuJAQCJXwt4YtPq4wAAAABJRU5ErkJggg=="},{"id":62078,"subject":"bar magnet","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAs0lEQVR42mNggAJmJp7/xGAGbAAk8amjDI7xAQxDQAIfKzPhmvdqqP1//OYTToxhCIgD0vRqcheYJmQAhiEwA5AxIQNQDAER4cJiYJwuIg7GQQGVWDG6ISiuIAav3HwSuwHEANoaQIzz583fjz0MQMSHwihwWgDRIIwNoGueMW8rwoCzWloomFAUglzj6pSC3QBC6QBkM1wzckJCNgBkAy6Mohk5hGGJCF9CAmG8OZKc7AwADb8A+kpUWfcAAAAASUVORK5CYII="},{"id":62119,"subject":"bar magnet","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAlklEQVR42mNgwAnY/uPGBAHb/8smOmD889tnDEzAEIRmED539xUGfvj0NS5DUDVbSmj9N/TIh2N0g9AMwdSMbgC6IUgGYNeMHng4DMCnGdOLWA3YfOwhHOPTjGwRCGM1gFjNSBYRMgC7ZpwGIAxBYAJhxPbf1CkdwxB0TCCAIVGEzwD8sYNkCC5MQDNhQ4jMhfiyMXYAAAGVfiOe/V9pAAAAAElFTkSuQmCC"}],"storm":[{"id":1211583,"subject":"storm cloud","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAvElEQVR42mNgwAM42CT/I2MGUgBIw7m7r/4vW38WjgkagmwbumYQdvKuxm0ITBM2jSBs41oKNwDDEGQbQWx0zTAxkCHIBuG0GdkQbAaCDIAbgs9GbAbAXIBiAIiDzd+4bMYITJghxGKsMYGeaL626f//Ps36/20fk/8kJyiQot9X7P7/fjcZxQCiU+DvU0H/fx23ABvy63nd/2/NdqQZAMO/r+WBvUJyPoAZBAoDsjTDDKgTJ1MzzABi1AEA85U61jQS4cwAAAAASUVORK5CYII="},{"id":1211587,"subject":"storm cloud","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAtUlEQVR42mNgwAGYmPj+I2MGUgBIQ0pGEwomyhCYbSANXGyy/yOiauAG5OT34ncNuq0gA5D5MuLGuF2DzcmEMNwQbJqRbcPGB2FFeWeIISACxEE3HZ2PrAbExjAAGaOLgfiWlmFgjC4O9wa6BDrGJo834ew1V/7/tU0fTJOcqECKfswx+P/9jD3pKRGk+MsC8/9fd1n9//0qAoy/T7Mm3hBkp/4470uaZnSDyNaM7BIGcgGxmgEJLfXrE7NMUgAAAABJRU5ErkJggg=="},{"id":1211582,"subject":"storm cloud","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA3ElEQVR42mNgwAGYGHn/I2MGUgBIQ0335v9tPdvBNAgTZQjMNpgm//BaOJaXtsXvGlwa0Q2BGYRVMzZN/DzyYIzNNTg1i4hoYzUIqyEgAl0xuhhIMcgAEI3hFRChrB38X88k6r+pUzoYgyRBroAphClG5mN4A13yiLYGCvYV18KuGVfCeR5o8//7vgA4vmNlTnzCAikA2fj7ec7/36/awAZcNzYkPjGBNP35Ouv/t2a7/5c01cnQ/PMS2PZfpyLAhhCdF0AKQc4FO50cA2CGfOq1g2OScyJ6jBBSCwCTBCFoa1PKsgAAAABJRU5ErkJggg=="},{"id":1211577,"subject":"storm cloud","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABAklEQVR42mNgwAEU5Z3/g7CMuDGYZiAFgDQ8ev4NjjfsuQQ2iKBGkCIQRtYIw9GFC/8LCWiBMdG2ImNNvYj/O07d/b9ww3FMQ2Ca0TUhY5BmGHvynMMIQ0CaD1x/g1czOgYZYONaCjEEZABIAFmBr18LWBLGL21YDuaD1ME0ww0AARADFEgwDDMAphCmGJ2PEg6wECYW443OghOvUBSkLXlGfEICBahT4xW4homn3v63TNz6H5fhKKDj4Mv/EZNv/Ne37QQr2nrjAdgwGB9kmFneUewGnLv76n/QoscoksiGYeNj+BvZdHSn4nU6CKA7FT0ccDodGwA51cRp2n9shqMDADeOXJsJTZH/AAAAAElFTkSuQmCC"},{"id":1211615,"subject":"storm cloud","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAr0lEQVR42mNgwAFYWAT+I2MGUgBIw9yVh8A4r6EbjIkyCKYIpLF/zja4ZhjW0ffAbQhIAqQJ2VZsBviH12IaArMVl0ZsGG4IiIFPIchWEMZpCDYDYE6FYWRDkA2DG4CuASaGjNHVoQQougYQf4+eIhzjMhBvwnnWZgLGvz8s/I8uR1R6+LDc+v+fB04oBpCUEpENgBlCkgEw/OdyEOl5Admg5/McKTOAbM0wAwipAQCTxhRxw9n4JgAAAABJRU5ErkJggg=="},{"id":1211592,"subject":"storm cloud","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAzElEQVR42mNgwAo4/6NikgDn/9LO6f+7ZqwD0yBMgoEQzRv2nIJrBmEJRev/9j4pYKyk647LEIjpyBphGKQRmY3FAE4U52IzBNk1IIxkCKYGYsSQvILdRnyuAnkDyRWc8ABCxsjiyGyYFzC8ARMEOQ2GkfnIGtE0Y088CEWc/0XF9EhLCzADvBM7wWxL/xJSUyRCU+as7SgG/Hr/FL9B//5++g8zBF3zqwdX/v/7////+Rt4DDl45gmKAehOR8gT4Q1Tp3RyciO2mMENAF8kHcdQ3swYAAAAAElFTkSuQmCC"},{"id":1211574,"subject":"storm cloud","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAjElEQVR42mNgwAJYmPn/I2MGUgBIQ2BcPRzrmQcQbwi6ZhhW0nUn7CKYJDYDJES1wC5x8MuBG0aUzbgwiiH4bCXKEGwGoGsG8dHFZBTMEAaAOCA/wjCIj6wBxgbRIDkYRvEGsgTMAJAzQRjmAmSMNSCxKSRKM64UiAsTnaiw0SQlaaoaQBagSDOxBgAAFg7dxOjc/d0AAAAASUVORK5CYII="},{"id":986010,"subject":"rain cloud","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAsElEQVR42mNgwArY/qNikgDb/+jMRjg2c4oixRA2uCZkLCmvS4yLIJLomkFYQFQBxWAshrChOBkdo4uDDEQyBLet2MQxvYXFAJBmdAPQ+SgGgCRVNc3hGCYGUqRp5Ao3ECQHYyMZwAA3BFWCDYWPLI+mGVfiIYTxACXDdBQFfpVn/itrB//HJocBQArN3Gr/I/NBBsD5enG4DUC2CZsB3unbCdiOZjohPkFAsgZyDAAAyOjUM8KIvu0AAAAASUVORK5CYII="}],"glitch":[{"id":1118902,"subject":"skull icon","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA3klEQVR42mNggAIWJsH/pGAGZAASuHvgPRhvaL76f0XBsf9T3S6hKoKCeu2L/0EYbghMc5xb039DA4//fFxyRLkgQWc9xBAQcaT99n9Feef/0mIW/2EGftzzFYxhNsM0wLCZYQLCAJCzYRIgTSADsDkf2RCsBoAUIduKzf8+anPBamGuhXsBI2SRQLX2hv8gjNMAZBdgiypkMdoY4OtUidUL6AaBvGEolYjbAHzhAIoBE/lsuDqcBuAyBD0d4DVgqsEJMA0LeeSUR5QBxGC4AbDAAiVlYjBII4pmSrMzACkbJjg2stzBAAAAAElFTkSuQmCC"},{"id":1118940,"subject":"skull icon","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA9ElEQVR42mNggAIWJoH/pGAGZAASWPL+GRzbnjr+3/XgbTgG8UHYsnUJHMMNgWmWkXGFYw52OawYWY1S2UyIIegG8HBr/Z/24R7cNSA2yHa1oFYUQ7AaAFKArAkdgwwBqccwIOXSVbjNIKx/8DIYoxsgnzgJjEF6YDTYAFBAwQwAmQxig1wD04gcDiCNMK9gGABTDGLD+NgMgHkDbgBIEUiD3rr9KAZgiwmsLgDFKywGkP0M04QcBshRimEAzBCQQmwBiJ4mEF7o34aSiGD+RHYJWQagRxtOA0CSyMkUW+ZB1owSC7D8ALMN3TBcGGuOJCc7AwCJBqaSBD7hDAAAAABJRU5ErkJggg=="},{"id":1118925,"subject":"skull icon","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA+0lEQVR42mNgAAJGBu7/5GAGZM13vt6G45rWBXDs6pTy39ojFkwjY7ghMM0y0npwjMtGZDUwQ8AGgGxC1vzn91c4vvP5OBjnNXRjGAI3oGniaqyakQ0A4bgpHSiGwA1IyWiChANQEbLm1z9uoxhQunzy/4DEfLghcANC48vhBmDDIJtBmCgDkAMNZgCyGFYDkL2AHuqgKEQWM3IMAtP8PPIIA2CKQKYjOx3dJaHpNXCbUQwAxSlMAmQYyL/o4RBf2IaSRrAaAFMAUgwKMORAVFa1RvEKigEgfyEbAFMM8hLI2ciBhtUA5NSFLymjBzDcAGyGEMJYcyQ52RkAKI6+F+jPyG8AAAAASUVORK5CYII="},{"id":1118959,"subject":"skull icon","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA6ElEQVR42mNggAImRt7/pGAGZAAS+P3lwv8vF6b8f1eiAsav6/UxMLI43BCYZpCgrIwJGOOyFSbfYqaDMAREfDvYiaIZZCC6i67Yy2EYgmEALs0wfN1TCW5ItY4hwgCQJIwGaX5/dRmGZhB+Fiz5/6SJNFgtiguQDcBmM7ILCBrgKSAExzCNyGIwA3B6gWIDkDG6QSCM1QBQnAoKQEIYpACbASBxmGaQWqwGwAwBxTm6a0CaYWqwGpCnqIhiQLiwGJgGhTyIjW4ASD1KGGxzVEFxBTYMk8/V1AJjlPwQKmNMEsaaI8nJzgCaDLEJpZIzmwAAAABJRU5ErkJggg=="},{"id":467137,"subject":"floating skull","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA0ElEQVR42mNgoBa48/X2fxibj0vxPzaMU/P5L5f+mx5f/X//56tghSAaHRs0deM3CF0zyEB0DDJE3jAYuyEwzdMe7cKqGWYACMsaxaEaAuKANK75eOO/1d75qBpnz4FrJGgAsj9hBiAHIl4D0BXjMkArMIGwATA2iPY4vx7FACERE0wDkA0BaTCZ2gFWAGKDwgSGQZpxGoBsCDIGaQRFHQiDNOLUDDMApAGkyOXACrAmGJ+oFAnzJzqNbisoveA1BF8+AGkGuQqvIYQARZrRAQB48jsAEr2UjQAAAABJRU5ErkJggg=="},{"id":467141,"subject":"floating skull","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA7klEQVR42mNgwAKYmQT+Y8MMxACQwgSd9f9r7JbBsadyx38LhWbCBoEke603/P+45ysYf0j/CMYgOZCh8oqx/8WlPLEbAhKc4b4NQzPMAJghmpp5mIbAba77iKEZ3QCYS+AGwPx8I+sKXCG6Zh+1uf+jTGb/RzYA7gqY7bhC21KzEkUOZBDIQKINQI9KmGtQDABFFbIi5EDCZgBIHiUgcdmKHnggjKEZpgEkCPIvtvQBciFMI0wzRloACYBSGyzUkWlYtOFN1iBBkAtAiQnZ/yAalHgI5gWQApBCmGKYrSDaRD6buMyEKxcSnRPJAQCrlATm4cYalwAAAABJRU5ErkJggg=="},{"id":1118910,"subject":"skull icon","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABAElEQVR42mNgQAMszAL/8WEGfACkYNmDd3Bs3Xfmv9+cy3BaNXgubkNgmjMP3P5fcOIVWBMMgzTDDMBqCEwzsiZ0zdoe3XADUAwBMWDORPYrTAyEVW3LUORAholLeUIMgSnmYpPFCDCQTSDF6OKCIvaYBoAwsiIJ6SAUg5DlVEyLUA0A2YLsX5h3jBqPgmnj/F1gNSCMohk5EMGBBPQryDaQISDNIAzSDDMApBGGscYECK98+QWsABeNM0HBJKI2PMJKg9IHiMZqO8wA9MDChgkaUHf6NdwrsAQGo2FRijcvgAwBBR7IySA2yAsgjSAap+3ohsCiDBnjzUjEZmlsagHstlu5ZbpFgQAAAABJRU5ErkJggg=="},{"id":1118938,"subject":"skull icon","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAoklEQVR42mNgQANsbJL/8WEGfACkYM7Xz/+XvH8GptGxtHsFbkNgmkFY/+BlnFg+cRKmIcRqhhmAYggpmpENEJeJhhgCM4AYTcgYqwE83FooGGYAujj1DcClkCgDYAGJze8gcWSDcEYliKPasQ5DIbpLkAMRa1oAYZAkrtiApUS8qRFmgPqM/XCNMDbepIxuAHK4wNhEGwDzIy42wRxJSnYGAFjsoWCzwzDnAAAAAElFTkSuQmCC"}],"drone":[{"id":378911,"subject":"drone","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAx0lEQVR42mNgGCSA7T8qJkkd239hQSkUjN0QnOogpoEEfL3DkDRjs40NrAahGckVIIkJUxbDJexsA8FYWkoJRQNIDUgczZVsYIUwDNOIjEGGwGgs3kT1H0whNxcfVnEc4YQICxCtxSsAxpZCwmCMqhFrTCE0gzR8tjb8//Pylf+ffdz/L5aUABuGrIawAUCN7xsa/z+Xk8EwQF3NFDMMUAXZ/l9TkgXj6WJS/z0FhFDkiDAAIgbzP7o4FgNggYgr6TIQoXagAAAWNrWKCTnkWgAAAABJRU5ErkJggg=="},{"id":378907,"subject":"drone","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA3klEQVR42mNgAAO2/xBMLEBRz/ZfL33X/7Ttz4k0hO1//LE3YD1Q9RABEIja8AjFEEl5h/8gjKwZpAYESu98RHUFSEI/fAFUAxtWDJIDqUG3CG4Iwka2/yqmRf8da4+AsbJe3H90ebyBA9Pc+OkdGIPYqC4jEEjomkFYxaoZv2Y5OW+4M2EGwDTDDIC5AjVgoUBc3AjFAHRM0ABkLyAHIAir2vT9h7mQyBQGMQRkK7LNBAIRPZrY/oO8BfMagWjElpDQ0zzOhIRIyuj5AV9SBumB5wVQQCEJkJqZKMvOABUOFEWkV6RiAAAAAElFTkSuQmCC"},{"id":378959,"subject":"drone","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAzElEQVR42mNgIAOoG/r9Z2Dg+E+GVo7/FGnWt40cEM1kGcDxHx0TaQBE8bZLL/6H5UzEwKZO6UiGYtE8e9e9/8fuvPtfOmE/ikaQ7QqSFv9VVJzBhiAMQtKMzUaYZpAGkGYQ5uOSA9NIBkD8B8MwG5AxTDMISwhpohsAMQQkQQzGGwYgf4LoOR0V/99Pd/zvpaYM5ruFVsPl8MYASBEI/z4V9P/P11lwA0DeIMIAhCEgA77vC/hvI2cE1oTFz/gNATkZhvH4mdiUiB8AADSlxzdzwnH8AAAAAElFTkSuQmCC"},{"id":378962,"subject":"drone","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAm0lEQVR42mNgGBSAiZHrPwiTpR7EkBRW+6+iYEKUIRjqQQQvjxQYwwyA2YCOYXIo6kHEhMW7wBim0MjC63/S+/dgGpkNk0dWDzYA5BxkjMsAdHUo4YCMCbkAb6ATMoCo6AGFsvmC6/DQhrEJ2gwLD+SQRg5xmBxWQ0CCzl4xKNEFcjoII4shqyFoALY0QLQBuLyJVw2xSZmqGREA33DAaQI7okkAAAAASUVORK5CYII="},{"id":378981,"subject":"drone","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABJ0lEQVR42mNgwAGYGHn+I2MGUgBIw/ELj/8vWrgFjEkyAGajp2/uf0e7KDAGsYlyCUjB13Nh/398vw3GIDYMv281+3/S1Ai3ISCJnzeisWpGNmS9oQWmISCB7gkL4baDaPRAhBlwx1zrf0pGE8IQWIApyFnBbQKJhZ048t/21PH/yi4tYDmQGMwAEH/NquMQQ0AEKKRBgiAvwAwAaTZo6gaLoxsgIaIHdjHcgImTVv/X0ff4/yrfDIxBYvKJk/7L6uWhGADSXCHlADYAFjMMsCgDKUI2AKYRmwEgvoVJEGo4gEwFKUA2BBk/cTdAMQBrTIAkQYo+pkL8CsMgzSA5GMabFpAVYsNEpUbkMAB5DeZkovMESGFEVM3/ktqpYIwSYKRmKkI2AwBaLER7gWoizwAAAABJRU5ErkJggg=="},{"id":378982,"subject":"drone","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABG0lEQVR42mNgAAJmJv7/IMxAJEBRD2L8fp7z/1uaJlGGgNT8eV32/0uYGUQ9iABxQIZ09a/7DzMdF162/uz/Xxsc/r93M0d1BUiznW0gWPDm/c9gvOfITRQMkgOpgVmE1V9v3n3+/+vXX6wGwAzB6lWQIEgByABkhTAMM6B/zjb8BsA0+wbn/5eSVIdjmDzIABVFS1RD0DUb6Vr9/2xtCNcMY4PkQAY4OMfS2ACQ4vWGFnADYGycBsAMqe9fBI5nmCHoYQCKvuiEStyBaKjv+7+sYS7WBAUyHKQZIwCRExLMEJBCkAaQGIgGYVCsgMIGFkMYeQGUPGF+A2EQGxkji4PzTrMdIi/8Oe6ImraRUiYyhomD8g48M1GanQEWEm18ifQkNgAAAABJRU5ErkJggg=="},{"id":378913,"subject":"drone","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA8UlEQVR42mNggAILheb/IMxADgBprNe+CMZkGsL+HxnjNgRVHVxQXk71/66sa/8RivBZxMAAUisuKg0zhB3MyUqvAWOEAdhsYwerKS7uQTaAAW4IDIP47h5x/60sfP6rqhqBMTY1WP0H8g5IM0gTiA0zAKGJ/T8eb7KjaELGqAbgCV1kZ6JjbjYh7LEAsgEWC5hORTUcpA4jFkDOBoVsREQKXCLQ/CQYg9KEp3LHf/TYwhkLIHaCznqwZpBNJfb7kRIWO+FYAGkGYZDI04V3wDS6IXgTm4/aXLDNIM0wA2BeISpXQPyLAKi2k5A7kTE+tQBiJepidRtCgQAAAABJRU5ErkJggg=="},{"id":378909,"subject":"drone","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA20lEQVR42mNgoA5g+Y+KSVLH8l9GQhcFYzcEpzqEiXFRWf8xbUHFmGqgDFND1/8rNx4Cs9+8+4wVg+RAajTUrTC9gUsTPsNQ/Ddt6QEwBkmev/H0/76L9zAwSD4wrh6MsYQTxEkghTXdm//zcEqg4PjcGWBMIKYgIQ3S8NnH/f81Jdn/2QKSKAbhj2agJEjRezfz/z8unvz/bcV0sCGxgsJgjQgXEGnAfQ0V8g0AYZDmOnHJ/8ECqsQagDAE5HeQzTDNhJM5FkNgmoi0GdOQ3NpFYEyGZvTchxsAAPPEGhWmvLJYAAAAAElFTkSuQmCC"}],"ac_unit":[{"id":1333291,"subject":"vent grille","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABG0lEQVR42mNggAPW/6RhFMD6f9uRmyi4aeJqFDxp4XoUjGQIRHN103Q4lpVWxYqR1azcfBJmCKoBMtJ6YAmQBphzYWyQHLIhcAOQbQbxVXUcMAywcYqAs7EaANIEYuuZeP5Pz2/HMCA+swauBkRjGADTwMUhDjYExAfRMDayATBX4DQA2ZaS2qlgOZD/YXKwsEAxABZ4MEUgTf6h6WC/oxuO4QKQLTADQE4GORekCKQBZhDIRcgGRKYVIAwAacBmAMy5IANAYiA5kJitoxeYj2IAcjjAAg4WCyDbYZphsQQyBG4AyDkgTCghgTSD1IA0oxhgZmkHdgXMEJgLkDHMZlCggjAsSuH5ARbnIAwyEKTIyz8GBePQTFl2BgDkaonaGRcplwAAAABJRU5ErkJggg=="},{"id":1333281,"subject":"vent grille","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABK0lEQVR42mNggID/ODBR4P/2A+fgeNLMFf/DI3LAmFgD/0+eueF/aVUvmJ67dDMYg9ggw9r754DlQBiXYWBJkEIQlpJQgSvi4uT/LyIkBjZs/6mbKC5FNgRsQHX1TLgmEN9AywTMBomBDIFZAJIDuVBJwRBuCFgQZjOyATCXgAwA0fGpFXDvEDTA1NQGzAfRINfB+EQZAAtYkI0gcVe3SLgrsBrgXeUMNwBmG0gzzFbkgIV5Q1lUBGGAQ7AhXBGy80FiIA0w22HyIDEMA2DeQHYuiFaTV0MJUJBmDAMi9bX/28dboYQFcujD/AuzHaQe2QC4ISDsn+oCNgSGkb0CkgO5FpsBKBkKFtL5hW1gDHN2pIbcf08r3AZgNQzmBRB2M9CEG0BKbmXAl9UB8gZlo4Z5SwMAAAAASUVORK5CYII="},{"id":1333287,"subject":"vent grille","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA4ElEQVR42p2TvQsCMQzFO4o43yY63Sq4CLoqepuDoqs6Ozv6p0de4OlLLKIehLRp8stHr6W8PvtRwme7w81O53sQ2qBVYFOIG5pmaPPFxqXfG7gDbMyo51gDRIitu8vzUAO5zzb1dcD2eA3BXKsNScajNkACAGWvlvsAo55OZr4mAL4BkLOzTwiCoAHhbFJ7EUAIdG5Nr7EKyANDVmbHDBTyEYA9g7UyQDCnKoDO6FlnwKGxEoUGACesM8g/Uq7oDUAINLMSwBvgrQQANnAgREvXCnie4KVoWd9K9UX+85wf+gxCSPGmCiwAAAAASUVORK5CYII="},{"id":1333297,"subject":"vent grille","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABC0lEQVR42mNgwAJYmAX+Y8MMxACQwp+PNoPxxzURKJigITDNIMVHk7T/H/TT/38+ShOO8RoC0/xuvvv/UBkxDOeDxHAagk2zNJ86Ci3ALgM3BKQObgiys0EKQApBYp7iEmA6WUYOxSCQGpABIO+BDQERPw4WgE0GsXUFFcB0k4kymJ5iLo9iEMwVKAaAbIcZANMICkRkenuUBooBMAMxDIApfNjrhkJfrrOjjgEgjRgGgPwDC0SYF2AGwbywyFEVbsBud214bMFjAmQIcjTCbIDRoMAFyYHUoWhGTgsgk0FOBmmyEZdGiRWQGMg1cKfjSo0z9VTBfrycaYCCMZyNLz+AFGLDJOVIYrMzAMUFUg7Oy8ErAAAAAElFTkSuQmCC"},{"id":1333279,"subject":"vent grille","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA/ElEQVR42mNggAJmJp7/pGAGZAAS+Hyziyj8cXvY/1pDeVRDQJy05LL/6jKK/6/1O4Lxw143MH2+3QYuBlOD1QAtAQmwIEghjI1Mg8RBmkF8rAZ8OZUDtg3EzlWVRFEI44PkQRinATAb98XogGmQN0B0j7kK3CWX6+ywG/DpQgncgFd7U8D04/kecG8RNADkNFwGwLyG1wDkwIMZAFJMkgEwCXSNMD7IAJyBCItrkCJYoKEbANIIYsPksSYk5LCAKQTRMOfj9AIskYCi8EyxCVgDMgaJwSwBGcjBJo5qAEgjMgZpQMc4UyKu3AiyBUQjG7LBSxO7AfgAvuwMAAZydHahyAZkAAAAAElFTkSuQmCC"},{"id":1333304,"subject":"vent grille","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABDklEQVR42mNggAJWZqH/pGAGZAASKNuZ9z9+RypOHDAxEAXDDYFpjl0e9V870uy/UYo5XgxSo+xs9N+uzAZiCIgA2QCSALGlZdT/83DJwtkwJyOLgwzS8NFCGACyHSQIYoNMh2nExQbZjmIAyE8wA0A0TCEuNoYBdp1OcANAksgKiTYAFgboCokywD1QlSQvgDRjGPCt2Q6vJpALkQ2Q0NFEGHAzQe//++mOGJpA4tgMgKUFuAHH3FTgBoDYMIXnQ4zh7EUG8igGoLhgpr4UVgPWOCgQZ4C2pg5YAcgQGP612f//7+c5YDZIAwiD/A7TDDcAlh8sNbXBLgFhkGEg54MwyBUwDcgYa44kJzsDAOagerp8zZCsAAAAAElFTkSuQmCC"},{"id":6589,"subject":"air conditioner","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABCklEQVR42mNgGDSAjVXsPykYQ/ODX3/+b/32/f+spx//d555+H/6paf/l11+B6ZBGKQGxobxUTSDNLZtuvxf3TnrvwC/KhiD2CDFQGX/RcX04Bgkp+veBDEERIBsBtkKUqhu6AeWABsAZIPELP1LUGwHYRQDYAIgTSANsqoOcDbIRpBBMI0wb2EYAFKkZhaOohFEw1wCUgMLGxCNYgBIAOZvmPNhhsAMAKlp2vYQTIOwcWA/wgCQBCzwYP4G8WEuALkMFMDIhmC4oGLGKbhmWGCCNILYIDkQBmkGYZBhKAYkdR+AK4L5HSQOCkyYOAjHtm2GY7gBsLQA8hMMgwwAKcCHsaZGspPygAIAJUZc57UH2ogAAAAASUVORK5CYII="},{"id":6590,"subject":"air conditioner","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABJElEQVR42mNggAImRt7/pGAGZAASuPrwLUkYbghM8/YD50jGYENABIjjEZz1PyAxH8WZsspGKBo0tI3A6swdXDANaJ0/DyxgZu0Nx8iGgDSD+DLSsv8FBQUxDYBpBtEgl1Q09oFtA/FVdRzAakAaGRmY8BsQn1kDZ0emFYBdAFMDUweiJy1cj2kASDHIAJAzQXxTUxsMA3AGIswAkCZYIIK8gmwAyHAQH9l7GAaAaJAkTAFMDBTIIMNBrgPRIENQDID5HaQBGcPkQbEACjxQ2IBoeIoEEQs27Py/++RluCHIGOZfWPSBaFgYYRiAK8WBnI+sCYRRYgHkX5DtIIXEYnggwvIDyL8gwcyydoxwgGGQHEgNLGwwciRywGHDIDlYAML0AQBhk+GFemwRVwAAAABJRU5ErkJggg=="}],"dish":[{"id":1056229,"subject":"satellite dish","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA80lEQVR42mNgwAOYmfj+gzADOQCk8cvnL/8nzVxBniEgTa5ukf/lpDWJMwDmXBhesGIPnK2rafcfXR5D85pVx+G4sLwNTMMAyDCQIcgAbghMc3jmPDjOyqv6f/zE2f/PXn74f+/lJzAGGQBjwzDYEBABUojsAlvzKLDfYfy2nu3/Rfnl/m/YcwmO/cNrUV0BMhEfAFly8MwTsGE2rqXYwwGkCOZsdDbI1rTCOdg1o8cEslPRnUx0lILCAIZB/icpMYEU19ctAtvs7JFBngEgf4M0gjAoVog2AJYHkAEo5EEuIWgISAEoqrBhnNGHLz/gwsh6AI1ZYVujSoAMAAAAAElFTkSuQmCC"},{"id":1056241,"subject":"satellite dish","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAyElEQVR42mNggAImRp7/IMyABmDiuOThip7f/wzGMEUwDWnbn4Nx1IZHYIzVEJBgfGYnGMM0wjSY5R2FY5wGwAyRkLD9L8KvjqKJaANghmjqReA0BOQVggaAFIrLRGMYArJdTs4bvxeQNYAUg7wE06xi1Qzm4wxEbE4GaSCoGZ8BRGnGZgAsCpE1E3QBTBMssGAYJAeiQYYRdAUuDDLAMnErfgPwGRxddYA8A2CaU268gqcPog0BKQTZih4zCpplxBmCL0yQDQAABSIUMu+16kUAAAAASUVORK5CYII="},{"id":1056230,"subject":"satellite dish","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA+klEQVR42mNggAI2FqH/IMxADgBpfOej+v/n2jishsAMx2kJSHC5gjTYEGQFMA2feu3+f6oz+P/E3eD/VVN53IYoixvAJcEagZpA+NfNMrgBIItANE5D9BRt/yNrRsYwA+auPIQ7vGCGkGUASBDkR5AikHfQDQCJg7yDVzMM75aTRTEExAdpnjZvD6YB6JphGOYSZM3xuTOINyBZRg7ubJBmj4h27JpBitA1d8tK/d+jpwjXDAo4vAagY5BGmGYQtvQvwZ4SQQIgP8IwTCNIAzIGqTurqwxOlVgN0bNKxMDoeQBkASi5/1jggd0QQpkG5gqc+YGYXItuAQCTFEn2BNh96wAAAABJRU5ErkJggg=="},{"id":1148968,"subject":"solar panel","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAoUlEQVR42mNgGAVwwMTE/58UjKF51tOPYKwkrgmmvUuW/pcQ1QLTduEzwGzLmCX/DaxrwWwUQ2AGgBTANBkH9oPZIM0gTYK8MmAawwAVFfP/0+btAdsMwiAJkAIYG6QRhNHZDR3LIYaACB+fRLCtIBeAFMBcAGLDnI3sAhDbzjYQYQDIFSANMANAbJgByJqwegFmADEYpBGGMQKRomgc4QAAwFWxXWa8lbIAAAAASUVORK5CYII="},{"id":1148974,"subject":"solar panel","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAsklEQVR42mNgQAX/icRYwf/Xmyej4qXN/680hv/vdNVHwdgMAStWkLT47+tUCaZdHHPBtLV1DpgW4BL5b2aYAKZneJhiGAK2CZtGsg3A5wJs3oAbgG4zSBNRBgQqSYENAeE7fclgDFIIci4yXhJg8d9NRhJ7QIIkQBhkGIyNDeONShiWE5P+b2fhBqaJTQcYhmkIC5KkAcOAWA8Hsg34nxXgPzCaKXY61VwBNkRfVpmgAQCBgdH9VtqPMQAAAABJRU5ErkJggg=="},{"id":1148991,"subject":"solar panel","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAuElEQVR42mNgoC7g+E8aRtO8bP1ZonFSTh+6IRADZFXd/8vq5YFpkJiUtOV/OasqMIaJgTSDxJEMgGjGphgkBjJQWTsYLhaZ0IjdALDtSBhuAJIYF4cobhcQE3A4NYNMR3c+Ml9USB0sBpPDGnggfyL7FRaYRBkAUoCMQeLoYqDAwxr/IAkQBvkPRiNjmDya38lNgSQkay11ezAmUSPCRXnl/f9DggtItR2iEaYZhB2cY0l1CfH+BwCoThEGiG8nuwAAAABJRU5ErkJggg=="},{"id":1148969,"subject":"solar panel","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAwUlEQVR42mNgoA1g/E8cxqF52/GXBLGUuA42QyCazRdcB2Pj/F3/+XnFwFgvfRccKyvagsUIGgBSjM0AVVUvbAZANOv1XYIbgE2zkmE6bts37H30X9ujG45hBijrxcExyO84DQDZDsLIfkd2AchQvIEH0gjDZAWeimkRHGNzPg4DoIGXjmm7ilUzHMM04zQAm/OxGYAlDEgzwD+8FtMAG9ccDOwSUIyCYYZiMYBw5oFpDo3rABsAMhBPZiIldzIwAADxVklWNL5VyQAAAABJRU5ErkJggg=="},{"id":1056227,"subject":"satellite dish","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAzklEQVR42mNggAImRp7/IMyABmDi2ORQFP163vv/U5U3XCFM04a9j+AYpyEgiY9tEf8nGuj8R9fY0LEcjvVMorAbguxMU0NXDI0EDUA2CKRZXcUWQ7OTvdt/CQlb/N5AtllZVgfFAJBmkgxANoRk22HYyjEBrpmgAdgCjSjN2AxA1ignB0kbBF0AiiIYRrYVhEEGgsKDoCvQMUw8NGkCYQPwGUy2ASANsxed+F86Yf//4NB+woGJrjmpbDMY52YmgTEohYIwUYZgCxNsWRsADZENa7rTuUMAAAAASUVORK5CYII="}],"tower":[{"id":1360023,"subject":"water tower","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAhklEQVR42mNgwAGYGPn+wzADqQCkycR/zn/H2iP/VW3LSDMEpNg4f9f/utOvwQaAsLZHN3GGgBSBNCBrhhkgo5VM2BC6GICOiTIAF8ZqAMg2bJgoF8AMkRazwMAwxSAab9QiK4BpRDcAbwIDSei6N+E1gKAL0GOA6i5Q1oujsRcIGUDVQAQADdLzZcrwWOcAAAAASUVORK5CYII="},{"id":1359999,"subject":"water tower","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAyklEQVR42mNgwAHYWUT+wzADqQCkqXDDIzA2DuwnzRCQYr85l//HH3vz37H2CBgTbQhIUfj++/8bP70DY2QDxJXDCRsCUgDSUHrnI1zz4DMAb8zgM0DJMP2/c9wacMwUnHiF3RCQIEixif8cMAZpsPDsBNuO7AJQQON1hYSiL1wTsmaYPMhwvAZIS+j/x0YjuxKvASCng2gzq2TSDIAFIsgLIENABoBoEJ8oL8AMgAUWKABhbFVVLzgbrwuQNeEyAK8LkCXQ2dgMAADOLgXR7NvejgAAAABJRU5ErkJggg=="},{"id":1360038,"subject":"water tower","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAwElEQVR42mNgwAOYGPn+gzADOQCk0WHKlf/qkctIMwSkWFzY5L9d+AwwDcMC/KqEDQIp0Ou79D9t+3MwDcNa8Vv+y9vO+y+pmIzfEJDkj5WW/3+/Sfn/PERvkBgACkiSDABp8l19C247SQbADAEpRsdEaYYZICFhixKFMEy0AVf17MGK75h7wTWSZAAoEGE0WQb82uz/X9NrEZgGJWUVq2awt4g2ABT6sLwAs5kkA0AaYQaRZQBMsZycNzwT4QoDALbE4iZaaQtjAAAAAElFTkSuQmCC"},{"id":1360041,"subject":"water tower","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAwklEQVR42mNgwAOYmQT+P9bT/g+iQZiBVAAzAIZJ0gjCnByKcNuJdgFIYeaB2/9XvvwCpq37zvzXCpzyX0UtkrAhIAVhJ4783/rtO5i22Vb6X2/1lP+OtUfAhiirpeI3BCT5dZfH/98fFoJpGP6Yavb/gbLe/woph8FuAMwQUMAhY4OkNf9VbctIiwlQoMEwUTGAboAIlzQ48eRImJGeEmEGgPxNsgGwhATDIP+DMME0gG4AjIb5n74GgJIuugG4YgIAfnrppkV1/goAAAAASUVORK5CYII="},{"id":1359996,"subject":"water tower","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAn0lEQVR42mNgwAvY/kMwWYDt//yNF/7H584g1RCIrY9evIfjimlb/hPpGohGGEA2pHbeATDGYwiq5o9fv6EYQIQhuG0nyQB8mCIDYJqJCgcyNSMMQdYAwp6+uWBMQDPbf2Ssa+CPgglqXrBiz/+UjCYwNrP2hscEyAV6JlH4/b1y88n/js5BKC4gyYD4xBI0BSQa4OUfQ5kBSspaZBsAADJNb6PPivdkAAAAAElFTkSuQmCC"},{"id":1360022,"subject":"water tower","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAjElEQVR42mNgwAOYmQX/gzADqQCmMWLyjf8G1rX/STIIpDBt+3MwtkzcCsYgQ0TELAgbAlIAUgjCArwaWDFeQ0CS5tW7/3deewOmYVjbo/u/rF4eYVcMHgNAAUiWATBDyApAdENAtsrJeYMxSZqR0wLM+SBDhpAByJqRw4LocKCKAbD4B7FN/OfgNQAA7iPT/HLr8eQAAAAASUVORK5CYII="},{"id":1360036,"subject":"water tower","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAwklEQVR42mNgwAsY/0MwWYDxf0XTrv9a6vakGgKx1Tey5H9IWDMYIwwhaBDj/8odb/6fe/EVjNumb4PjtMI5/10CivEZAtH8/P2v/zfvf0bRjGyAroE/LkMQBtSdfo1hQGnZIuIM6Lz2BkMzCIM0EzQgLGciXs0EDIAYYu6dhhMTGaWM/8VE1LBiItMDJAHBvATTSEKCYvyfXg8xYOq0q3CNJBkASoUUuQDZAFgSJskASJJlYAClPpgmkgxAKMTFRgAAHYf4R866y1AAAAAASUVORK5CYII="},{"id":1360037,"subject":"water tower","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAvElEQVR42mNgwAk4/iMwyYDj/+ylO8E4u3YGqQZx/H/9/Mn/339+gjGIvWf5hP8BiSHEGMIB1wjTDMNEGIJpMzpeVBuPzxCEAdg0n967ijgD8GkGYSfPUPzeAClGx0RqRhgCUogNExmVHP+nT18Mj3uQn+WkDMCYaANA/m6Pc/jvrK36/+zRHf9bAjRJNwDmArINaAgxpY4LQClQS0qENANAUQdzwfQ0G7BGkCFEG5CYlA53gaODH5jG5QIAl24z0VBUjxkAAAAASUVORK5CYII="}],"trophy":[{"id":714621,"subject":"lidded trophy cup","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA2ElEQVR42mNgwAPYWET+gzADOQCk8dur8/8fz/cg3RCYzbfrbf+HKGn9J9olIEUgG0E2fzqVAscPe93+X6ky/y/DI4HdIJgNIAyyMVhOGkxjw8hqUfz6cU3E/30JxmAbQXx0V4C8M8PfGoxBLgLJgw0BESAFMFNhBiBrhhmwJMACrg5kCMkGgGxHDmAUb8BMRNeIzYDNsc6YgQkSADlRiEMYr2YYjTf+YU6EYWSnE52oQAoztc3AmKzkDAsPUAIiKynDYgLkhQ5nW9Kcji0REW0IcmBhw+jqAVmvOHgXWLqIAAAAAElFTkSuQmCC"},{"id":714628,"subject":"lidded trophy cup","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA5ElEQVR42mNgwAMyrLX/c3PJ/WcgB4A0fv9y9f+X60XkGQLS9OVSLmUuuJhl/b/D2ZY0Q8A2A50Ncz4Iv1ge8f9KlTl+g0CSILzQU/3/JAdjMAaxYfx4FQiGqcMZYDDbkfkgfL/D/v8sS/v/92c7///1vBfVEOQAA9FgzTAayQBYeIDYmAYcSPvvKa8H1vjrwzqwJpBN6AZgaEYPA1DIIzsdpnlzkDFYjmCMwAwC+RWGYRpJjs4lARb/M7XNyE+JD3rNwU4n2QDkaAV5gSRD4JqBsQEPRKAhoDRAlCGwwMKF0dUDANsKFQD/iugqAAAAAElFTkSuQmCC"},{"id":714636,"subject":"lidded trophy cup","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA4UlEQVR42mNgwAM42EX+gzADOQCk8fuXq/9f7U0h3RCY5jfnc//vi9H5vy3KkHhDkDXD8LUFtvgNgfkVhGst1VBwqbby/zQ1FThGVoth47EaEzD9/cM5MEZ2BcgrMJe82hX9/9vtFoghIAKkAGYqzIAPZ2NRDIEZAFN3uc4O1RVXuz0RBgBdBDLg572ZWA0AuRQjPGCmghSDNP96dwCrF0A0wcBE1ggLG5hGoqIT5kyQi0AYq5OJMSRexRiMyUrOIE2gcDhcaERmUoZG4dtlTmQkZbREBEo4RBuCnFSxYXT1AMcsMvFddrU1AAAAAElFTkSuQmCC"},{"id":714638,"subject":"lidded trophy cup","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA6klEQVR42mNgwAPY2cX/gzADOQCk8de7A/+fL/Uk3RCYzWuj9P6HKGn9J8klMJtB+NOFdDC+32H/f0+wOm5DYDaA8P3ZzmBng2iQRjANxCADYIaguAhm44cjif895fWIwiC1n641QgwBES93B8FNBTkZ5gWQQrBiqDdAGO5SKBvDAJAGZP8TNADmjeVeuigGINuObsB8Vz3MAAUJgAJpipUWXDO67S1mOtg1o8cGSBHM5itV5mDNIIOJTg8whSAbSU5IyIaAvAALG7LyASiuQYkIlKRJSsrf7y0CRy0sVYIw0S5BTqrYMLp6AIGwOQvITtJYAAAAAElFTkSuQmCC"},{"id":532405,"subject":"globe trophy","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABG0lEQVR42mNgwAG4OST/I2MGUgBIw5eblSgYryHotn26kP7/x/fbYAwz4MORxP9YXQVigBSCNJ2utwErRtcMMwAkf2uKK9wCsCEwG2GmwgwAiT2arQfmv1jv8L/XUgZsAEzd602hCAOQJWA2HsoygLNX+slhGABjw70BE0APPJDtG8I0/2/3R6hB0YwckCCJah1DFH+DXHI83wIsFypjDGbjjBHkEAYphGmGaSIqPYAUzVZQBisG2QjCIHatvAlhA0AKjukY/Z+trgdWvC9GBxyAIPZOOTWwHF7ngxRc09WCuwAUDjDnwwzAagjY2VBbYQrQDUCWw+kdmL+RkzMoGue76sHDhKhAhGkG0SBXgJJvt40u8bGAD6OrBwDCjW6KrQtV4gAAAABJRU5ErkJggg=="},{"id":714666,"subject":"lidded trophy cup","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABBElEQVR42mNgwAOYmQT+gzADOQCk8ce7rf9/nk4k3RCQhq+P1v2/UmX+v8Va7T9JLoFp/v359P8vDyaAMbJBeP0KwiANv6/lgfGvm2VgL4BokCEgjKwWxa8gRduiDP/nqkpi4HgVGTie4KDx/06rEdiVYENABEgzzFQQG+R8EP52uwXMB9Ho4XG/wx6/ATBNID4Ig2xFNgDmHbg3QCaCBMH+BxoA8jvMazD/gwxADgucAfluvjvcZmQDNDXz/qtYNROOUpgTQRjkdJiNKkbV/y0qzxKXJkCKYLEAcxlMs1PjFeJcAQtIkg0ASYICEpaQ0JMzQc2g1IgciMhRSHR+wIaxqQUAfi5MUvswdJIAAAAASUVORK5CYII="},{"id":714659,"subject":"lidded trophy cup","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAyklEQVR42mNgwAPYWUX/gzADOQCk8eejzf/vTbIl3RCYzdeKTf7namr9J8klIIWfTqX8//n+GpgG4ct1dv9LDDUJG4JNMwyDXNNsZ4jdEJgTQRhkEzoGeQOGkdUiAgto490Jvv+RXYDuCpA3YC4A0SAxsCEg4suBNLipuLyAbAAIg/goroAJEGMAKDwwwgImAYp3dM3IBmwOMsYdGzDnoRuCHI1EpQeYa0AaiU4D2AyBRSFZmkFO//1wMukuwJWUcaZCfKkSG0ZXDwBp0DJlA5UvvAAAAABJRU5ErkJggg=="},{"id":714665,"subject":"lidded trophy cup","src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA8UlEQVR42mNgwAHYWIT//3p34P/zpZ7/QWwGUgFI05lik/9pKtKkGwDS8P3Duf9frhf9fzTT6v8sL3XiDQEp/P103v9bbVb/j2dpwfEyf1XchoAkYBhkKzYMCguQl5DVYjj3SpU52M/oOEoBgVeGG4Fd9+1eHcQQmK3ILgAZCDMUhkG211qqwdWBLMNrALoX0A2AeQfuDZiJMAO+XYj//+vDOqwGYA1QZKeBNQMTEUwzKCpBmpFdgDcaQYYgawbZCNNMdFoAGQLCyE4nOTV22SmDo44szR8O+ILDAeQFkEEkOR89KkEJh2hvICdVbBhdPQCaFEGzRXVUtQAAAABJRU5ErkJggg=="}]};
+
+const MACHINES = [
+  { slot: "player", name: "Mk I · Glider", chip: "Start", top: 150, accel: 190, turn: 3.1, grip: 5.4, text: "A light hover pod. Quick to turn, easy to push off the line." },
+  { slot: "player_mk2", name: "Mk II · Striker", chip: "1st OVERDRIVE", top: 170, accel: 215, turn: 3.25, grip: 6.0, text: "A low coupe. More top speed; carries it through long bends." },
+  { slot: "player_mk3", name: "Mk III · Zenith", chip: "2nd OVERDRIVE", top: 190, accel: 240, turn: 3.4, grip: 6.6, text: "A formula racer. The only machine that can live with Blackout pace." },
+];
+const RIVALS = [
+  { slot: "rival_halo", kind: "halo", name: "Halo", chip: "Cyan · the line", cls: "cyan", color: "#36e2ff", pace: 1.0, text: "Drives the perfect line and brakes late. Never attacks. Beat her on the straights or with a dart." },
+  { slot: "rival_vex", kind: "vex", name: "Vex", chip: "Lime · the blocker", cls: "lime", color: "#a8ff4f", pace: 0.97, text: "Watches his mirrors. When you close in behind him he moves across to block. Pass on the inside of a bend." },
+  { slot: "rival_dynamo", kind: "dynamo", name: "Dynamo", chip: "Amber · the grudge", cls: "amber", color: "#ffb23e", pace: 0.95, text: "Steady and a bit slow, until you hit someone. Every hit adds heat; at five he overdrives for the rest of the race." },
+];
+const KIT = [
+  { slot: "cell", name: "Charge cell", chip: "+2 charges", text: "Ammo for darts and mines. Hold up to nine; they carry over between races." },
+  { slot: "dart", name: "Dart", chip: "Fire", text: "Flies ahead and bends a little towards the nearest pilot in front. A hit spins them for a second." },
+  { slot: "mine", name: "Mine", chip: "Drop", text: "Left behind you. Arms after half a second and spins whoever touches it first." },
+  { slot: "shield", name: "Shield", chip: "One hit", text: "A bubble that soaks up the next spin or crash." },
+  { slot: "thruster", name: "Thruster", chip: "Acceleration", text: "Upgrade: faster off the line and out of corners. Up to level 3." },
+  { slot: "core", name: "Core", chip: "Top speed", text: "Upgrade: a higher top speed on the straights. Up to level 3." },
+  { slot: "grip", name: "Grip", chip: "Cornering", text: "Upgrade: less slide in bends and a quicker turn. Up to level 3." },
+];
+const HAZARDS = [
+  { slot: "storm", name: "Storm cloud", chip: "Storm league", cls: "cyan", text: "Drifts along the track. Under it the rain cuts your grip and top speed. Its shadow arrives first." },
+  { slot: "drone", name: "Security drone", chip: "Blackout", cls: "amber", text: "Sweeps back and forth across the track behind a red scan line. Touch it and you spin." },
+  { slot: "glitch", name: "Glitch skull", chip: "Blackout", cls: "amber", text: "Hangs over the racing line. Fly through it and it eats two charges." },
+];
+const ROOF = [
+  { slot: "ac_unit", name: "Roof fan", text: "Air vents and fans on the roofs below." },
+  { slot: "dish", name: "Dish", text: "Satellite dishes and panels." },
+  { slot: "tower", name: "Water tower", text: "The tall landmarks you see slide past under the sky bridges." },
+  { slot: "trophy", name: "Trophy", chip: "Results board", text: "Shown beside your name when you finish in the top three." },
+];
+const CAR_SLOTS = ["player", "player_mk2", "player_mk3", "rival_halo", "rival_vex", "rival_dynamo"];
+const NOSE_ANGLE = { up: -Math.PI / 2, right: 0, down: Math.PI / 2, left: Math.PI };
+const NOSE_NEXT = { up: "right", right: "down", down: "left", left: "up" };
+const NOSE_ARROW = { up: "↑", right: "→", down: "↓", left: "←" };
+
+// Picks: first candidate by default (the build puts the chosen sprite first). Remembered per viewer when storage allows.
+const picks = {};
+for (const slot in SPRITES) picks[slot] = SPRITES[slot][0]?.id;
+const nose = { player: "up", player_mk2: "up", player_mk3: "down", rival_halo: "up", rival_vex: "up", rival_dynamo: "up" };
+try {
+  const saved = JSON.parse(localStorage.getItem("pro-racer-z-picks") || "{}");
+  for (const slot in saved) if (SPRITES[slot]?.some((s) => s.id === saved[slot])) picks[slot] = saved[slot];
+  const savedNose = JSON.parse(localStorage.getItem("pro-racer-z-nose") || "{}");
+  for (const slot in savedNose) if (NOSE_ANGLE[savedNose[slot]] !== undefined && slot in nose) nose[slot] = savedNose[slot];
+} catch (e) {}
+function save() {
+  try {
+    localStorage.setItem("pro-racer-z-picks", JSON.stringify(picks));
+    localStorage.setItem("pro-racer-z-nose", JSON.stringify(nose));
+  } catch (e) {}
+}
+
+const images = {};
+const whites = {};
+for (const slot in SPRITES) for (const s of SPRITES[slot]) {
+  const img = new Image();
+  img.onload = () => {
+    const c = document.createElement("canvas"); c.width = img.width; c.height = img.height;
+    const g = c.getContext("2d"); g.drawImage(img, 0, 0); g.globalCompositeOperation = "source-in"; g.fillStyle = "#ffffff"; g.fillRect(0, 0, c.width, c.height);
+    whites[s.id] = c;
+  };
+  img.src = s.src; images[s.id] = img;
+}
+const entry = (slot) => SPRITES[slot]?.find((s) => s.id === picks[slot]);
+
+function candidates(slot) {
+  const box = document.createElement("div");
+  box.className = "cands";
+  for (const s of SPRITES[slot] || []) {
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "cand"; b.dataset.slot = slot; b.dataset.id = s.id;
+    b.title = `${s.subject} · #${s.id}`;
+    b.setAttribute("aria-label", `${s.subject}, catalog ${s.id}`);
+    const img = document.createElement("img"); img.src = s.src; img.alt = "";
+    b.append(img); box.append(b);
+  }
+  return box;
+}
+
+function card({ slot, name, chip, cls, text }) {
+  const c = document.createElement("article");
+  c.className = "card"; c.dataset.slot = slot;
+  const head = document.createElement("div"); head.className = "card-head";
+  const hero = document.createElement("img"); hero.className = "hero-sprite"; hero.alt = name; hero.dataset.hero = slot;
+  const title = document.createElement("div"); title.className = "card-title";
+  const h = document.createElement("h3"); h.textContent = name; title.append(h);
+  if (chip) { const ch = document.createElement("span"); ch.className = cls ? `chip ${cls}` : "chip"; ch.textContent = chip; title.append(ch); }
+  const meta = document.createElement("span"); meta.className = "meta"; meta.dataset.meta = slot; title.append(meta);
+  if (slot in nose) {
+    const n = document.createElement("button"); n.type = "button"; n.className = "nose"; n.dataset.nose = slot;
+    n.title = "Which way the front of this sprite points as drawn"; title.append(n);
+  }
+  head.append(hero, title); c.append(head);
+  if (text) { const p = document.createElement("p"); p.textContent = text; c.append(p); }
+  c.append(candidates(slot));
+  return c;
+}
+function machineCard(m) {
+  const c = card(m);
+  if (m.slot === "player") {
+    const sizes = document.createElement("div"); sizes.className = "sizes";
+    for (const n of [1, 2, 4]) {
+      const f = document.createElement("figure");
+      const img = document.createElement("img"); img.width = 16 * n; img.height = 16 * n; img.alt = ""; img.dataset.hero = "player";
+      const cap = document.createElement("figcaption"); cap.textContent = `${n}× · ${16 * n}px`;
+      f.append(img, cap); sizes.append(f);
+    }
+    c.insertBefore(sizes, c.querySelector(".cands"));
+  }
+  return c;
+}
+for (const m of MACHINES) document.getElementById("mk-grid").append(machineCard(m));
+for (const r of RIVALS) document.getElementById("rival-grid").append(card(r));
+for (const k of KIT) document.getElementById("kit-grid").append(card(k));
+for (const z of HAZARDS) document.getElementById("haz-grid").append(card(z));
+for (const r of ROOF) document.getElementById("roof-grid").append(card(r));
+
+function refreshCards() {
+  document.querySelectorAll("[data-hero]").forEach((img) => {
+    const slot = img.dataset.hero, e = entry(slot); if (e) img.src = e.src;
+    img.style.transform = slot in nose ? `rotate(${(-Math.PI / 2 - NOSE_ANGLE[nose[slot]]) * 180 / Math.PI}deg)` : "";
+  });
+  document.querySelectorAll("[data-meta]").forEach((m) => { const s = entry(m.dataset.meta); if (s) m.textContent = `${s.subject} · #${s.id}`; });
+  document.querySelectorAll(".cand").forEach((b) => b.setAttribute("aria-pressed", String(Number(b.dataset.id) === picks[b.dataset.slot])));
+  document.querySelectorAll("[data-nose]").forEach((b) => { b.textContent = `Nose ${NOSE_ARROW[nose[b.dataset.nose]]}`; b.setAttribute("aria-label", `Sprite nose points ${nose[b.dataset.nose]}. Click to change.`); });
+}
+refreshCards();
+
+document.addEventListener("click", (ev) => {
+  const b = ev.target.closest(".cand");
+  const n = ev.target.closest("[data-nose]");
+  if (b) picks[b.dataset.slot] = Number(b.dataset.id);
+  else if (n) nose[n.dataset.nose] = NOSE_NEXT[nose[n.dataset.nose]];
+  else return;
+  save(); refreshCards();
+});
+
+document.getElementById("copy-picks").addEventListener("click", () => {
+  const json = JSON.stringify({ ...picks, nose }, null, 2);
+  const status = document.getElementById("copy-status");
+  const area = document.getElementById("picks-text");
+  const fallback = () => { area.value = json; area.hidden = false; area.focus(); area.select(); status.textContent = "Copy the selected text below."; };
+  try {
+    navigator.clipboard.writeText(json).then(() => { area.hidden = true; status.textContent = "Copied. Paste it back to Claude."; }, fallback);
+  } catch (e) { fallback(); }
+});
+
+// ---- Screen mockup ----
+// Game coordinates are 416x228; the canvas is 2x so half-size icons stay pixel-exact, like the game's 4x canvas.
+const cv = document.getElementById("screen");
+const ctx = cv.getContext("2d");
+const S = 2, W = 416, H = 228;
+const C = { night: "#0a0b18", ink: "#e9efff", dim: "#9aa2c8", kerb: "#ff3ea5", cyan: "#36e2ff", lime: "#a8ff4f", amber: "#ffb23e", hurt: "#ff5470", violet: "#8b5cff", panel: "rgba(9,10,22,0.86)", line: "#2a2d4c" };
+const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const rand = Math.random;
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const angDiff = (a, b) => { let d = a - b; while (d > Math.PI) d -= Math.PI * 2; while (d < -Math.PI) d += Math.PI * 2; return d; };
+function mulberry32(a) { return () => { a |= 0; a = (a + 0x6d2b79f5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+
+const LEAGUES = [
+  { name: "Neon", pace: 1.0, reverse: false, note: "Neon league: coolant spills, slicks and boost pads." },
+  { name: "Storm", pace: 1.06, reverse: true, note: "Storm league: the track runs in reverse, storm clouds drift over it and there are more slicks." },
+  { name: "Blackout", pace: 1.12, reverse: false, note: "Blackout league: laser gates, security drones and glitch skulls; the city lights go down." },
+];
+const WORD = "OVERDRIVE";
+const LAPS = 2; // the mockup runs two-lap races; the game uses 2-4 by track
+const HW = 24, APRON = 12;
+const WORLD = { w: 1640, h: 1140 };
+const CTRL = [[260, 820], [220, 560], [300, 330], [500, 230], [700, 300], [800, 450], [960, 430], [1060, 250], [1280, 220], [1420, 380], [1380, 600], [1200, 700], [1000, 690], [860, 760], [820, 880], [700, 980], [480, 990]];
+const PX = 0.88; // city parallax under the raised track
+
+let league = 0, mk = 0, facings = 0;
+let T = [], N = 0;
+
+function buildTrack(reverse) {
+  const P = reverse ? [...CTRL].reverse() : CTRL, n = P.length, raw = [];
+  for (let i = 0; i < n; i++) {
+    const p0 = P[(i - 1 + n) % n], p1 = P[i], p2 = P[(i + 1) % n], p3 = P[(i + 2) % n];
+    for (let k = 0; k < 40; k++) {
+      const t = k / 40, t2 = t * t, t3 = t2 * t;
+      const f = (a, b, c, d) => 0.5 * (2 * b + (-a + c) * t + (2 * a - 5 * b + 4 * c - d) * t2 + (-a + 3 * b - 3 * c + d) * t3);
+      raw.push([f(p0[0], p1[0], p2[0], p3[0]), f(p0[1], p1[1], p2[1], p3[1])]);
+    }
+  }
+  const cum = [0];
+  for (let i = 1; i <= raw.length; i++) { const a = raw[i - 1], b = raw[i % raw.length]; cum.push(cum[i - 1] + Math.hypot(b[0] - a[0], b[1] - a[1])); }
+  const total = cum[raw.length], count = Math.round(total / 6), pts = [];
+  let j = 0;
+  for (let s = 0; s < count; s++) {
+    const d = (s / count) * total;
+    while (cum[j + 1] < d) j++;
+    const a = raw[j], b = raw[(j + 1) % raw.length], k = (d - cum[j]) / (cum[j + 1] - cum[j] || 1);
+    pts.push({ x: a[0] + (b[0] - a[0]) * k, y: a[1] + (b[1] - a[1]) * k });
+  }
+  const M = pts.length;
+  pts.forEach((p, i) => {
+    const a = pts[(i - 1 + M) % M], b = pts[(i + 1) % M], l = Math.hypot(b.x - a.x, b.y - a.y) || 1;
+    p.tx = (b.x - a.x) / l; p.ty = (b.y - a.y) / l; p.nx = -p.ty; p.ny = p.tx; p.h = Math.atan2(p.ty, p.tx);
+  });
+  pts.forEach((p, i) => { p.curv = angDiff(pts[(i + 5) % M].h, pts[(i - 5 + M) % M].h); });
+  return pts;
+}
+const at = (frac, lat = 0) => { const i = ((Math.round(frac * N) % N) + N) % N; const p = T[i]; return { seg: i, lat, x: p.x + p.nx * lat, y: p.y + p.ny * lat }; };
+
+// ---- Baked layers: the city below and the raised track ----
+let city = null, track = null, minimap = null, sceneryAt = [];
+function bakeCity() {
+  const r = mulberry32(17), dark = league === 2;
+  const cw = Math.ceil(WORLD.w * PX + W + 40), ch = Math.ceil(WORLD.h * PX + H + 40);
+  const c = document.createElement("canvas"); c.width = cw; c.height = ch;
+  const g = c.getContext("2d");
+  g.fillStyle = "#04050b"; g.fillRect(0, 0, cw, ch);
+  sceneryAt = [];
+  const roofs = ["#151830", "#18162b", "#121d2a", "#1a1b2e"];
+  for (let y = 0; y < ch;) {
+    const bh = 80 + Math.floor(r() * 110);
+    for (let x = 0; x < cw;) {
+      const bw = 80 + Math.floor(r() * 140), gap = 10 + Math.floor(r() * 8);
+      const rx = x + gap, ry = y + gap, rw = bw - gap * 2, rh = bh - gap * 2;
+      // street lights in the gap
+      g.fillStyle = "rgba(255,190,90,0.55)";
+      for (let sx = x + 6; sx < x + bw; sx += 22) g.fillRect(sx, y + 3, 1, 1);
+      if (r() < 0.5) { g.fillStyle = r() < 0.5 ? "rgba(255,70,90,0.7)" : "rgba(230,240,255,0.7)"; g.fillRect(x + r() * bw, y + 4, 3, 1); }
+      g.fillStyle = roofs[Math.floor(r() * roofs.length)]; g.fillRect(rx, ry, rw, rh);
+      g.fillStyle = "rgba(255,255,255,0.06)"; g.fillRect(rx, ry, rw, 1); g.fillRect(rx, ry, 1, rh);
+      g.fillStyle = "rgba(0,0,0,0.35)"; g.fillRect(rx, ry + rh - 1, rw, 1); g.fillRect(rx + rw - 1, ry, 1, rh);
+      g.strokeStyle = "rgba(255,255,255,0.05)"; g.strokeRect(rx + 3.5, ry + 3.5, rw - 7, rh - 7);
+      for (let k = 0; k < 3; k++) { g.fillStyle = "rgba(120,140,190,0.10)"; g.fillRect(rx + 6 + r() * (rw - 20), ry + 6 + r() * (rh - 18), 6 + r() * 8, 4 + r() * 5); }
+      if (r() < 0.45) {
+        const col = [C.kerb, C.cyan, C.violet, C.amber][Math.floor(r() * 4)];
+        g.globalAlpha = dark ? 0.25 : 0.7; g.fillStyle = col;
+        const len = 10 + r() * 24;
+        if (r() < 0.5) g.fillRect(rx + 4, ry + rh - 4, len, 1); else g.fillRect(rx + rw - 4, ry + 4, 1, len);
+        g.globalAlpha = 1;
+      }
+      if (r() < 0.7) sceneryAt.push({ x: rx + 10 + r() * (rw - 20), y: ry + 10 + r() * (rh - 20), slot: ["ac_unit", "dish", "tower", "ac_unit"][Math.floor(r() * 4)] });
+      x += bw;
+    }
+    y += bh;
+  }
+  if (dark) { g.fillStyle = "rgba(2,2,8,0.55)"; g.fillRect(0, 0, cw, ch); }
+  city = c;
+}
+function ribbon(g, width, style) {
+  g.beginPath(); T.forEach((p, i) => (i ? g.lineTo(p.x, p.y) : g.moveTo(p.x, p.y))); g.closePath();
+  g.lineWidth = width; g.strokeStyle = style; g.lineJoin = "round"; g.stroke();
+}
+function edge(g, off, style, w = 1) {
+  g.beginPath(); T.forEach((p, i) => { const x = p.x + p.nx * off, y = p.y + p.ny * off; i ? g.lineTo(x, y) : g.moveTo(x, y); }); g.closePath();
+  g.lineWidth = w; g.strokeStyle = style; g.stroke();
+}
+function bakeTrack() {
+  const dark = league === 2;
+  const c = document.createElement("canvas"); c.width = WORLD.w; c.height = WORLD.h;
+  const g = c.getContext("2d");
+  g.save(); g.translate(8, 12); ribbon(g, (HW + APRON) * 2 + 6, "rgba(0,0,0,0.55)"); g.restore();
+  ribbon(g, (HW + APRON) * 2 + 4, "#2c3050");
+  ribbon(g, (HW + APRON) * 2, dark ? "#0e0f1c" : "#121426");
+  ribbon(g, HW * 2, dark ? "#15172a" : "#1d2034");
+  // apron texture
+  g.fillStyle = "rgba(255,255,255,0.05)";
+  T.forEach((p, i) => { if (i % 2) return; for (const s of [-1, 1]) g.fillRect(p.x + p.nx * s * (HW + 6) - 0.5, p.y + p.ny * s * (HW + 6) - 0.5, 1, 1); });
+  edge(g, HW, "rgba(233,239,255,0.28)"); edge(g, -HW, "rgba(233,239,255,0.28)");
+  edge(g, HW + APRON + 1, dark ? "rgba(54,226,255,0.35)" : "rgba(54,226,255,0.6)"); edge(g, -HW - APRON - 1, dark ? "rgba(255,62,165,0.35)" : "rgba(255,62,165,0.6)");
+  // kerbs on the bends
+  T.forEach((p, i) => {
+    if (Math.abs(p.curv) < 0.16) return;
+    const s = Math.sign(p.curv); // inside of the bend
+    for (const side of [s, -s]) {
+      g.save(); g.translate(p.x + p.nx * side * (HW - 2), p.y + p.ny * side * (HW - 2)); g.rotate(p.h);
+      g.fillStyle = Math.floor(i / 2) % 2 ? C.kerb : C.cyan; g.globalAlpha = side === s ? 0.95 : 0.5;
+      g.fillRect(-3, -2, 6, 4); g.restore();
+    }
+  });
+  // centre dashes
+  g.fillStyle = "rgba(233,239,255,0.16)";
+  T.forEach((p, i) => { if (i % 6 < 2) g.fillRect(p.x - 0.5, p.y - 0.5, 1.5, 1.5); });
+  // start line
+  const s0 = T[0];
+  g.save(); g.translate(s0.x, s0.y); g.rotate(s0.h);
+  for (let k = -HW; k < HW; k += 4) for (let m = 0; m < 2; m++) { g.fillStyle = (k / 4 + m) % 2 ? "#e9efff" : "#05060c"; g.fillRect(-4 + m * 4, k, 4, 4); }
+  g.restore();
+  track = c;
+  // minimap path
+  const mm = document.createElement("canvas"); const sc = Math.min(70 / WORLD.w, 46 / WORLD.h);
+  mm.width = Math.ceil(WORLD.w * sc * S); mm.height = Math.ceil(WORLD.h * sc * S);
+  const m = mm.getContext("2d"); m.scale(sc * S, sc * S); ribbon(m, 70, "rgba(233,239,255,0.35)");
+  minimap = { canvas: mm, sc };
+}
+
+// ---- Race state ----
+let cars = [], player = null, pickups = [], hazards = [], darts = [], mines = [], clouds = [], gates = [], drones = [];
+let sparks = [], rings = [], popups = [], trails = [];
+let phase = "grid", phaseT = 3.2, raceT = 0, finishOrder = [], banner = null, results = null;
+let score = 0, ammo = 4, letters = Array(9).fill(false), up = { thruster: 0, core: 0, grip: 0 }, retries = 2, heat = 0, bestLap = null;
+let shake = 0, shakeMag = 0, flash = 0, paused = false, muted = false;
+let camX = 0, camY = 0;
+
+function statsOf(c) {
+  if (c === player) {
+    const m = MACHINES[mk];
+    return { top: m.top + up.core * 8, accel: m.accel * (1 + 0.1 * up.thruster), turn: m.turn + up.grip * 0.12, grip: m.grip + up.grip * 0.8 };
+  }
+  const lead = Math.max(0, ((player.laps * N + player.seg) - (c.laps * N + c.seg)) / N); // a little catch-up when far behind
+  const over = c.kind === "dynamo" && heat >= 5 ? 1.3 : 1;
+  return { top: 148 * c.pace * LEAGUES[league].pace * over * (1 + Math.min(0.06, lead * 0.08)), accel: 195, turn: 3.2, grip: 6 };
+}
+
+function newRace() {
+  T = buildTrack(LEAGUES[league].reverse); N = T.length;
+  bakeCity(); bakeTrack();
+  const grid = [[-8, -10], [-8, 10], [-16, -10], [-16, 10]];
+  const roster = [{ kind: "player", color: C.kerb, name: "YOU" }, ...RIVALS.map((r) => ({ kind: r.kind, slot: r.slot, color: r.color, name: r.name.toUpperCase(), pace: r.pace }))];
+  // the demo pilot starts third on the grid so there is someone to chase
+  const order = [1, 2, 0, 3];
+  cars = roster.map((r, i) => {
+    const [ds, lat] = grid[order[i]], p = T[(N + ds) % N];
+    return { ...r, x: p.x + p.nx * lat, y: p.y + p.ny * lat, a: p.h, vx: 0, vy: 0, seg: (N + ds) % N, lat, laps: -1, spin: 0, spinDir: 1, flash: 0, wet: 0, boost: 0, shield: false, finished: false, lane: lat * 0.3, lapStart: 0, cool: 0, white: 0, bob: rand() * 6 };
+  });
+  player = cars[0];
+  trails = cars.map(() => []);
+  darts = []; mines = []; sparks = []; rings = []; popups = []; finishOrder = []; results = null;
+  // pickups and letters
+  pickups = [
+    ["cell", 0.24, -10], ["cell", 0.61, 12], ["shield", 0.4, 0], ["thruster", 0.5, -12], ["core", 0.76, 10], ["grip", 0.87, -12],
+  ].map(([kind, f, lat]) => ({ kind, ...at(f, lat), t: 0 }));
+  const missing = [...WORD].map((ch, i) => i).filter((i) => !letters[i]);
+  [[0.15, 12], [0.46, -14], [0.71, 0]].forEach(([f, lat], k) => { if (missing[k] !== undefined) pickups.push({ kind: "letter", idx: missing[k], ...at(f, lat), t: 0 }); });
+  // hazards per league
+  hazards = [["puddle", 0.18, -8], ["puddle", 0.55, 10], ["puddle", 0.81, -6], ["slick", 0.33, 8], ["slick", 0.67, -10], ["boost", 0.1, 0], ["boost", 0.44, 0], ["boost", 0.92, 0]]
+    .map(([kind, f, lat]) => ({ kind, ...at(f, lat) }));
+  clouds = []; gates = []; drones = [];
+  if (league >= 1) {
+    hazards.push({ kind: "slick", ...at(0.12, -12) }, { kind: "slick", ...at(0.89, 10) });
+    clouds = [0.3, 0.72].map((f, i) => ({ f, speed: 0.006 + i * 0.002, flick: 0 }));
+  }
+  if (league === 2) {
+    gates = [0.22, 0.58].map((f, i) => ({ ...at(f), t: i * 2.1 }));
+    drones = [0.37, 0.83].map((f, i) => ({ ...at(f), ph: i * 1.7 }));
+    hazards.push({ kind: "glitch", ...at(0.29, 12) }, { kind: "glitch", ...at(0.65, -12) });
+  }
+  heat = Math.max(0, heat - 1);
+  phase = "grid"; phaseT = 3.2; raceT = 0; banner = null;
+  camX = player.x - W / 2; camY = player.y - H / 2;
+}
+
+// ---- Input ----
+const KEYMAP = { arrowleft: "left", a: "left", arrowright: "right", d: "right", arrowup: "gas", w: "gas", arrowdown: "brake", s: "brake", z: "fire", " ": "fire", x: "drop", shift: "drop", m: "mute", escape: "pause", p: "pause" };
+const keys = new Set();
+let lastInput = -1e9, lastDevice = "kbm", padLabel = "", padWas = {}, pad = { heading: null, gas: 0, brake: false, turn: 0 };
+const touch = { shown: false, heading: null, throttle: 0 };
+const touchPointers = new Map();
+const TOUCH = { stick: { x: 54, y: 170, r: 30 }, fire: { x: 374, y: 166, r: 17 }, drop: { x: 338, y: 198, r: 13 } };
+let audio = null;
+function sfx(freq, dur = 0.08, type = "square", vol = 0.04, slide = 0) {
+  if (muted) return;
+  try {
+    if (!audio || audio.state !== "running") return;
+    const o = audio.createOscillator(), gn = audio.createGain(), t = audio.currentTime;
+    o.type = type; o.frequency.setValueAtTime(freq, t); if (slide) o.frequency.exponentialRampToValueAtTime(Math.max(30, freq + slide), t + dur);
+    gn.gain.setValueAtTime(vol, t); gn.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(gn).connect(audio.destination); o.start(t); o.stop(t + dur + 0.02);
+  } catch (e) {}
+}
+function wake() { lastInput = performance.now(); try { audio = audio || new AudioContext(); audio.resume(); } catch (e) {} }
+function press(k) {
+  if (k === "mute") { muted = !muted; return; }
+  if (k === "pause") { paused = !paused; return; }
+  if (paused) return;
+  if (k === "fire") fire(player);
+  if (k === "drop") drop(player);
+}
+function toGame(ev) { const r = cv.getBoundingClientRect(); return { x: ((ev.clientX - r.left) / r.width) * W, y: ((ev.clientY - r.top) / r.height) * H }; }
+const near = (p, b, extra = 4) => Math.hypot(p.x - b.x, p.y - b.y) < b.r + extra;
+function stickFrom(p) {
+  const dx = p.x - TOUCH.stick.x, dy = p.y - TOUCH.stick.y, m = Math.hypot(dx, dy);
+  if (m < 5) return { heading: null, throttle: 0 };
+  return { heading: Math.atan2(dy, dx), throttle: clamp((m - 5) / (TOUCH.stick.r - 8), 0, 1) };
+}
+function syncTouch() {
+  touch.heading = null; touch.throttle = 0;
+  for (const [, v] of touchPointers) if (v.role === "stick") { touch.heading = v.heading; touch.throttle = v.throttle; }
+}
+const HIT = { sound: (p) => p.x > 396 && p.y < 14, pause: (p) => p.x > 380 && p.x < 396 && p.y < 14 };
+cv.addEventListener("contextmenu", (ev) => ev.preventDefault());
+cv.addEventListener("pointerdown", (ev) => {
+  cv.focus(); wake();
+  const p = toGame(ev);
+  if (ev.pointerType === "touch") { lastDevice = "touch"; if (!touch.shown) { touch.shown = true; syncSeg(); } }
+  else lastDevice = "kbm";
+  if (HIT.sound(p)) { muted = !muted; return; }
+  if (HIT.pause(p)) { paused = !paused; return; }
+  if (!touch.shown) return;
+  if (near(p, TOUCH.fire)) { press("fire"); touchPointers.set(ev.pointerId, { role: "fire" }); return; }
+  if (near(p, TOUCH.drop)) { press("drop"); touchPointers.set(ev.pointerId, { role: "drop" }); return; }
+  if (p.x < W * 0.45) { touchPointers.set(ev.pointerId, { role: "stick", ...stickFrom(p) }); syncTouch(); cv.setPointerCapture?.(ev.pointerId); }
+});
+cv.addEventListener("pointermove", (ev) => {
+  const t = touchPointers.get(ev.pointerId);
+  if (t && t.role === "stick") { Object.assign(t, stickFrom(toGame(ev))); syncTouch(); lastInput = performance.now(); }
+});
+const endPointer = (ev) => { touchPointers.delete(ev.pointerId); syncTouch(); };
+window.addEventListener("pointerup", endPointer);
+window.addEventListener("pointercancel", endPointer);
+cv.addEventListener("keydown", (ev) => {
+  const k = KEYMAP[ev.key.toLowerCase()];
+  if (!k) return;
+  ev.preventDefault(); lastDevice = "kbm"; wake();
+  if (!ev.repeat) press(k);
+  keys.add(k);
+});
+cv.addEventListener("keyup", (ev) => keys.delete(KEYMAP[ev.key.toLowerCase()]));
+cv.addEventListener("blur", () => keys.clear());
+
+function setPadStatus(label, on) {
+  if (label === padLabel) return;
+  padLabel = label;
+  const el = document.getElementById("pad-status"); el.textContent = label; el.dataset.on = String(on);
+}
+function readPad(now) {
+  let pads;
+  try { pads = navigator.getGamepads ? navigator.getGamepads() : []; }
+  catch (e) { setPadStatus("This viewer blocks controller input. Open design/concept-sheet.html in a browser tab to use it.", false); return; }
+  const p = [...pads].find((g) => g && g.connected);
+  if (!p) { setPadStatus("No controller yet. Press any button on it.", false); pad = { heading: null, gas: 0, brake: false, turn: 0 }; return; }
+  setPadStatus(`Connected: ${p.id.replace(/\s*\(.*\)\s*/g, " ").trim()}`, true);
+  const b = (i) => Boolean(p.buttons[i] && p.buttons[i].pressed);
+  const v = (i) => (p.buttons[i] ? p.buttons[i].value : 0);
+  const ax = p.axes[0] || 0, ay = p.axes[1] || 0;
+  pad = {
+    heading: Math.hypot(ax, ay) > 0.4 ? Math.atan2(ay, ax) : null,
+    gas: Math.max(b(0) || b(12) ? 1 : 0, v(7)), brake: b(1) || b(13) || v(6) > 0.3,
+    turn: (b(15) ? 1 : 0) - (b(14) ? 1 : 0),
+  };
+  const now2 = { fire: b(2), drop: b(3) || b(4) || b(5), pause: b(9), mute: b(8) };
+  for (const k in now2) if (now2[k] && !padWas[k]) { press(k); lastDevice = "pad"; wake(); }
+  if (pad.heading !== null || pad.gas || pad.brake || pad.turn || p.buttons.some((x) => x.pressed)) { lastInput = now; lastDevice = "pad"; }
+  padWas = now2;
+}
+const demo = () => performance.now() - lastInput > 6000;
+
+// ---- Driving ----
+function locate(c) {
+  let best = c.seg, bd = Infinity;
+  for (let k = -12; k <= 28; k++) {
+    const i = (c.seg + k + N) % N, p = T[i], d = (c.x - p.x) ** 2 + (c.y - p.y) ** 2;
+    if (d < bd) { bd = d; best = i; }
+  }
+  if (c.seg > N * 0.8 && best < N * 0.2) crossLine(c);
+  else if (c.seg < N * 0.2 && best > N * 0.8) c.laps--;
+  c.seg = best;
+  const p = T[best]; c.lat = (c.x - p.x) * p.nx + (c.y - p.y) * p.ny;
+}
+function crossLine(c) {
+  c.laps++;
+  if (c.laps >= 1 && c === player && !c.finished) {
+    const lt = raceT - c.lapStart;
+    if (bestLap === null || lt < bestLap) { if (bestLap !== null) { addScore(1000); popup(player.x, player.y - 18, "LAP RECORD +1000", C.cyan); } bestLap = lt; }
+    popup(player.x, player.y - 10, `LAP ${fmt(lt)}`, C.ink);
+    if (c.laps === LAPS - 1) banner = { text: "FINAL LAP", t: 1.6, color: C.amber };
+  }
+  c.lapStart = raceT;
+  if (c.laps >= LAPS && !c.finished) {
+    c.finished = true; finishOrder.push(c); c.finishT = raceT;
+    if (c === player) playerFinished();
+  }
+}
+const fmt = (t) => `${Math.floor(t / 60)}:${(t % 60).toFixed(1).padStart(4, "0")}`;
+function drive(c, ctl, st, dt) {
+  let topMul = 1, gripMul = 1;
+  if (Math.abs(c.lat) > HW) { topMul *= 0.62; gripMul *= 0.8; }
+  if (c.wet > 0) topMul *= 0.6;
+  if (underCloud(c)) { topMul *= 0.85; gripMul *= 0.55; }
+  if (c.boost > 0) topMul *= 1.35;
+  const fx = Math.cos(c.a), fy = Math.sin(c.a);
+  let fwd = c.vx * fx + c.vy * fy, side = -c.vx * fy + c.vy * fx;
+  const top = st.top * topMul;
+  const turnRate = st.turn * (0.55 + 0.45 * Math.min(1, Math.abs(fwd) / st.top));
+  if (c.spin > 0) {
+    c.a += 11 * dt * c.spinDir; fwd *= Math.exp(-2.4 * dt); side *= Math.exp(-1.2 * dt);
+  } else {
+    if (ctl.heading != null) c.a += clamp(angDiff(ctl.heading, c.a), -turnRate * dt, turnRate * dt);
+    else c.a += ctl.turn * turnRate * dt * (fwd < -5 ? -1 : 1);
+    if (ctl.throttle > 0 && fwd < top) fwd += st.accel * ctl.throttle * dt * (c.boost > 0 ? 1.6 : 1);
+    if (ctl.hold) { fwd *= Math.exp(-5 * dt); side *= Math.exp(-5 * dt); }
+    else if (ctl.brake) fwd -= (fwd > 0 ? 260 : 90) * dt;
+    if (!ctl.throttle && !ctl.brake && !ctl.hold) fwd *= Math.exp(-0.9 * dt);
+    side *= Math.exp(-st.grip * gripMul * dt);
+  }
+  if (fwd > top) fwd += (top - fwd) * Math.min(1, 3 * dt);
+  fwd = Math.max(fwd, -top * 0.35);
+  const nx = Math.cos(c.a), ny = Math.sin(c.a);
+  c.vx = nx * fwd - ny * side; c.vy = ny * fwd + nx * side;
+  c.x += c.vx * dt; c.y += c.vy * dt;
+  locate(c);
+  const lim = HW + APRON - 5;
+  if (Math.abs(c.lat) > lim) {
+    const p = T[c.seg], s = Math.sign(c.lat), over = c.lat - s * lim;
+    c.x -= p.nx * over; c.y -= p.ny * over; c.lat = s * lim;
+    const vn = c.vx * p.nx + c.vy * p.ny;
+    if (vn * s > 0) {
+      c.vx -= p.nx * vn * 1.4; c.vy -= p.ny * vn * 1.4; c.vx *= 0.93; c.vy *= 0.93;
+      if (Math.abs(vn) > 45) { burst(c.x + p.nx * s * 6, c.y + p.ny * s * 6, [C.ink, s > 0 ? C.cyan : C.kerb], 5); if (c === player) { shakeIt(1, 0.12); sfx(140, 0.06, "sawtooth", 0.03); } }
+    }
+  }
+  c.wet = Math.max(0, c.wet - dt); c.boost = Math.max(0, c.boost - dt); c.spin = Math.max(0, c.spin - dt);
+  c.flash = Math.max(0, c.flash - dt); c.cool = Math.max(0, c.cool - dt);
+}
+function ahead(c, k) { return T[(c.seg + k) % N]; }
+function gap(a, b) { let d = (b.laps * N + b.seg) - (a.laps * N + a.seg); return d; } // samples b is ahead of a
+function aiControl(c, st, pilot = false) {
+  const sp = Math.hypot(c.vx, c.vy);
+  const look = 6 + Math.floor(sp / 14);
+  let lane = c.lane;
+  const bendAhead = ahead(c, look + 6).curv;
+  if (c.kind === "halo" || pilot) lane = clamp(bendAhead * 34, -15, 15);
+  if (c.kind === "vex") { const g = gap(player, c); lane = g > 0 && g < 12 ? clamp(player.lat, -16, 16) : clamp(bendAhead * 20, -12, 12); }
+  if (c.kind === "dynamo") lane = 6;
+  if (!pilot) for (const hz of hazards) {
+    if (hz.kind === "boost" || hz.kind === "glitch" || (hz.kind === "puddle" && c.kind !== "halo")) continue;
+    const d = (hz.seg - c.seg + N) % N;
+    if (d > 0 && d < 22 && Math.abs(lane - hz.lat) < 14) lane = clamp(hz.lat > 0 ? hz.lat - 18 : hz.lat + 18, -HW + 5, HW - 5);
+  }
+  if (pilot) {
+    for (const pk of pickups) { if (pk.t > 0) continue; const d = (pk.seg - c.seg + N) % N; if (d > 4 && d < 40) { lane = pk.lat; break; } }
+    for (const hz of hazards) {
+      if (hz.kind === "boost") continue;
+      const d = (hz.seg - c.seg + N) % N;
+      if (d > 0 && d < 26 && Math.abs(lane - hz.lat) < 15) lane = hz.lat > 0 ? hz.lat - 20 : hz.lat + 20;
+    }
+    lane = clamp(lane, -HW + 6, HW - 6);
+  }
+  const p = ahead(c, look), tx = p.x + p.nx * lane, ty = p.y + p.ny * lane;
+  const heading = Math.atan2(ty - c.y, tx - c.x);
+  const far = ahead(c, look + 12), bend = Math.abs(angDiff(far.h, c.a));
+  let throttle = 1, brake = false;
+  if (bend > 0.7 && sp > st.top * 0.7) { throttle = 0; brake = bend > 1.05; }
+  for (const gt of gates) { const d = (gt.seg - c.seg + N) % N; if (d > 0 && d < 16 && gateState(gt) !== "off" && gateLeft(gt) > d / 60) { throttle = 0; brake = sp > 30; } }
+  if (pilot && c.cool <= 0 && ammo > 1) {
+    for (const o of cars) {
+      if (o === c || o.finished) continue;
+      const g = gap(c, o);
+      if (g > 3 && g < 22 && Math.abs(o.lat - c.lat) < 12 && rand() < 0.015) { fire(c); c.cool = 2.5; break; }
+      if (g < -2 && g > -9 && rand() < 0.008) { drop(c); c.cool = 2.5; break; }
+    }
+  }
+  return { heading, throttle, brake, turn: 0 };
+}
+function playerControl() {
+  if (phase === "grid" || player.finished) return null;
+  if (demo()) return aiControl(player, statsOf(player), true);
+  if (touch.heading !== null) return { heading: touch.heading, throttle: touch.throttle, brake: false, turn: 0 };
+  const kTurn = (keys.has("right") ? 1 : 0) - (keys.has("left") ? 1 : 0) + pad.turn;
+  if (pad.heading !== null && !kTurn) return { heading: pad.heading, throttle: Math.max(pad.gas, keys.has("gas") ? 1 : 0), brake: pad.brake || keys.has("brake"), turn: 0 };
+  return { heading: null, turn: clamp(kTurn, -1, 1), throttle: keys.has("gas") || pad.gas ? Math.max(pad.gas, keys.has("gas") ? 1 : 0) : 0, brake: keys.has("brake") || pad.brake };
+}
+
+// ---- Weapons, pickups, hazards ----
+function fire(c) {
+  if (!c || phase !== "race" || c.finished || c.spin > 0) return;
+  if (c === player) { if (ammo <= 0) { sfx(220, 0.05, "triangle", 0.03); return; } ammo--; }
+  c.cool = 0.6;
+  const s = Math.hypot(c.vx, c.vy);
+  darts.push({ x: c.x + Math.cos(c.a) * 9, y: c.y + Math.sin(c.a) * 9, a: c.a, v: s + 210, life: 1.6, owner: c, seg: c.seg, laps: 0, finished: true });
+  sfx(880, 0.12, "square", 0.035, -500);
+}
+function drop(c) {
+  if (!c || phase !== "race" || c.finished) return;
+  if (c === player) { if (ammo <= 0) { sfx(220, 0.05, "triangle", 0.03); return; } ammo--; }
+  c.cool = 0.6;
+  mines.push({ x: c.x - Math.cos(c.a) * 11, y: c.y - Math.sin(c.a) * 11, arm: 0.5, owner: c, t: 0 });
+  sfx(300, 0.1, "triangle", 0.04, -120);
+}
+function spinOut(c, by, t = 1.0) {
+  if (c.spin > 0) return false;
+  if (c.shield) { c.shield = false; ring(c.x, c.y, 6, 70, 0.35, C.cyan); if (c === player) { popup(c.x, c.y - 12, "SHIELD", C.cyan); sfx(660, 0.15, "sine", 0.05, -300); } return false; }
+  c.spin = t; c.spinDir = rand() < 0.5 ? -1 : 1; c.flash = 0.25;
+  burst(c.x, c.y, [c.color, C.ink, C.amber], reduceMotion ? 6 : 14); ring(c.x, c.y, 4, 60, 0.3, c.color);
+  if (by === player && c !== player) {
+    addScore(200); popup(c.x, c.y - 12, "+200", C.amber);
+    heat = Math.min(5, heat + 1);
+    if (heat === 5) { banner = { text: "DYNAMO OVERDRIVE", t: 2, color: C.amber }; sfx(110, 0.5, "sawtooth", 0.05, 220); }
+  }
+  if (c === player) { shakeIt(3, 0.3); flash = 0.12; sfx(160, 0.3, "sawtooth", 0.05, -100); }
+  else sfx(420, 0.12, "square", 0.03, -200);
+  return true;
+}
+function collect(pk) {
+  pk.t = pk.kind === "letter" ? 1e9 : 6;
+  ring(pk.x, pk.y, 3, 40, 0.3, pk.kind === "letter" ? C.kerb : C.cyan);
+  sfx(990, 0.08, "square", 0.03, 400);
+  if (pk.kind === "letter") {
+    letters[pk.idx] = true; addScore(250); popup(pk.x, pk.y - 10, `${WORD[pk.idx]} +250`, C.kerb);
+    if (letters.every(Boolean)) {
+      letters = Array(9).fill(false);
+      addScore(mk < 2 ? 25000 : 50000);
+      if (mk < 2) { setMk(mk + 1, false); banner = { text: `OVERDRIVE! ${MACHINES[mk].name.split(" · ")[0].toUpperCase()}`, t: 2.4, color: C.kerb }; }
+      else { retries++; banner = { text: "OVERDRIVE! +RETRY", t: 2.4, color: C.kerb }; }
+      flash = 0.2; burst(player.x, player.y, [C.kerb, C.cyan, C.ink], 30);
+    }
+    return;
+  }
+  addScore(100);
+  if (pk.kind === "cell") { ammo = Math.min(9, ammo + 2); popup(pk.x, pk.y - 10, "+2 CHARGE", C.cyan); }
+  if (pk.kind === "shield") { player.shield = true; popup(pk.x, pk.y - 10, "SHIELD", C.cyan); }
+  if (pk.kind in up) {
+    const label = { thruster: "THRUSTER", core: "CORE", grip: "GRIP" }[pk.kind];
+    if (up[pk.kind] < 3) { up[pk.kind]++; popup(pk.x, pk.y - 10, `${label} ${up[pk.kind]}`, C.lime); }
+    else popup(pk.x, pk.y - 10, `${label} MAX`, C.dim);
+  }
+}
+function cloudPos(cl) { const i = Math.floor(cl.f * N) % N, p = T[i]; return { x: p.x + p.nx * 6, y: p.y + p.ny * 6, seg: i }; }
+function underCloud(c) { return clouds.some((cl) => { const p = cloudPos(cl); return Math.hypot(c.x - p.x, c.y - p.y) < 40; }); }
+function gateState(g) { const t = g.t % 4.6; return t < 2.9 ? "off" : t < 3.9 ? "warn" : "on"; }
+function gateLeft(g) { const t = g.t % 4.6; return t < 2.9 ? 2.9 - t : 4.6 - t; }
+
+function addScore(n) { score += n; }
+function shakeIt(mag, t) { if (reduceMotion) return; if (mag >= shakeMag || shake <= 0) { shakeMag = mag; shake = t; } }
+function burst(x, y, colors, n) { for (let i = 0; i < n; i++) { const a = rand() * Math.PI * 2, s = 30 + rand() * 90; sparks.push({ x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, life: 0.3 + rand() * 0.4, color: colors[i % colors.length] }); } }
+function ring(x, y, r, dr, life, color) { if (!reduceMotion || dr < 50) rings.push({ x, y, r, dr, life, max: life, color }); }
+function popup(x, y, text, color) { popups.push({ x, y, text, life: 1.1, color }); }
+
+function playerFinished() {
+  const place = finishOrder.length;
+  const pts = [0, 5000, 3000, 1500, 0][place];
+  addScore(pts);
+  banner = { text: place <= 3 ? `${ordinal(place)}! +${pts.toLocaleString("en")}` : "4TH · RETRY", t: 3, color: place === 1 ? C.kerb : place <= 3 ? C.cyan : C.hurt };
+  if (place === 4) retries = Math.max(0, retries - 1);
+  sfx(place <= 3 ? 523 : 196, 0.4, "square", 0.05, place <= 3 ? 520 : -60);
+  phase = "done"; phaseT = 3.2;
+}
+const ordinal = (n) => `${n}${["", "ST", "ND", "RD", "TH"][Math.min(n, 4)]}`;
+function standings() {
+  return [...cars].sort((a, b) => {
+    const ka = a.finished ? 1e9 - finishOrder.indexOf(a) : a.laps * N + a.seg;
+    const kb = b.finished ? 1e9 - finishOrder.indexOf(b) : b.laps * N + b.seg;
+    return kb - ka;
+  });
+}
+
+// ---- Update ----
+function update(dt, now) {
+  readPad(now);
+  if (paused) return;
+  shake = Math.max(0, shake - dt); flash = Math.max(0, flash - dt);
+  if (banner) { banner.t -= dt; if (banner.t <= 0) banner = null; }
+  if (phase === "grid") {
+    const before = Math.ceil(phaseT);
+    phaseT -= dt;
+    if (Math.ceil(phaseT) !== before && phaseT > 0) sfx(440, 0.12, "square", 0.04);
+    if (phaseT <= 0) { phase = "race"; banner = { text: "GO!", t: 0.8, color: C.lime }; sfx(880, 0.3, "square", 0.05); cars.forEach((c) => (c.lapStart = 0)); }
+  } else if (phase === "done") {
+    phaseT -= dt;
+    if (phaseT <= 0 || cars.every((c) => c.finished)) { phase = "results"; phaseT = 4; results = standings(); }
+  } else if (phase === "results") {
+    phaseT -= dt;
+    if (phaseT <= 0) { if (retries === 0) { retries = 2; score = 0; } newRace(); return; }
+  }
+  if (phase === "race" || phase === "done") raceT += dt;
+  if (phase === "race" && raceT > 150) { phase = "done"; phaseT = 0; }
+
+  const moving = phase !== "grid" && phase !== "results";
+  for (const c of cars) {
+    const st = statsOf(c);
+    let ctl = c === player ? playerControl() : (moving && !c.finished ? aiControl(c, st) : null);
+    if (c.finished) ctl = aiControl(c, st);
+    if (!moving) ctl = null;
+    drive(c, ctl || { heading: null, turn: 0, throttle: 0, brake: false, hold: true }, st, dt);
+    if (c.finished) { c.vx *= Math.exp(-1.2 * dt); c.vy *= Math.exp(-1.2 * dt); }
+  }
+  // car contact
+  for (let i = 0; i < cars.length; i++) for (let j = i + 1; j < cars.length; j++) {
+    const a = cars[i], b = cars[j], dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy);
+    if (d > 0 && d < 11) {
+      const push = (11 - d) / 2, ux = dx / d, uy = dy / d;
+      a.x -= ux * push; a.y -= uy * push; b.x += ux * push; b.y += uy * push;
+      const rel = (b.vx - a.vx) * ux + (b.vy - a.vy) * uy;
+      if (rel < 0) { a.vx += ux * rel * 0.5; a.vy += uy * rel * 0.5; b.vx -= ux * rel * 0.5; b.vy -= uy * rel * 0.5; if (rel < -40) { burst((a.x + b.x) / 2, (a.y + b.y) / 2, [C.ink, C.amber], 4); if (a === player || b === player) sfx(180, 0.05, "square", 0.03); } }
+    }
+  }
+  // trails
+  cars.forEach((c, i) => { const t = trails[i]; t.push({ x: c.x - Math.cos(c.a) * 6, y: c.y - Math.sin(c.a) * 6 }); if (t.length > 14) t.shift(); });
+  // pickups
+  for (const pk of pickups) {
+    if (pk.t > 0) { pk.t -= dt; continue; }
+    if (moving && Math.hypot(player.x - pk.x, player.y - pk.y) < 10) collect(pk);
+  }
+  // ground hazards
+  for (const hz of hazards) for (const c of cars) {
+    const d = Math.hypot(c.x - hz.x, c.y - hz.y);
+    if (hz.kind === "puddle" && d < 13) { if (c.wet <= 0 && c === player) sfx(240, 0.15, "sine", 0.03, -120); c.wet = 0.35; if (rand() < 0.3) sparks.push({ x: c.x, y: c.y, vx: (rand() - 0.5) * 50, vy: (rand() - 0.5) * 50, life: 0.3, color: "#6fd8ff" }); }
+    if (hz.kind === "slick" && d < 10 && c.spin <= 0 && Math.hypot(c.vx, c.vy) > 40) spinOut(c, null, 0.9);
+    if (hz.kind === "boost" && d < 12 && c.boost <= 0.6) { c.boost = 0.9; if (c === player) { sfx(520, 0.25, "sawtooth", 0.03, 600); ring(c.x, c.y, 4, 50, 0.25, C.lime); } }
+    if (hz.kind === "glitch" && c === player && d < 10 && !hz.hit) { hz.hit = 1.5; const lost = Math.min(2, ammo); ammo -= lost; popup(c.x, c.y - 12, lost ? `-${lost} CHARGE` : "GLITCH", C.violet); flash = 0.08; sfx(90, 0.25, "sawtooth", 0.04, 300); }
+  }
+  for (const hz of hazards) if (hz.hit) hz.hit = Math.max(0, hz.hit - dt) || undefined;
+  // clouds drift along the track
+  for (const cl of clouds) { cl.f = (cl.f + cl.speed * dt) % 1; cl.flick = Math.max(0, cl.flick - dt); if (rand() < dt * 0.15) cl.flick = 0.25; }
+  // gates
+  for (const g of gates) {
+    const before = gateState(g); g.t += dt; const now2 = gateState(g);
+    if (now2 === "warn" && before !== "warn") { const d = Math.hypot(player.x - g.x, player.y - g.y); if (d < 260) sfx(1200, 0.06, "square", 0.025); }
+    if (now2 === "on") for (const c of cars) if (Math.abs(((c.seg - g.seg + N + N / 2) % N) - N / 2) <= 1 && spinOut(c, null, 1.2)) { c.vx *= 0.1; c.vy *= 0.1; }
+  }
+  // drones sweep across the track
+  for (const dr of drones) {
+    dr.ph += dt; const p = T[dr.seg]; dr.lat = Math.sin(dr.ph * 1.3) * (HW - 4);
+    dr.x = p.x + p.nx * dr.lat; dr.y = p.y + p.ny * dr.lat;
+    for (const c of cars) if (Math.hypot(c.x - dr.x, c.y - dr.y) < 10) spinOut(c, null, 1.0);
+  }
+  // darts
+  for (const d of darts) {
+    let target = null, best = 170;
+    for (const c of cars) {
+      if (c === d.owner) continue;
+      const dx = c.x - d.x, dy = c.y - d.y, dist = Math.hypot(dx, dy);
+      if (dist < best && Math.abs(angDiff(Math.atan2(dy, dx), d.a)) < 0.7) { best = dist; target = c; }
+    }
+    if (target) d.a += clamp(angDiff(Math.atan2(target.y - d.y, target.x - d.x), d.a), -2.6 * dt, 2.6 * dt);
+    d.x += Math.cos(d.a) * d.v * dt; d.y += Math.sin(d.a) * d.v * dt; d.life -= dt;
+    locate(d);
+    if (Math.abs(d.lat) > HW + APRON) { d.life = 0; burst(d.x, d.y, [C.kerb, C.ink], 4); }
+    if (rand() < 0.6) sparks.push({ x: d.x - Math.cos(d.a) * 5, y: d.y - Math.sin(d.a) * 5, vx: 0, vy: 0, life: 0.2, color: C.kerb });
+    for (const c of cars) if (c !== d.owner && d.life > 0 && Math.hypot(c.x - d.x, c.y - d.y) < 9) { spinOut(c, d.owner, 1.0); d.life = 0; }
+  }
+  darts = darts.filter((d) => d.life > 0);
+  for (const m of mines) {
+    m.arm -= dt; m.t += dt;
+    if (m.arm <= 0) for (const c of cars) if (Math.hypot(c.x - m.x, c.y - m.y) < 9) { spinOut(c, m.owner, 1.1); m.dead = true; ring(m.x, m.y, 3, 80, 0.35, C.amber); break; }
+  }
+  mines = mines.filter((m) => !m.dead && m.t < 30);
+  // effects
+  for (const s of sparks) { s.x += s.vx * dt; s.y += s.vy * dt; s.vx *= 0.9; s.vy *= 0.9; s.life -= dt; }
+  sparks = sparks.filter((s) => s.life > 0);
+  for (const r of rings) { r.r += r.dr * dt; r.life -= dt; }
+  rings = rings.filter((r) => r.life > 0);
+  for (const p of popups) { p.y -= 14 * dt; p.life -= dt; }
+  popups = popups.filter((p) => p.life > 0);
+  // camera leads the car
+  const lead = 0.35, lx = clamp(player.vx * lead, -70, 70), ly = clamp(player.vy * lead, -40, 40);
+  const tx = player.x + lx - W / 2, ty = player.y + ly - H / 2 + 8;
+  camX += (tx - camX) * Math.min(1, 4 * dt); camY += (ty - camY) * Math.min(1, 4 * dt);
+  camX = clamp(camX, 0, WORLD.w - W); camY = clamp(camY, 0, WORLD.h - H);
+}
+
+// ---- Drawing ----
+const baked = new Map();
+function drawRotated(slot, x, y, angle, { white = false, scale = 1, alpha = 1 } = {}) {
+  const e = entry(slot); if (!e) return;
+  const img = white ? whites[e.id] : images[e.id];
+  if (!img || (img instanceof HTMLImageElement && !img.complete)) return;
+  const rot = angle - (slot in nose ? NOSE_ANGLE[nose[slot]] : -Math.PI / 2);
+  ctx.globalAlpha = alpha;
+  if (!facings) {
+    ctx.save(); ctx.translate(Math.round(x * S) / S, Math.round(y * S) / S); ctx.rotate(rot); ctx.drawImage(img, -8 * scale, -8 * scale, 16 * scale, 16 * scale); ctx.restore();
+  } else {
+    const f = ((Math.round(rot / (Math.PI * 2 / facings)) % facings) + facings) % facings, key = `${e.id}|${facings}|${f}|${white}`;
+    let c = baked.get(key);
+    if (!c) {
+      c = document.createElement("canvas"); c.width = 24; c.height = 24;
+      const g = c.getContext("2d"); g.imageSmoothingEnabled = false;
+      g.translate(12, 12); g.rotate((f * Math.PI * 2) / facings); g.drawImage(img, -8, -8);
+      baked.set(key, c);
+    }
+    ctx.drawImage(c, Math.round(x - 12), Math.round(y - 12));
+  }
+  ctx.globalAlpha = 1;
+}
+function drawSprite(slot, x, y, { scale = 1, alpha = 1, white = false } = {}) {
+  const e = entry(slot); if (!e) return;
+  const img = white ? whites[e.id] : images[e.id];
+  if (!img || (img instanceof HTMLImageElement && !img.complete)) return;
+  ctx.globalAlpha = alpha;
+  ctx.drawImage(img, Math.round((x - 8 * scale) * S) / S, Math.round((y - 8 * scale) * S) / S, 16 * scale, 16 * scale);
+  ctx.globalAlpha = 1;
+}
+function text(str, x, y, color = C.ink, align = "left", size = 8) {
+  ctx.font = `${size}px Silkscreen, "Courier New", monospace`; ctx.textAlign = align; ctx.textBaseline = "top";
+  ctx.fillStyle = "rgba(0,0,0,0.75)"; ctx.fillText(str, x + 0.5, y + 0.5);
+  ctx.fillStyle = color; ctx.fillText(str, x, y);
+}
+const sx = (x) => x - camX, sy = (y) => y - camY;
+const onScreen = (x, y, m = 30) => x > camX - m && x < camX + W + m && y > camY - m && y < camY + H + m;
+
+function drawWorld(ox, oy, now) {
+  const t = now / 1000;
+  ctx.save(); ctx.translate(ox, oy);
+  // city below, slower than the track
+  ctx.drawImage(city, camX * PX, camY * PX, W + 8, H + 8, -4, -4, W + 8, H + 8);
+  for (const s of sceneryAt) {
+    const x = s.x - camX * PX - 4, y = s.y - camY * PX - 4;
+    if (x > -20 && x < W + 20 && y > -20 && y < H + 20) drawSprite(s.slot, x, y, { alpha: league === 2 ? 0.45 : 0.8 });
+  }
+  // raised track
+  ctx.drawImage(track, camX, camY, W, H, 0, 0, W, H);
+  // ground hazards
+  for (const hz of hazards) {
+    if (!onScreen(hz.x, hz.y)) continue;
+    const x = sx(hz.x), y = sy(hz.y);
+    if (hz.kind === "puddle") {
+      ctx.fillStyle = "rgba(60,190,255,0.32)"; ctx.beginPath(); ctx.ellipse(x, y, 14, 9, T[hz.seg].h, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = "rgba(180,240,255,0.5)"; ctx.fillRect(Math.round(x - 4 + Math.sin(t * 2) * 2), Math.round(y - 2), 3, 1);
+    }
+    if (hz.kind === "slick") {
+      ctx.fillStyle = "rgba(4,4,10,0.85)"; ctx.beginPath(); ctx.ellipse(x, y, 10, 7, T[hz.seg].h + 0.6, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = `hsla(${(t * 90) % 360},90%,65%,0.55)`; ctx.lineWidth = 1; ctx.beginPath(); ctx.ellipse(x, y, 7, 4, T[hz.seg].h + 0.6, 0, Math.PI * 2); ctx.stroke();
+    }
+    if (hz.kind === "boost") {
+      const p = T[hz.seg];
+      ctx.save(); ctx.translate(x, y); ctx.rotate(p.h);
+      for (let k = 0; k < 3; k++) {
+        const on = Math.floor(t * 8 - k) % 3 === 0;
+        ctx.strokeStyle = on ? C.lime : "rgba(168,255,79,0.35)"; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(-6 + k * 5, -9); ctx.lineTo(-1 + k * 5, 0); ctx.lineTo(-6 + k * 5, 9); ctx.stroke();
+      }
+      ctx.restore();
+    }
+  }
+  // laser gates: posts always visible, flash when about to fire
+  for (const g of gates) {
+    if (!onScreen(g.x, g.y, 60)) continue;
+    const p = T[g.seg], st = gateState(g), ax = sx(p.x + p.nx * (HW + 3)), ay = sy(p.y + p.ny * (HW + 3)), bx = sx(p.x - p.nx * (HW + 3)), by = sy(p.y - p.ny * (HW + 3));
+    const blink = st === "warn" && Math.floor(t * 10) % 2 === 0;
+    if (st === "on") {
+      ctx.strokeStyle = "rgba(255,84,112,0.35)"; ctx.lineWidth = 5; ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke();
+      ctx.strokeStyle = "#ffd6de"; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke();
+    } else if (st === "warn") {
+      ctx.strokeStyle = blink ? "rgba(255,84,112,0.5)" : "rgba(255,84,112,0.15)"; ctx.setLineDash([2, 3]); ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke(); ctx.setLineDash([]);
+    }
+    for (const [x, y] of [[ax, ay], [bx, by]]) { ctx.fillStyle = "#30334f"; ctx.fillRect(x - 3, y - 3, 6, 6); ctx.fillStyle = st === "off" ? "#565b80" : blink || st === "on" ? C.hurt : "#ffe0e6"; ctx.fillRect(x - 1.5, y - 1.5, 3, 3); }
+  }
+  // mines
+  for (const m of mines) {
+    if (!onScreen(m.x, m.y)) continue;
+    drawSprite("mine", sx(m.x), sy(m.y));
+    if (m.arm <= 0 && Math.floor(t * 4) % 2) { ctx.fillStyle = C.hurt; ctx.fillRect(Math.round(sx(m.x)), Math.round(sy(m.y) - 7), 1, 1); }
+  }
+  // pickups
+  for (const pk of pickups) {
+    if (pk.t > 0 || !onScreen(pk.x, pk.y)) continue;
+    const x = sx(pk.x), y = sy(pk.y) + Math.round(Math.sin(t * 3 + pk.seg) * 1.5) * 0.5;
+    ctx.fillStyle = "rgba(0,0,0,0.4)"; ctx.beginPath(); ctx.ellipse(x + 1, sy(pk.y) + 6, 5, 2, 0, 0, Math.PI * 2); ctx.fill();
+    if (pk.kind === "letter") {
+      ctx.fillStyle = C.kerb; ctx.globalAlpha = 0.35 + 0.25 * Math.sin(t * 6); ctx.fillRect(x - 7, y - 7, 14, 14); ctx.globalAlpha = 1;
+      ctx.fillStyle = "#1b0614"; ctx.fillRect(x - 5, y - 5, 10, 10); ctx.strokeStyle = C.kerb; ctx.lineWidth = 1; ctx.strokeRect(x - 5.5, y - 5.5, 11, 11);
+      text(WORD[pk.idx], x + 0.5, y - 4, C.kerb, "center");
+    } else {
+      ctx.strokeStyle = `rgba(54,226,255,${0.25 + 0.2 * Math.sin(t * 5)})`; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(x, y, 9, 0, Math.PI * 2); ctx.stroke();
+      drawSprite(pk.kind, x, y);
+    }
+  }
+  // banners sit under the cars
+  if (banner) {
+    ctx.globalAlpha = Math.min(1, banner.t * 3);
+    text(banner.text, W / 2, 60, banner.color, "center", 16);
+    ctx.globalAlpha = 1;
+  }
+  // trails and cars
+  cars.forEach((c, i) => {
+    const tr = trails[i]; if (tr.length < 2) return;
+    ctx.lineWidth = 2;
+    for (let k = 1; k < tr.length; k++) { ctx.strokeStyle = c.color; ctx.globalAlpha = (k / tr.length) * (c.boost > 0 ? 0.7 : 0.35); ctx.beginPath(); ctx.moveTo(sx(tr[k - 1].x), sy(tr[k - 1].y)); ctx.lineTo(sx(tr[k].x), sy(tr[k].y)); ctx.stroke(); }
+    ctx.globalAlpha = 1;
+  });
+  for (const c of [...cars].sort((a, b) => a.y - b.y)) {
+    if (!onScreen(c.x, c.y)) continue;
+    const x = sx(c.x), y = sy(c.y), hover = Math.sin(t * 6 + c.bob) > 0 ? 0 : 0.5;
+    ctx.fillStyle = "rgba(0,0,0,0.5)"; ctx.beginPath(); ctx.ellipse(x + 2, y + 4, 7, 4, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = c.color; ctx.globalAlpha = 0.28; ctx.beginPath(); ctx.ellipse(x, y + 1, 8, 6, 0, 0, Math.PI * 2); ctx.fill(); ctx.globalAlpha = 1;
+    const slot = c === player ? MACHINES[mk].slot : c.slot;
+    const overdrive = c.kind === "dynamo" && heat >= 5, warm = c.kind === "dynamo" && heat === 4 && Math.floor(t * 6) % 2;
+    if (overdrive) { ctx.fillStyle = C.hurt; ctx.globalAlpha = 0.4 + 0.2 * Math.sin(t * 20); ctx.beginPath(); ctx.arc(x, y, 10, 0, Math.PI * 2); ctx.fill(); ctx.globalAlpha = 1; }
+    drawRotated(slot, x, y - hover, c.a, { white: c.flash > 0 && Math.floor(t * 30) % 2 === 0 || warm });
+    if (c.shield) { ctx.strokeStyle = `rgba(54,226,255,${0.5 + 0.3 * Math.sin(t * 8)})`; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(x, y, 11, 0, Math.PI * 2); ctx.stroke(); }
+    if (c !== player) text(c.name[0], x, y - 17, c.color, "center");
+  }
+  // drones above the cars, with their scan line
+  for (const dr of drones) {
+    if (!onScreen(dr.x, dr.y)) continue;
+    const p = T[dr.seg], a = sx(p.x + p.nx * HW), b = sy(p.y + p.ny * HW), c2 = sx(p.x - p.nx * HW), d2 = sy(p.y - p.ny * HW);
+    ctx.strokeStyle = `rgba(255,84,112,${0.25 + 0.2 * Math.sin(t * 10)})`; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(a, b); ctx.lineTo(c2, d2); ctx.stroke();
+    ctx.fillStyle = "rgba(0,0,0,0.45)"; ctx.beginPath(); ctx.ellipse(sx(dr.x) + 3, sy(dr.y) + 7, 6, 3, 0, 0, Math.PI * 2); ctx.fill();
+    drawSprite("drone", sx(dr.x), sy(dr.y) - 2);
+  }
+  // glitch skulls jitter
+  for (const hz of hazards) {
+    if (hz.kind !== "glitch" || !onScreen(hz.x, hz.y)) continue;
+    const j = Math.floor(t * 12) % 5 === 0 ? 1 : 0;
+    drawSprite("glitch", sx(hz.x) - j, sy(hz.y) - 2, { alpha: hz.hit ? 0.35 : 0.5 });
+    drawSprite("glitch", sx(hz.x) + j, sy(hz.y) - 2, { alpha: hz.hit ? 0.4 : 1 });
+  }
+  // darts
+  for (const d of darts) drawRotated("dart", sx(d.x), sy(d.y), d.a);
+  // storm clouds and their shadow
+  for (const cl of clouds) {
+    const p = cloudPos(cl);
+    if (!onScreen(p.x, p.y, 80)) continue;
+    const x = sx(p.x), y = sy(p.y);
+    ctx.fillStyle = "rgba(0,0,10,0.35)"; ctx.beginPath(); ctx.ellipse(x + 10, y + 14, 40, 26, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = "rgba(140,190,255,0.45)"; ctx.lineWidth = 1;
+    for (let k = 0; k < 14; k++) { const rx = x - 30 + ((k * 37 + t * 60) % 60), ry = y - 10 + ((k * 23 + t * 140) % 40); ctx.beginPath(); ctx.moveTo(rx, ry); ctx.lineTo(rx - 1, ry + 4); ctx.stroke(); }
+    drawSprite("storm", x, y - 18, { scale: 3, alpha: 0.9, white: cl.flick > 0 && Math.floor(t * 20) % 2 === 0 });
+  }
+  // sparks, rings, popups
+  for (const s of sparks) { if (!onScreen(s.x, s.y)) continue; ctx.fillStyle = s.color; ctx.globalAlpha = Math.min(1, s.life * 3); ctx.fillRect(Math.round(sx(s.x)), Math.round(sy(s.y)), 1, 1); }
+  ctx.globalAlpha = 1;
+  for (const r of rings) { ctx.strokeStyle = r.color; ctx.globalAlpha = r.life / r.max; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(sx(r.x), sy(r.y), r.r, 0, Math.PI * 2); ctx.stroke(); }
+  ctx.globalAlpha = 1;
+  for (const p of popups) { ctx.globalAlpha = Math.min(1, p.life * 2); text(p.text, sx(p.x), sy(p.y), p.color, "center"); }
+  ctx.globalAlpha = 1;
+  if (league === 1) { ctx.strokeStyle = "rgba(160,200,255,0.16)"; ctx.lineWidth = 1; for (let k = 0; k < 40; k++) { const rx = (k * 97 + t * 40) % W, ry = (k * 53 + t * 260) % H; ctx.beginPath(); ctx.moveTo(rx, ry); ctx.lineTo(rx - 1.5, ry + 6); ctx.stroke(); } }
+  ctx.restore();
+}
+
+function drawHud(now) {
+  const t = now / 1000, order = standings(), place = order.indexOf(player) + 1;
+  ctx.fillStyle = C.panel; ctx.fillRect(0, 0, W, 14);
+  ctx.fillStyle = C.line; ctx.fillRect(0, 14, W, 1);
+  text(ordinal(place), 4, 3, place === 1 ? C.kerb : place === 4 ? C.hurt : C.ink);
+  text("/4", 24, 3, C.dim);
+  text(`LAP ${clamp(player.laps + 1, 1, LAPS)}/${LAPS}`, 46, 3, C.ink);
+  for (let i = 0; i < 9; i++) {
+    const x = 104 + i * 10, on = letters[i];
+    ctx.fillStyle = on ? C.kerb : "rgba(255,62,165,0.08)"; ctx.fillRect(x, 2, 9, 10);
+    if (!on) { ctx.strokeStyle = "rgba(255,62,165,0.35)"; ctx.lineWidth = 1; ctx.strokeRect(x + 0.5, 2.5, 8, 9); }
+    text(WORD[i], x + 5, 3, on ? "#1b0614" : "rgba(255,62,165,0.5)", "center");
+  }
+  text(String(score).padStart(7, "0"), 266, 3, C.ink, "right");
+  drawSprite("dart", 284, 7, { scale: 0.5 });
+  text(`${ammo}`, 291, 3, ammo ? C.ink : C.hurt);
+  if (player.shield) drawSprite("shield", 309, 7, { scale: 0.5 });
+  text(`R${retries}`, 320, 3, retries ? C.dim : C.hurt);
+  // pause and sound chips
+  ctx.fillStyle = C.dim; ctx.fillRect(384, 4, 2, 6); ctx.fillRect(388, 4, 2, 6);
+  ctx.fillStyle = muted ? "#5a6080" : C.ink; ctx.fillRect(400, 5, 3, 4); ctx.beginPath(); ctx.moveTo(403, 5); ctx.lineTo(407, 2); ctx.lineTo(407, 12); ctx.lineTo(403, 9); ctx.fill();
+  if (muted) { ctx.strokeStyle = C.hurt; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(398, 12); ctx.lineTo(411, 2); ctx.stroke(); }
+  else { ctx.strokeStyle = C.ink; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(407, 7, 3, -0.8, 0.8); ctx.stroke(); }
+  // minimap
+  const mm = minimap, mx = W - 78, my = 18;
+  ctx.fillStyle = C.panel; ctx.fillRect(mx - 2, my - 2, 76, 52);
+  ctx.drawImage(mm.canvas, mx, my, mm.canvas.width / S, mm.canvas.height / S);
+  for (const g of gates) { const st = gateState(g); if (st === "off") continue; ctx.fillStyle = st === "on" || Math.floor(t * 10) % 2 ? C.hurt : "rgba(255,84,112,0.3)"; ctx.fillRect(mx + g.x * mm.sc - 1.5, my + g.y * mm.sc - 1.5, 3, 3); }
+  for (const c of [...cars].reverse()) { ctx.fillStyle = c.color; const s = c === player ? 3 : 2; ctx.fillRect(Math.round(mx + c.x * mm.sc - s / 2), Math.round(my + c.y * mm.sc - s / 2), s, s); }
+  // bottom strip: speed, upgrades, heat
+  const bx = W / 2 - 74, by = H - 13;
+  ctx.fillStyle = C.panel; ctx.fillRect(bx, by, 148, 12);
+  const sp = Math.hypot(player.vx, player.vy) / (MACHINES[2].top + 30);
+  text("SPD", bx + 3, by + 2, C.dim);
+  ctx.fillStyle = "#23263e"; ctx.fillRect(bx + 22, by + 4, 34, 4); ctx.fillStyle = player.boost > 0 ? C.lime : C.cyan; ctx.fillRect(bx + 22, by + 4, Math.round(34 * clamp(sp, 0, 1)), 4);
+  [["T", up.thruster], ["C", up.core], ["G", up.grip]].forEach(([l, n], i) => {
+    const x = bx + 62 + i * 16; text(l, x, by + 2, C.lime);
+    for (let k = 0; k < 3; k++) { ctx.fillStyle = k < n ? C.lime : "#2f3350"; ctx.fillRect(x + 6 + k * 3, by + 4, 2, 4); }
+  });
+  text("D", bx + 113, by + 2, C.amber);
+  for (let k = 0; k < 5; k++) { const hot = k < heat; ctx.fillStyle = hot ? (heat >= 5 ? C.hurt : heat === 4 && Math.floor(t * 6) % 2 ? C.ink : C.amber) : "#2f3350"; ctx.fillRect(bx + 120 + k * 5, by + 4, 3, 4); }
+  // grid lights
+  if (phase === "grid") {
+    const lit = 3 - Math.ceil(phaseT);
+    for (let k = 0; k < 3; k++) { ctx.fillStyle = "#14162a"; ctx.fillRect(W / 2 - 24 + k * 17, 28, 14, 14); ctx.fillStyle = k < lit ? C.hurt : "#3a1420"; ctx.beginPath(); ctx.arc(W / 2 - 17 + k * 17, 35, 5, 0, Math.PI * 2); ctx.fill(); }
+  }
+  // hint strip
+  const hints = { kbm: "← → TURN · ↑ GO · Z DART · X MINE", pad: "STICK STEERS · A GO · X DART · Y MINE", touch: "LEFT THUMB STEERS · FIRE · MINE" };
+  const hint = demo() ? (lastDevice === "touch" || touch.shown ? "DEMO · TOUCH THE SCREEN TO DRIVE" : "DEMO · PRESS A KEY OR BUTTON TO DRIVE") : raceT < 6 ? hints[lastDevice] : "";
+  if (hint) { ctx.fillStyle = "rgba(9,10,22,0.6)"; const w = hint.length * 5 + 10; ctx.fillRect(W / 2 - w / 2, H - 26, w, 11); text(hint, W / 2, H - 24, C.dim, "center"); }
+  // results board
+  if (phase === "results" && results) {
+    ctx.fillStyle = "rgba(6,7,15,0.9)"; ctx.fillRect(W / 2 - 92, 40, 184, 118);
+    ctx.strokeStyle = C.kerb; ctx.lineWidth = 1; ctx.strokeRect(W / 2 - 91.5, 40.5, 183, 117);
+    text(`ANTENNA ROW · ${LEAGUES[league].name.toUpperCase()}`, W / 2, 47, C.dim, "center");
+    results.forEach((c, i) => {
+      const y = 64 + i * 18;
+      text(ordinal(i + 1), W / 2 - 80, y, i === 0 ? C.kerb : C.ink);
+      text(c.name, W / 2 - 52, y, c.color);
+      text(c.finished ? fmt(c.finishT) : "--", W / 2 + 54, y, C.dim, "right");
+      if (c === player && i < 3) drawSprite("trophy", W / 2 + 72, y + 4);
+    });
+    text(retries ? `RETRIES ${retries} · NEXT RACE` : "OUT OF RETRIES · NEW SEASON", W / 2, 140, retries ? C.dim : C.hurt, "center");
+  }
+  if (paused) { ctx.fillStyle = "rgba(6,7,15,0.6)"; ctx.fillRect(0, 15, W, H - 15); text("PAUSED", W / 2, H / 2 - 8, C.ink, "center", 16); }
+}
+
+function drawTouch() {
+  if (!touch.shown) return;
+  const P = TOUCH.stick;
+  ctx.globalAlpha = 0.9;
+  ctx.strokeStyle = "rgba(233,239,255,0.4)"; ctx.lineWidth = 1; ctx.fillStyle = "rgba(233,239,255,0.08)";
+  ctx.beginPath(); ctx.arc(P.x, P.y, P.r, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+  const knob = touch.heading !== null ? { x: P.x + Math.cos(touch.heading) * (6 + touch.throttle * (P.r - 10)), y: P.y + Math.sin(touch.heading) * (6 + touch.throttle * (P.r - 10)) } : P;
+  ctx.fillStyle = touch.heading !== null ? "rgba(255,62,165,0.6)" : "rgba(233,239,255,0.2)";
+  ctx.beginPath(); ctx.arc(knob.x, knob.y, 9, 0, Math.PI * 2); ctx.fill();
+  for (const [key, label] of [["fire", "FIRE"], ["drop", "MINE"]]) {
+    const b = TOUCH[key], held = [...touchPointers.values()].some((v) => v.role === key);
+    ctx.fillStyle = held ? "rgba(255,62,165,0.55)" : "rgba(233,239,255,0.12)";
+    ctx.beginPath(); ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = "rgba(233,239,255,0.45)"; ctx.stroke();
+    text(label, b.x + 0.5, b.y - 4, C.ink, "center");
+  }
+  ctx.globalAlpha = 1;
+}
+
+let last = performance.now();
+function frame(now) {
+  const dt = Math.min(0.05, (now - last) / 1000); last = now;
+  update(dt, now);
+  ctx.setTransform(S, 0, 0, S, 0, 0);
+  ctx.imageSmoothingEnabled = false;
+  ctx.fillStyle = C.night; ctx.fillRect(0, 0, W, H);
+  const mag = shake > 0 ? shakeMag * Math.min(1, shake / 0.2) : 0;
+  const ox = Math.round((rand() - 0.5) * 2 * mag), oy = Math.round((rand() - 0.5) * 2 * mag);
+  drawWorld(ox, oy, now);
+  if (flash > 0 && !reduceMotion) { ctx.fillStyle = `rgba(255,255,255,${Math.min(0.4, flash * 3)})`; ctx.fillRect(0, 0, W, H); }
+  drawHud(now);
+  drawTouch();
+  requestAnimationFrame(frame);
+}
+
+function setMk(n, restart = true) {
+  mk = n; up = { thruster: 0, core: 0, grip: 0 };
+  document.querySelectorAll("[data-mk]").forEach((x) => x.setAttribute("aria-pressed", String(Number(x.dataset.mk) === mk)));
+}
+function syncSeg() {
+  document.getElementById("touch-on").setAttribute("aria-pressed", String(touch.shown));
+  document.getElementById("touch-off").setAttribute("aria-pressed", String(!touch.shown));
+}
+document.querySelectorAll("[data-touch]").forEach((b) => b.addEventListener("click", () => { touch.shown = b.dataset.touch === "on"; syncSeg(); }));
+document.querySelectorAll("[data-mk]").forEach((b) => b.addEventListener("click", () => setMk(Number(b.dataset.mk))));
+document.querySelectorAll("[data-league]").forEach((b, _, all) => b.addEventListener("click", () => {
+  league = Number(b.dataset.league);
+  all.forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+  document.getElementById("preview-note").textContent = LEAGUES[league].note;
+  newRace();
+}));
+document.querySelectorAll("[data-facings]").forEach((b, _, all) => b.addEventListener("click", () => {
+  facings = Number(b.dataset.facings);
+  all.forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+}));
+if (matchMedia("(pointer: coarse)").matches) { touch.shown = true; lastDevice = "touch"; }
+syncSeg();
+newRace();
+document.fonts?.load("8px Silkscreen").catch(() => {});
+requestAnimationFrame(frame);
+</script>
