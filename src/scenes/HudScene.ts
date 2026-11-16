@@ -12,7 +12,7 @@ const W = WIDTH * S, H = HEIGHT * S, BAR = HUD_H * S;
 const HINTS: Record<Device, string> = {
   kbm: 'LEFT / RIGHT TURN  ·  UP GO  ·  DOWN BRAKE  ·  Z DART  ·  X MINE',
   pad: 'D-PAD TURNS  ·  STICK POINTS  ·  A GO  ·  B BRAKE  ·  X DART  ·  Y MINE',
-  touch: 'TOUCH CONTROLS ARRIVE IN A LATER BUILD',
+  touch: 'LEFT THUMB: POINT THE WAY, PUSH TO GO  ·  FIRE  ·  MINE',
 };
 const RESULT_HINTS: Record<Device, string> = {
   kbm: 'ENTER CONTINUE  ·  ESC TITLE',
@@ -22,9 +22,12 @@ const RESULT_HINTS: Record<Device, string> = {
 /** The results board's main button, by what the race decided. */
 const VERDICT_BUTTON: Record<Verdict, string> = { next: 'NEXT RACE', crown: 'CROWN', retry: 'RETRY', over: 'GAME OVER' };
 const SPEAKER = { x: W - 28, y: 6, w: 20, h: 16 };
+/** Pause: two bars left of the speaker. Each gets a 44-unit-wide tap zone across the bar. */
+const PAUSE = { x: W - 70, y: 6 };
+const PAUSE_HINTS: Record<Device, string> = { kbm: 'P OR ENTER RESUME  ·  ESC TITLE', pad: 'START OR A RESUME  ·  BACK TITLE', touch: 'TAP RESUME' };
 /** The OVERDRIVE letter row: one box per letter, collected ones solid. */
 const LETTERS = { x: 548, y: 5, w: 16, gap: 2 };
-const SHIELD = { x: 740, y: 14 };
+const SHIELD = { x: 732, y: 14 };
 /** Results board, centred below the bar. Buttons are 48 units tall: 36 CSS px or more on a landscape phone. */
 const BOARD = { x: W / 2, y: BAR + (H - BAR) / 2, w: 440, h: 330 };
 const pts = (n: number) => n.toLocaleString('en');
@@ -66,6 +69,10 @@ export class HudScene extends Phaser.Scene {
   private mapFit = { s: 1, ox: 0, oy: 0 };
   private initials: Phaser.GameObjects.Text[] = [];
   private gauges!: Phaser.GameObjects.Container;
+  private pauseMenu!: Phaser.GameObjects.Container;
+  private pauseHint!: Phaser.GameObjects.Text;
+  private pauseZones: Phaser.GameObjects.Zone[] = [];
+  private pauseTap!: Phaser.GameObjects.Zone;
 
   constructor() {
     super('hud');
@@ -100,9 +107,38 @@ export class HudScene extends Phaser.Scene {
     this.dynamic = this.add.graphics();
     this.buildBoard(label);
 
-    // Phones have no M key: the speaker is a tap target, padded for a thumb.
-    this.add.zone(W - 64, 0, 64, BAR + 16).setOrigin(0).setInteractive({ useHandCursor: true })
+    // Phones have no M or P key: the speaker and pause are tap targets, padded for a thumb.
+    const race = () => this.scene.get('race') as unknown as { setPaused(on: boolean): void; paused: boolean; leave(to?: string): void };
+    this.add.zone(W - 44, 0, 44, BAR + 16).setOrigin(0).setInteractive({ useHandCursor: true })
       .on('pointerdown', () => toggleMute(this));
+    this.pauseTap = this.add.zone(W - 88, 0, 44, BAR + 16).setOrigin(0).setInteractive({ useHandCursor: true })
+      .on('pointerdown', () => race().setPaused(true));
+    this.buildPause(label, race);
+  }
+
+  /** The pause panel: RESUME and TITLE. */
+  private buildPause(label: (x: number, y: number, text: string, color?: string) => Phaser.GameObjects.Text, race: () => { setPaused(on: boolean): void; leave(to?: string): void }) {
+    this.pauseZones = [];
+    const w = 380, h = 190, x = W / 2, top = BAR + (H - BAR - h) / 2, g = this.add.graphics();
+    g.fillStyle(COLORS.street, 0.6).fillRect(0, BAR + 2, W, H - BAR - 2);
+    g.fillStyle(COLORS.panel, 0.96).fillRect(x - w / 2, top, w, h);
+    g.lineStyle(2, COLORS.ink).strokeRect(x - w / 2, top, w, h);
+    const title = this.add.text(x, top + 20, 'PAUSED', { fontFamily: FONT, fontSize: '32px', color: TEXT.ink }).setOrigin(0.5, 0);
+    const parts: Phaser.GameObjects.GameObject[] = [g, title];
+    const button = (bx: number, text: string, primary: boolean, act: () => void) => {
+      const bw = 160, bh = 48, by = top + 84, art = this.add.graphics();
+      if (primary) art.fillStyle(COLORS.kerb).fillRect(bx - bw / 2, by, bw, bh);
+      else art.lineStyle(2, COLORS.ink).strokeRect(bx - bw / 2 + 1, by + 1, bw - 2, bh - 2);
+      const t = label(bx, by + bh / 2, text, primary ? '#04050b' : TEXT.ink).setOrigin(0.5);
+      const zone = this.add.zone(bx - bw / 2, by, bw, bh).setOrigin(0).setInteractive({ useHandCursor: true }).on('pointerdown', act);
+      this.pauseZones.push(zone);
+      parts.push(art, t, zone);
+    };
+    button(x - 90, 'RESUME', true, () => race().setPaused(false));
+    button(x + 90, 'TITLE', false, () => race().leave('title'));
+    this.pauseHint = label(x, top + h - 34, '').setOrigin(0.5, 0);
+    parts.push(this.pauseHint);
+    this.pauseMenu = this.add.container(0, 0, parts).setVisible(false).setDepth(10);
   }
 
   /** The strip's icons and the minimap's panel; the bars, pips and markers are drawn each frame. */
@@ -256,6 +292,10 @@ export class HudScene extends Phaser.Scene {
       }
     }
 
+    this.pauseMenu.setVisible(s.paused);
+    for (const z of this.pauseZones) z.input!.enabled = s.paused;
+    this.pauseTap.input!.enabled = !s.paused && !s.results;
+    if (s.paused) this.pauseHint.setText(PAUSE_HINTS[s.device]);
     this.board.setVisible(!!s.results);
     for (const z of this.buttons) z.input!.enabled = !!s.results?.ready;
     for (const a of this.buttonArt) (a as unknown as Phaser.GameObjects.Components.Alpha).setAlpha(s.results?.ready ? 1 : 0.4);
@@ -277,6 +317,8 @@ export class HudScene extends Phaser.Scene {
       this.boardHint.setText(RESULT_HINTS[s.device]);
     }
 
+    // Pause: two bars, while there's a race to pause.
+    if (!s.results && !s.paused) g.fillStyle(COLORS.ink).fillRect(PAUSE.x, PAUSE.y, 5, 14).fillRect(PAUSE.x + 9, PAUSE.y, 5, 14);
     // Speaker: three waves when on, a cross when muted. Drawn in 2 px blocks to match the game's pixels.
     const muted = this.registry.get(MUTED) === true;
     g.fillStyle(muted ? COLORS.hurt : COLORS.ink);

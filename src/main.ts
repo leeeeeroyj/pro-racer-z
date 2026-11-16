@@ -5,6 +5,7 @@ import { HudScene } from './scenes/HudScene';
 import { PitScene } from './scenes/PitScene';
 import { RaceScene } from './scenes/RaceScene';
 import { TitleScene } from './scenes/TitleScene';
+import { touchControls } from './touch';
 
 async function start() {
   // Phaser bakes text into textures when it's created, so the pixel font must be ready first.
@@ -22,7 +23,7 @@ async function start() {
     scene: [TitleScene, PitScene, RaceScene, HudScene, FinalScene],
   });
   // Dev-only handle for poking at the running game from the console or a test script.
-  if (import.meta.env.DEV) Object.assign(window, { __proRacerZ: game });
+  if (import.meta.env.DEV) Object.assign(window, { __proRacerZ: game, __proRacerZTouch: touchControls });
 }
 
 void start();

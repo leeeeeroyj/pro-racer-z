@@ -59,18 +59,23 @@ export class TitleScene extends Phaser.Scene {
     this.start = text(cx, 100, '> START <', 16, TEXT.kerb);
     this.start.setInteractive({ hitArea: new Phaser.Geom.Rectangle(-24, -8, this.start.width + 48, this.start.height + 16), hitAreaCallback: Phaser.Geom.Rectangle.Contains, useHandCursor: true });
     this.start.on('pointerdown', () => this.begin());
-    text(cx, 122, 'PRESS ENTER OR A, OR CLICK START', 8, TEXT.dim);
+    const coarse = window.matchMedia?.('(pointer: coarse)').matches ?? false;
+    text(cx, 122, coarse ? 'TAP START' : 'PRESS ENTER OR A, OR CLICK START', 8, TEXT.dim);
     const best = loadScores()[0];
     if (best) text(cx, 4, `BEST ${best.score.toLocaleString('en')}`, 8, TEXT.amber);
 
     const column = (x: number, title: string, keys: string, actions: string) => {
-      text(x, 142, title, 8, TEXT.kerb);
-      fixed(this.add.text(ox + x - 4, oy + 154, keys, { fontFamily: FONT, fontSize: '8px', color: TEXT.ink, align: 'right', lineSpacing: 2 }).setOrigin(1, 0));
-      fixed(this.add.text(ox + x + 4, oy + 154, actions, { fontFamily: FONT, fontSize: '8px', color: TEXT.dim, lineSpacing: 2 }));
+      text(x, 138, title, 8, TEXT.kerb);
+      fixed(this.add.text(ox + x - 4, oy + 149, keys, { fontFamily: FONT, fontSize: '8px', color: TEXT.ink, align: 'right', lineSpacing: 2 }).setOrigin(1, 0));
+      fixed(this.add.text(ox + x + 4, oy + 149, actions, { fontFamily: FONT, fontSize: '8px', color: TEXT.dim, lineSpacing: 2 }));
     };
-    column(112, 'KEYBOARD', 'LEFT / RIGHT\nUP\nDOWN\nM\nESC', 'TURN\nGO\nBRAKE, REVERSE\nSOUND ON/OFF\nBACK TO TITLE');
-    column(308, 'CONTROLLER', 'D-PAD\nLEFT STICK\nA / RT\nB / LT\nBACK', 'TURN\nPOINT THE WAY\nGO\nBRAKE, REVERSE\nBACK TO TITLE');
-    this.padStatus = text(cx, 214, '', 8, TEXT.dim);
+    if (coarse) {
+      column(cx, 'TOUCH', 'LEFT THUMB\nPUSH FURTHER\nFIRE / MINE\nII\nSPEAKER', 'POINT THE WAY\nGO FASTER\nDART / MINE\nPAUSE\nSOUND ON/OFF');
+      return;
+    }
+    column(112, 'KEYBOARD', 'LEFT / RIGHT\nUP\nDOWN\nZ / X\nP\nM', 'TURN\nGO\nBRAKE, REVERSE\nDART / MINE\nPAUSE\nSOUND ON/OFF');
+    column(308, 'CONTROLLER', 'D-PAD\nLEFT STICK\nA / RT\nB / LT\nX / Y\nSTART', 'TURN\nPOINT THE WAY\nGO\nBRAKE, REVERSE\nDART / MINE\nPAUSE');
+    this.padStatus = text(cx, 216, '', 8, TEXT.dim);
   }
 
   /** An attract race behind the title: the autopilot drives your car against the three rivals, from GO, on each race of the season in turn. */

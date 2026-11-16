@@ -10,6 +10,7 @@ import { RACES, afterRace, leagueOf, newCareer, rampOf, trackOf, type Career, ty
 import { loadLap, saveLap } from '../store';
 import { playSound, registerSounds, restoreMute, toggleMute, type SoundName } from '../sfx';
 import { TrackView } from '../trackView';
+import { touchControls } from '../touch';
 
 /** Registry key for what carries between races (`season.ts`). */
 export const CAREER = 'career';
@@ -60,6 +61,7 @@ export interface HudState {
   gates: Array<{ x: number; y: number; nx: number; ny: number; state: 'off' | 'warn' | 'on' }>;
   /** White screen flash, 0–1. */
   flash: number;
+  paused: boolean;
   results: { rows: ResultRow[]; points: number; total: number; ready: boolean; verdict: Verdict; retries: number } | null;
 }
 
@@ -82,6 +84,8 @@ export class RaceScene extends Phaser.Scene {
   private clock = 0;
   private resultsAt = 0;
   private map!: HudState['map'];
+  /** Paused: the race doesn't step and the HUD shows RESUME and TITLE. */
+  paused = false;
   private flash = 0;
   private leaving = false;
   /** Dev only: the last sounds played, for tests. */
@@ -122,18 +126,35 @@ export class RaceScene extends Phaser.Scene {
     this.frames = new FrameClock();
     if (!this.scene.isActive('hud')) this.scene.launch('hud');
     this.cameras.main.fadeIn(250);
-    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.registry.remove(HUD_STATE));
+    this.paused = false;
+    // A phone call, a tab switch or the screen locking pauses the race.
+    const hidden = () => { if (document.hidden) this.setPaused(true); };
+    document.addEventListener('visibilitychange', hidden);
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      this.registry.remove(HUD_STATE);
+      document.removeEventListener('visibilitychange', hidden);
+      touchControls.show(false);
+    });
   }
 
   update(time: number) {
     const steps = this.frames.steps(time);
+    const input = this.controls.read();
+    if (input.mute) toggleMute(this);
+    if (this.paused) {
+      if (input.back) return this.leave('title');
+      if (input.pause || input.confirm) this.setPaused(false);
+      touchControls.show(false);
+      this.publishHud(input.device);
+      return;
+    }
     const dt = steps.reduce((a, b) => a + b, 0);
     this.clock += dt;
     this.flash = Math.max(0, this.flash - dt * this.flashRate);
-    const input = this.controls.read();
-    if (input.mute) toggleMute(this);
     if (input.back) return this.leave('title');
     const r = this.race;
+    if (input.pause && r.phase !== 'results') return this.setPaused(true);
+    touchControls.show(r.phase !== 'results' && !this.leaving);
     if (r.phase === 'results') {
       if (input.confirm && this.clock - this.resultsAt > RACE.resultsLock) this.next();
     } else {
@@ -236,6 +257,7 @@ export class RaceScene extends Phaser.Scene {
       dots: r.cars.map((o) => ({ x: o.x, y: o.y, a: o.a, initial: o === c ? '' : o.name[0], color: o.color, you: o === c })),
       gates: r.gates.map((g) => ({ x: g.x, y: g.y, nx: r.track.pts[g.seg].nx, ny: r.track.pts[g.seg].ny, state: gateState(g) })),
       flash: this.flash,
+      paused: this.paused,
       results: r.results && {
         rows: r.results.map((car, i) => ({
           place: i + 1, name: car.name, color: car.color, you: car === c,
@@ -271,6 +293,14 @@ export class RaceScene extends Phaser.Scene {
   private cue(name: SoundName, config?: Phaser.Types.Sound.SoundConfig) {
     playSound(this, name, config);
     if (import.meta.env.DEV) this.played = [...this.played.slice(-39), name];
+  }
+
+  /** Pauses or resumes the race (not once the results are up). */
+  setPaused(on: boolean) {
+    if (on === this.paused || (on && (this.race.phase === 'results' || this.leaving))) return;
+    this.paused = on;
+    this.cue('select');
+    if (on) touchControls.show(false);
   }
 
   /** From the results board: the pit board before the next race (or the retry), or the end of the season. */

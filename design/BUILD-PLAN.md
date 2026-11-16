@@ -180,6 +180,8 @@ Each one ends playable, tested, committed, pushed and live. Default rhythm: show
 - **A retry replays from the state before the race (2026-11-15):** its points, pickups, letters and upgrades are lost, as in the original.
 - **The minimap and the strip sit in the top corners (2026-11-15),** under the bar, so the bottom corners stay free for the touch controls (milestone 6). On the minimap you're an arrow and the rivals are initials; gates are bars with end posts, so they can't be taken for the start line's tick.
 - **Banners are a short headline plus a smaller line (2026-11-15),** e.g. "OVERDRIVE!" over "MK II STRIKER", so they fit between the strip and the minimap.
+- **Touch: a floating stick with throttle, FIRE and MINE (2026-11-15).** The stick points the way to go, like a controller's left stick, and pushing it further opens the throttle (full at 60 % of its reach). It picks up wherever the left thumb lands on the left of the screen. There's no touch brake: letting go coasts, and the car turns on the spot, so it never needs to reverse. The controls are page elements, as in Hedge-Hogger: in the side bars when they fit a 34 px stick, otherwise over the game's bottom corners, clear of the top-corner HUD.
+- **Pause on every device (2026-11-15):** P, a controller's Start, or II in the top bar; the race also pauses when the page is hidden (a call, a tab switch, the screen locking). Esc and Back still go straight to the title.
 - **Headless Chrome renders in software (2026-11-15):** about 15–20 frames a second whatever is on screen. The race scene's own update takes 0.2 ms (p95 under 1 ms) with four cars and a storm cloud, and the storm grid is no slower than a plain Neon one, so frame time there says nothing about the effects. A real device check belongs to milestone 6.
 
 ## Open questions
@@ -190,7 +192,7 @@ Each one ends playable, tested, committed, pushed and live. Default rhythm: show
   - Fine for a free personal project. Search USPTO directly before any commercial use.
 - **Repo and Pages URL:** `leeeeeroyj/pro-racer-z`, `https://leeeeeroyj.github.io/pro-racer-z/`.
 
-## Status (2026-11-15: milestone 5 done)
+## Status (2026-11-15: milestone 6 built, waiting on a real phone)
 
 - **Folder set up (A1).**
   - `git init -b main` with repo-local leeeeeroyj identity, the leeeeeroyj SSH key, and `origin` on the `github-leeeeeroyj` alias.
@@ -258,4 +260,9 @@ Each one ends playable, tested, committed, pushed and live. Default rhythm: show
   - `raceView.ts`: sparks on walls, bumps, spins and glitches; rings on spins, shields, pickups, boosts, armed mines and OVERDRIVE; hover trails above 75 % of top speed; camera shake on your spins, hard wall hits and OVERDRIVE; stacked score popups. `motion.ts` reads `prefers-reduced-motion` live: no shake or flash, half the sparks.
   - Sounds: a new `arm` blip for your mines, shields picked up use `pickup`, the crown plays `finish` and leaving a menu plays `select`, so all 28 voices are in use.
   - `tools/m5-test.mjs` 16/16 (a spy on the sound manager hears all 28 voices; reduced motion through CDP media emulation); `m4` 36/36, `m3` 47/47, `m2` 36/36, `m1` 71/71.
-- **Next:** milestone 6 (touch and mobile).
+- **Milestone 5 published (2026-11-15):** committed and pushed as leeeeeroyj, deploy green.
+- **Milestone 6 built (2026-11-15):**
+  - `touch.ts`: the stick, FIRE and MINE, laid out in the side bars or over the corners; `controls.ts` reads it. Pause (`RaceScene.setPaused`), the HUD's II button and pause panel (RESUME, TITLE), and auto-pause when the page is hidden. The title and HUD hints speak touch on touch screens.
+  - `tools/m6-test.mjs` 25/25 at 844 × 390 (controls over the corners) and 932 × 390 (in the side bars): tap through the title and pit board, steer a full lap with the stick (about 25 s, the autopilot's pace), fire, drop a mine, fire while steering, pause and resume by tap, P and the page going to the background, the results board's buttons (41 px tall), a second race, and the portrait overlay. `m1`–`m5` pass.
+  - Fixed on the way: the HUD kept the last race's pause buttons, so the second race's HUD crashed.
+- **Next:** the user's real-phone test, then milestone 7 (balance and the user's play-through).

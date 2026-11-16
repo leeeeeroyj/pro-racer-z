@@ -4,7 +4,7 @@
 
 **Hover racing on the rooftops of a neon city.**
 
-A top-down arcade racer on raised circuits high above the streets. It runs in the browser with a keyboard or a controller.
+A top-down arcade racer on raised circuits high above the streets. It runs in the browser with a keyboard, a controller or a touch screen.
 
 ### [▶ Play it now](https://leeeeeroyj.github.io/pro-racer-z/)
 
@@ -115,20 +115,21 @@ You start in the Mk I.
 
 ## Controls
 
-| | Keyboard | Controller |
-| --- | --- | --- |
-| Turn | Left / Right, or A / D | D-pad |
-| Point the way to go (the car turns to face it) | — | Left stick |
-| Go | Up or W | A or RT |
-| Brake, then reverse | Down or S | B or LT |
-| Fire a dart | Z or Space | X |
-| Drop a mine | X or Shift | Y |
-| Start (title, pit board) | Enter or Space, or click **START** | A or Start |
-| Continue (results board) | Enter or Space, or click the pink button | A or Start |
-| Sound on / off | M, or click the speaker (top right) | — |
-| Back to the title | Esc, or click **TITLE** | Back |
+| | Keyboard | Controller | Touch |
+| --- | --- | --- | --- |
+| Turn | Left / Right, or A / D | D-pad | — |
+| Point the way to go (the car turns to face it) | — | Left stick | The stick under your left thumb |
+| Go | Up or W | A or RT | Push the stick further |
+| Brake, then reverse | Down or S | B or LT | Let go to coast |
+| Fire a dart | Z or Space | X | **FIRE** |
+| Drop a mine | X or Shift | Y | **MINE** |
+| Pause | P | Start | **II** (top right) |
+| Start (title, pit board) | Enter or Space, or click **START** | A or Start | Tap **START** |
+| Continue (results board) | Enter or Space, or click the pink button | A or Start | Tap the pink button |
+| Sound on / off | M, or click the speaker (top right) | — | Tap the speaker |
+| Back to the title | Esc, or click **TITLE** | Back | Tap **TITLE** (paused or on the results board) |
 
-Controllers show up once you press a button. Touch controls aren't in the game yet.
+Controllers show up once you press a button. On a phone, play in landscape. The touch stick picks up wherever your left thumb lands on the left of the screen; on wide phones the stick and buttons sit in the bars beside the game. The race pauses itself if you switch away.
 
 ## Run it locally
 
@@ -158,9 +159,10 @@ src/
   bake.ts            the city, the track and the hazards, drawn in code
   trackView.ts       city parallax and the camera
   raceView.ts        cars, weapons, pickups and hazards on screen
-  controls.ts        keyboard and controller input
+  controls.ts        keyboard, controller and touch input
   sfx.ts             procedural sound effects
   motion.ts          the reduced-motion setting
+  touch.ts           the touch stick and FIRE / MINE buttons
   scenes/            title with an attract race, pit board, race, HUD, final screen
 assets/sprites/      the game's 16 × 16 sprites
 design/              concept sheet and build plan

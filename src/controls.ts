@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import type { Control, PlayerInput } from './race';
+import { touchControls } from './touch';
 
 export type Device = 'kbm' | 'pad' | 'touch';
 
@@ -8,6 +9,8 @@ export interface ControlState extends PlayerInput {
   confirm: boolean;
   back: boolean;
   mute: boolean;
+  /** P on the keyboard, Start on a controller (Start also confirms, for menus). */
+  pause: boolean;
   device: Device;
 }
 
@@ -18,17 +21,18 @@ const BTN = { A: 0, B: 1, X: 2, Y: 3, LT: 6, RT: 7, BACK: 8, START: 9 } as const
 const EDGE = [BTN.A, BTN.X, BTN.Y, BTN.BACK, BTN.START];
 
 type KeyName = 'LEFT' | 'RIGHT' | 'UP' | 'DOWN' | 'W' | 'A' | 'S' | 'D';
-type Press = 'fire' | 'drop' | 'confirm' | 'back' | 'mute';
+type Press = 'fire' | 'drop' | 'confirm' | 'back' | 'mute' | 'pause';
 /** One-shot actions by key. Space both fires (in a race) and confirms (on menus and the results board). */
 const PRESSES: Record<string, Press[]> = {
-  Z: ['fire'], SPACE: ['fire', 'confirm'], X: ['drop'], SHIFT: ['drop'], ENTER: ['confirm'], ESC: ['back'], M: ['mute'],
+  Z: ['fire'], SPACE: ['fire', 'confirm'], X: ['drop'], SHIFT: ['drop'], ENTER: ['confirm'], ESC: ['back'], M: ['mute'], P: ['pause'],
 };
 
 /**
  * One input layer. Keyboard: left/right (or A/D) turn the car, up (W) goes, down (S) brakes and reverses, Z or Space
  * fires a dart, X or Shift drops a mine; Enter or Space confirms, Esc goes back, M toggles sound. Controller: the
  * D-pad turns; the left stick points the way to go and the car turns toward it; A or RT goes, B or LT brakes, X fires,
- * Y drops; A or Start confirms, Back goes back. The last device used decides the hints. Construct one per scene.
+ * Y drops; A or Start confirms, Back goes back. P or Start pauses. Touch: the stick and FIRE / MINE in `touch.ts`.
+ * The last device used decides the hints. Construct one per scene.
  */
 export class Controls {
   device: Device = window.matchMedia?.('(pointer: coarse)').matches ? 'touch' : 'kbm';
@@ -59,6 +63,7 @@ export class Controls {
     const k = this.keys, p = this.pressed;
     let confirm = p.has('confirm'), fire = p.has('fire'), drop = p.has('drop'), back = p.has('back');
     const mute = p.has('mute');
+    let pause = p.has('pause');
     p.clear();
     const left = k.LEFT.isDown || k.A.isDown, right = k.RIGHT.isDown || k.D.isDown;
     const gas = k.UP.isDown || k.W.isDown, brake = k.DOWN.isDown || k.S.isDown;
@@ -83,9 +88,18 @@ export class Controls {
       drive.brake ||= padBrake;
       confirm ||= edges.has(BTN.A) || edges.has(BTN.START);
       back ||= edges.has(BTN.BACK);
+      pause ||= edges.has(BTN.START);
       fire ||= edges.has(BTN.X);
       drop ||= edges.has(BTN.Y);
     }
-    return { drive, fire, drop, confirm, back, mute, device: this.device };
+    // Touch: the stick points the way to go, like a controller's left stick, and sets the throttle too.
+    touchControls.render();
+    const t = touchControls.read();
+    if (touchControls.active || t.fire || t.drop) this.device = 'touch';
+    if (!drive.turn && t.heading !== null) drive.heading = t.heading;
+    drive.throttle = Math.max(drive.throttle, t.throttle);
+    fire ||= t.fire;
+    drop ||= t.drop;
+    return { drive, fire, drop, confirm, back, mute, pause, device: this.device };
   }
 }
