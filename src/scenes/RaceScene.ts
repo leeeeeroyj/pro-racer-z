@@ -1,8 +1,9 @@
 import Phaser from 'phaser';
-import { FX, HEAT, HUD_STATE, LEAGUES, MACHINES, RACE, SCORE, TEXT, WORD, type Upgrade } from '../config';
+import { ATTRACT, DEMO_SECS } from '../attract';
+import { FX, HEAT, HUD_STATE, LEAGUES, MACHINES, RACE, SCORE, TEXT, UPGRADE, WORD, type Upgrade } from '../config';
 import { reducedMotion } from '../motion';
 import { FrameClock } from '../clock';
-import { Controls, type Device } from '../controls';
+import { Controls, type ControlState, type Device } from '../controls';
 import { TRACKS, type TrackDef } from '../data/tracks';
 import { NO_INPUT, Race, gateState, lightsLit, speedOf, type RaceEvent } from '../race';
 import { RaceView } from '../raceView';
@@ -62,8 +63,13 @@ export interface HudState {
   /** White screen flash, 0–1. */
   flash: number;
   paused: boolean;
+  /** Attract mode: no hints, pause or sound buttons. */
+  attract: boolean;
   results: { rows: ResultRow[]; points: number; total: number; ready: boolean; verdict: Verdict; retries: number } | null;
 }
+
+/** Attract mode's stand-in for the controls: nothing pressed. */
+const DEMO_INPUT: ControlState = { ...NO_INPUT, confirm: false, back: false, mute: false, pause: false, device: 'kbm' };
 
 export const fmtTime = (t: number) => `${Math.floor(t / 60)}:${(t % 60).toFixed(1).padStart(4, '0')}`;
 export const ordinal = (n: number) => `${n}${['TH', 'ST', 'ND', 'RD'][n] ?? 'TH'}`;
@@ -90,28 +96,46 @@ export class RaceScene extends Phaser.Scene {
   private leaving = false;
   /** Dev only: the last sounds played, for tests. */
   played: SoundName[] = [];
+  /** Attract mode: this demo's seed (the next demo uses the one after). */
+  private demoSeed = 0;
+  /** Dev: demos started since the page loaded (attract mode). */
+  static demos = 0;
 
   constructor() {
     super('race');
   }
 
-  /** The career's next race; `track` and `league` override it (dev and tests). */
-  create(data: { track?: number; league?: number; seed?: number }) {
-    if (!this.registry.has(CAREER)) this.registry.set(CAREER, newCareer());
-    this.career = this.registry.get(CAREER) as Career;
+  /**
+   * The career's next race; `track` and `league` override it (dev and tests). `attract` (a seed) runs a demo instead:
+   * the autopilot from GO on a race of the season picked by the seed, in a machine to suit the league.
+   */
+  create(data: { track?: number; league?: number; seed?: number; attract?: number }) {
+    const demo = data.attract !== undefined;
+    if (demo) {
+      this.demoSeed = data.attract!;
+      RaceScene.demos++;
+      const n = this.demoSeed % RACES, league = leagueOf(n), lvl = Math.min(UPGRADE.max, league + Math.floor(trackOf(n) / 3));
+      this.career = { ...newCareer(), race: n, mk: Math.min(league, MACHINES.length - 1), up: { thruster: lvl, core: lvl, grip: lvl } };
+    } else {
+      if (!this.registry.has(CAREER)) this.registry.set(CAREER, newCareer());
+      this.career = this.registry.get(CAREER) as Career;
+    }
     const k = this.career;
     this.trackIndex = data.track ?? trackOf(k.race);
     this.league = data.league ?? leagueOf(k.race);
     this.def = TRACKS[this.trackIndex];
-    this.controls = new Controls(this);
-    registerSounds(this);
-    restoreMute(this);
+    if (!demo) {
+      this.controls = new Controls(this);
+      registerSounds(this);
+      restoreMute(this);
+    }
     this.verdict = 'next';
     this.race = new Race(this.def, {
-      seed: data.seed ?? Math.floor(Math.random() * 2 ** 31),
+      seed: demo ? this.demoSeed : data.seed ?? Math.floor(Math.random() * 2 ** 31),
       mk: k.mk, charges: k.charges, letters: k.letters, up: k.up, heat: k.heat, league: this.league,
-      ramp: rampOf(k.race), record: loadLap(this.def.id, this.league),
+      ramp: rampOf(k.race), record: demo ? null : loadLap(this.def.id, this.league), autopilot: demo,
     });
+    if (demo) this.race.go();
     const track = new TrackView(this, this.def, this.race.track, this.race.league);
     this.view = new RaceView(this, this.race, track);
     const pts = this.race.track.pts.filter((_, i) => i % 3 === 0).flatMap((p) => [p.x, p.y]);
@@ -129,7 +153,7 @@ export class RaceScene extends Phaser.Scene {
     this.paused = false;
     // A phone call, a tab switch or the screen locking pauses the race.
     const hidden = () => { if (document.hidden) this.setPaused(true); };
-    document.addEventListener('visibilitychange', hidden);
+    if (!ATTRACT) document.addEventListener('visibilitychange', hidden);
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
       this.registry.remove(HUD_STATE);
       document.removeEventListener('visibilitychange', hidden);
@@ -139,6 +163,7 @@ export class RaceScene extends Phaser.Scene {
 
   update(time: number) {
     const steps = this.frames.steps(time);
+    if (ATTRACT) return this.demoFrame(steps);
     const input = this.controls.read();
     if (input.mute) toggleMute(this);
     if (this.paused) {
@@ -168,6 +193,25 @@ export class RaceScene extends Phaser.Scene {
     this.publishHud(input.device);
   }
 
+  /** Attract mode: the autopilot races; at the results (or the time limit) the next demo starts. */
+  private demoFrame(steps: number[]) {
+    const dt = steps.reduce((a, b) => a + b, 0), r = this.race;
+    this.clock += dt;
+    this.flash = Math.max(0, this.flash - dt * this.flashRate);
+    if (this.leaving) return;
+    for (const s of steps) r.step(s);
+    const events = r.takeEvents();
+    for (const e of events) this.play(e);
+    this.view.sync(dt, events);
+    this.view.follow(dt);
+    if (r.phase === 'results' || this.clock > DEMO_SECS) {
+      this.leaving = true;
+      this.scene.restart({ attract: (this.demoSeed + 1) % 2 ** 31 });
+      return;
+    }
+    this.publishHud(DEMO_INPUT.device);
+  }
+
   private play(e: RaceEvent) {
     const r = this.race, you = r.player;
     switch (e.type) {
@@ -182,6 +226,7 @@ export class RaceScene extends Phaser.Scene {
         break;
       case 'results': {
         this.resultsAt = this.clock;
+        if (ATTRACT) break;
         const place = r.results!.indexOf(you) + 1;
         const { career, verdict } = afterRace(this.career, {
           place, score: r.score, charges: r.charges, mk: r.mk, letters: r.letters, up: r.up, heat: r.heat, retriesWon: r.retriesWon,
@@ -245,7 +290,7 @@ export class RaceScene extends Phaser.Scene {
       shield: c.shield,
       machine: r.machine.name,
       device,
-      hint: r.phase === 'grid' || r.raceT < 5,
+      hint: !ATTRACT && (r.phase === 'grid' || r.raceT < 5),
       lights: r.phase === 'grid' ? lightsLit(r.phaseT) : null,
       banner: this.banner && { text: this.banner.text, color: this.banner.color, sub: this.banner.sub },
       speed: speedOf(c),
@@ -258,6 +303,7 @@ export class RaceScene extends Phaser.Scene {
       gates: r.gates.map((g) => ({ x: g.x, y: g.y, nx: r.track.pts[g.seg].nx, ny: r.track.pts[g.seg].ny, state: gateState(g) })),
       flash: this.flash,
       paused: this.paused,
+      attract: ATTRACT,
       results: r.results && {
         rows: r.results.map((car, i) => ({
           place: i + 1, name: car.name, color: car.color, you: car === c,
@@ -291,13 +337,14 @@ export class RaceScene extends Phaser.Scene {
   }
 
   private cue(name: SoundName, config?: Phaser.Types.Sound.SoundConfig) {
+    if (ATTRACT) return;
     playSound(this, name, config);
     if (import.meta.env.DEV) this.played = [...this.played.slice(-39), name];
   }
 
   /** Pauses or resumes the race (not once the results are up). */
   setPaused(on: boolean) {
-    if (on === this.paused || (on && (this.race.phase === 'results' || this.leaving))) return;
+    if (ATTRACT || on === this.paused || (on && (this.race.phase === 'results' || this.leaving))) return;
     this.paused = on;
     this.cue('select');
     if (on) touchControls.show(false);

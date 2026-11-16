@@ -40,6 +40,7 @@ Pro Racer Z is an original arcade game inspired by the mechanics of Rare's 1988 
 - **4th place** costs a **retry**: the race runs again from where it started, and nothing you scored or picked up in it is kept. You start the season with 2. With none left, 4th place is **game over**.
 - **The rivals** get a little quicker with each race in a league, and each league is quicker than the last.
 - **High scores:** the best 8 seasons are kept in this browser, and the title shows the best. The table marks your entry with `>`.
+- **Attract mode:** add `?attract` to the address for a silent demo that races itself, one race of the season after another, and ignores input. `?attract&seed=<n>` repeats the same demos.
 - **Lap records** are kept per track and league. Beating one scores 1,000; your first lap on a track just sets it.
 
 - **The screen:** the top bar shows your place, lap, race time, charges, score, the OVERDRIVE letters and your shield. Under it:
@@ -163,12 +164,14 @@ src/
   sfx.ts             procedural sound effects
   motion.ts          the reduced-motion setting
   touch.ts           the touch stick and FIRE / MINE buttons
+  attract.ts         the ?attract demo mode's settings
   scenes/            title with an attract race, pit board, race, HUD, final screen
 assets/sprites/      the game's 16 × 16 sprites
 design/              concept sheet and build plan
 tools/sprites.py     sprite search and export script
 tools/cdp.mjs        headless Chrome harness for the tests
 tools/m*-test.mjs    checks for each milestone
+tools/attract-test.mjs  checks for the ?attract demo
 ```
 
 ## Credits

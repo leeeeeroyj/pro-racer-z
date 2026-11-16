@@ -294,7 +294,7 @@ export class HudScene extends Phaser.Scene {
 
     this.pauseMenu.setVisible(s.paused);
     for (const z of this.pauseZones) z.input!.enabled = s.paused;
-    this.pauseTap.input!.enabled = !s.paused && !s.results;
+    this.pauseTap.input!.enabled = !s.paused && !s.results && !s.attract;
     if (s.paused) this.pauseHint.setText(PAUSE_HINTS[s.device]);
     this.board.setVisible(!!s.results);
     for (const z of this.buttons) z.input!.enabled = !!s.results?.ready;
@@ -317,6 +317,8 @@ export class HudScene extends Phaser.Scene {
       this.boardHint.setText(RESULT_HINTS[s.device]);
     }
 
+    // Attract mode has no pause or sound to offer.
+    if (s.attract) return;
     // Pause: two bars, while there's a race to pause.
     if (!s.results && !s.paused) g.fillStyle(COLORS.ink).fillRect(PAUSE.x, PAUSE.y, 5, 14).fillRect(PAUSE.x + 9, PAUSE.y, 5, 14);
     // Speaker: three waves when on, a cross when muted. Drawn in 2 px blocks to match the game's pixels.

@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { FONT, HEIGHT, MACHINES, SPRITES, TEXT, WIDTH, spriteAngle, type SpriteKey } from '../config';
 import { FrameClock } from '../clock';
+import { ATTRACT, attractSeed } from '../attract';
 import { Controls } from '../controls';
 import { TRACKS } from '../data/tracks';
 import { Race } from '../race';
@@ -8,7 +9,7 @@ import { RaceView } from '../raceView';
 import { playSound, registerSounds, restoreMute, toggleMute } from '../sfx';
 import { TrackView } from '../trackView';
 import { leagueOf, newCareer, trackOf } from '../season';
-import { loadScores } from '../store';
+import { loadScores, syncHi } from '../store';
 import { CAREER } from './RaceScene';
 
 export class TitleScene extends Phaser.Scene {
@@ -31,6 +32,8 @@ export class TitleScene extends Phaser.Scene {
   }
 
   create() {
+    // Attract mode goes straight to a race once the sprites are loaded.
+    if (ATTRACT) return void this.scene.start('race', { attract: attractSeed() });
     this.leaving = false;
     this.padStatus = undefined;
     this.clock = 0;
@@ -61,7 +64,8 @@ export class TitleScene extends Phaser.Scene {
     this.start.on('pointerdown', () => this.begin());
     const coarse = window.matchMedia?.('(pointer: coarse)').matches ?? false;
     text(cx, 122, coarse ? 'TAP START' : 'PRESS ENTER OR A, OR CLICK START', 8, TEXT.dim);
-    const best = loadScores()[0];
+    const scores = loadScores(), best = scores[0];
+    syncHi(scores);
     if (best) text(cx, 4, `BEST ${best.score.toLocaleString('en')}`, 8, TEXT.amber);
 
     const column = (x: number, title: string, keys: string, actions: string) => {

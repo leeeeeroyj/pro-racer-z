@@ -1,10 +1,13 @@
 // The high-score table and lap records, kept in localStorage. Storage can be blocked or full (private windows, embeds),
 // so every access is in try/catch and the game carries on without it.
+import { ATTRACT } from './attract';
 import { SEASON } from './config';
 import type { HighScore } from './season';
 
 const SCORES = 'pro-racer-z-scores';
 const LAPS = 'pro-racer-z-laps';
+/** The table's top score as a plain number, for Arcadia's cabinet ("Your best"). */
+const HI = 'pro-racer-z-hi';
 
 function read<T>(key: string, fallback: T): T {
   try {
@@ -16,6 +19,8 @@ function read<T>(key: string, fallback: T): T {
 }
 
 function write(key: string, value: unknown) {
+  // Attract mode shares the origin with Arcadia and every other game: it never writes.
+  if (ATTRACT) return;
   try {
     localStorage.setItem(key, JSON.stringify(value));
   } catch {
@@ -31,7 +36,16 @@ export function loadScores(): HighScore[] {
   return Array.isArray(t) ? t.filter(isEntry).slice(0, SEASON.table) : [];
 }
 
-export const saveScores = (table: readonly HighScore[]) => write(SCORES, table);
+export function saveScores(table: readonly HighScore[]) {
+  write(SCORES, table);
+  syncHi(table);
+}
+
+/** Keeps the plain high score in step with the table (tables saved before it existed get one on the next title). */
+export function syncHi(table: readonly HighScore[] = loadScores()) {
+  const best = table[0]?.score ?? 0;
+  if (best > 0 && read<unknown>(HI, 0) !== best) write(HI, best);
+}
 
 const lapKey = (track: string, league: number) => `${track}/${league}`;
 

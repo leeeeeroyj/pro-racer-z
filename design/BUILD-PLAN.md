@@ -192,7 +192,7 @@ Each one ends playable, tested, committed, pushed and live. Default rhythm: show
   - Fine for a free personal project. Search USPTO directly before any commercial use.
 - **Repo and Pages URL:** `leeeeeroyj/pro-racer-z`, `https://leeeeeroyj.github.io/pro-racer-z/`.
 
-## Status (2026-11-15: milestone 6 built, waiting on a real phone)
+## Status (2026-11-16: milestone 6 and attract mode built, waiting on a real phone)
 
 - **Folder set up (A1).**
   - `git init -b main` with repo-local leeeeeroyj identity, the leeeeeroyj SSH key, and `origin` on the `github-leeeeeroyj` alias.
@@ -265,4 +265,9 @@ Each one ends playable, tested, committed, pushed and live. Default rhythm: show
   - `touch.ts`: the stick, FIRE and MINE, laid out in the side bars or over the corners; `controls.ts` reads it. Pause (`RaceScene.setPaused`), the HUD's II button and pause panel (RESUME, TITLE), and auto-pause when the page is hidden. The title and HUD hints speak touch on touch screens.
   - `tools/m6-test.mjs` 25/25 at 844 × 390 (controls over the corners) and 932 × 390 (in the side bars): tap through the title and pit board, steer a full lap with the stick (about 25 s, the autopilot's pace), fire, drop a mine, fire while steering, pause and resume by tap, P and the page going to the background, the results board's buttons (41 px tall), a second race, and the portrait overlay. `m1`–`m5` pass.
   - Fixed on the way: the HUD kept the last race's pause buttons, so the second race's HUD crashed.
+- **Attract mode and Arcadia's high score (2026-11-16):**
+  - `?attract` (`src/attract.ts`) skips the title and pit board and runs the autopilot from GO on a race of the season picked by the seed, in a machine and upgrades to suit its league. The next demo (the next seed) starts at the results or after 45 s. The HUD keeps place, laps, score, minimap and strip, and drops the hint, II and speaker.
+  - In attract mode Phaser gets no input plugins and no audio (`noAudio`), the scene never cues a sound, there's no visibility pause, and `store.ts` writes nothing. `?attract&seed=<n>` repeats a demo.
+  - `pro-racer-z-hi` mirrors the table's top score as a plain number for Arcadia's cabinet; the title backfills it for tables saved before it existed.
+  - `tools/cdp.mjs` takes `path` and `init` (a script run before the game). `tools/attract-test.mjs` 14/14: gameplay at 1.1 s, racing among rivals at 2.2 s, a new demo with no input, no sound, no AudioContext, keys / click / a fake gamepad change nothing (the gamepad is never polled), no storage writes, heap +6 % from 10 s to 60 s, full game area at 320 × 176 and 832 × 456. `m1`–`m6` pass (m6's FIRE check failed once and passed on reruns, the same on the code before this change).
 - **Next:** the user's real-phone test, then milestone 7 (balance and the user's play-through).
