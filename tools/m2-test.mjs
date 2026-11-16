@@ -148,10 +148,13 @@ check('a charge cell at 8 charges stops at 9', kit.cap === 9);
 check('spamming darts and mines never takes charges below 0', kit.spam.lo === 0 && kit.spam.hi <= 9, JSON.stringify(kit.spam));
 check('overlapping cars are pushed apart', kit.contact >= 10.9, kit.contact.toFixed(2));
 
+/** The pit board comes before every race: wait for it, then Enter. */
+const throughPit = async () => { await until(() => evaluate(`${G}.scene.isActive('pit')`)); await sleep(300); await tap('Enter'); };
 // ---- The live game ----
 // The grid lights, recorded every frame in the page (polling from here can miss the 0.2 s dark beat).
 await evaluate(`(() => { window.__lights = []; ${G}.events.on('poststep', () => { const h = ${G}.registry.get('hud'); if (h && ${G}.scene.isActive('race')) window.__lights.push(h.lights); }); })()`);
 await tap('Enter');
+await throughPit();
 await until(() => evaluate(`${G}.scene.isActive('race') && !!${G}.registry.get('hud')`));
 const g0 = await snap();
 const h0 = await hud();
@@ -210,10 +213,11 @@ const placePts = [5000, 3000, 1500, 0][you.place - 1];
 check('your place points are in the race score', res.points >= placePts + 200, `place ${you.place}, race +${res.points}, total ${res.total}`);
 const before = await snap();
 await tap('Enter');
+await throughPit();
 await until(async () => { try { return (await snap()).phase === 'grid'; } catch { return false; } }, 5000);
 const nx = await snap();
 const h2 = await hud();
-check('Enter starts the next race, keeping score and charges', h2.score === res.total && nx.charges === before.charges, `score ${h2.score}, charges ${nx.charges}`);
+check('Enter, then the pit board, starts the next race, keeping score and charges', h2.score === res.total && nx.charges === before.charges, `score ${h2.score}, charges ${nx.charges}`);
 await tap('Escape');
 await until(() => evaluate(`${G}.scene.isActive('title') && !${G}.scene.isActive('hud')`));
 check('Esc returns to the title', true);

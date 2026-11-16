@@ -245,6 +245,8 @@ for (const [i, name] of ['Neon', 'Storm', 'Blackout'].entries()) {
 check('Neon and Storm: rivals steer round slicks (no hazard spins in six races each)', races[0].hazardSpins + races[1].hazardSpins === 0, `${races[0].hazardSpins} + ${races[1].hazardSpins}`);
 check('Blackout: gates and drones catch someone now and then, not constantly (≤ 8 a race)', races[2].hazardSpins > 0 && races[2].hazardSpins <= 6 * 8, `${races[2].hazardSpins} in 6 races`);
 
+/** The pit board comes before every race: wait for it, then Enter. */
+const throughPit = async () => { await until(() => evaluate(`${G}.scene.isActive('pit')`)); await sleep(300); await tap('Enter'); };
 // ---- The live game: Blackout, every new thing on screen ----
 await evaluate(`${G}.scene.getScene('title').scene.start('race', { track: 0, league: 2, seed: 7 })`);
 await until(() => evaluate(`${G}.scene.isActive('race') && ${G}.registry.get('hud')?.league === 'BLACKOUT'`));
@@ -303,9 +305,10 @@ const k1 = await evaluate(`${G}.registry.get('career')`);
 check('the results write the career: Mk II, letters, heat cooled to 4, score', k1.mk === 1 && k1.letters.every((l) => !l) && k1.heat === 4 && k1.score >= 25250, JSON.stringify({ mk: k1.mk, heat: k1.heat, score: k1.score }));
 await sleep(1100);
 await tap('Enter');
+await throughPit();
 await until(() => evaluate(`${R}.race?.phase === 'grid' && ${G}.registry.get('hud')?.results === null`), 5000);
 const s2 = await snap(), h3 = await hud();
-check('the next race starts in the Mk II, in the same league, with the heat carried', s2.mk === 1 && s2.slot === 'player_mk2' && h3.league === 'BLACKOUT' && s2.heat === 4, JSON.stringify({ mk: s2.mk, slot: s2.slot, league: h3.league, heat: s2.heat }));
+check('the next race (race 2) starts in the Mk II with the heat carried', s2.mk === 1 && s2.slot === 'player_mk2' && h3.race === 2 && s2.heat === 4, JSON.stringify({ mk: s2.mk, slot: s2.slot, race: h3.race, heat: s2.heat }));
 check('the next race lays out the first three letters again', await evaluate(`${R}.race.pickups.filter((p) => p.kind === 'letter').map((p) => p.idx).join('')`) === '012');
 await sleep(600);
 await shot('9-next-race-mk2');
@@ -314,6 +317,7 @@ await shot('9-next-race-mk2');
 await tap('Escape');
 await until(() => evaluate(`${G}.scene.isActive('title')`));
 await tap('Enter');
+await throughPit();
 await until(() => evaluate(`${G}.scene.isActive('race') && !!${R}.race`));
 const s3 = await snap();
 check('a new game from the title starts a fresh career in the Mk I', s3.mk === 0 && s3.slot === 'player' && s3.heat === 0 && s3.letters === '000000000', JSON.stringify({ mk: s3.mk, heat: s3.heat }));

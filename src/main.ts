@@ -1,6 +1,8 @@
 import Phaser from 'phaser';
 import { HEIGHT, RENDER_SCALE, WIDTH } from './config';
+import { FinalScene } from './scenes/FinalScene';
 import { HudScene } from './scenes/HudScene';
+import { PitScene } from './scenes/PitScene';
 import { RaceScene } from './scenes/RaceScene';
 import { TitleScene } from './scenes/TitleScene';
 
@@ -17,7 +19,7 @@ async function start() {
     pixelArt: true,
     scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH },
     input: { gamepad: true, activePointers: 2 },
-    scene: [TitleScene, RaceScene, HudScene],
+    scene: [TitleScene, PitScene, RaceScene, HudScene, FinalScene],
   });
   // Dev-only handle for poking at the running game from the console or a test script.
   if (import.meta.env.DEV) Object.assign(window, { __proRacerZ: game });

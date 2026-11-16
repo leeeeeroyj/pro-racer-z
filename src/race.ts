@@ -43,6 +43,8 @@ export const IDLE: Control = { turn: 0, heading: null, throttle: 0, brake: false
 const HOLD: Control = { ...IDLE, hold: true };
 
 const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v));
+/** The rivals keep this far inside the asphalt's edge. */
+const LANE_MAX = TRACK.halfWidth - 6;
 const dist = (a: { x: number; y: number }, b: { x: number; y: number }) => Math.hypot(a.x - b.x, a.y - b.y);
 
 /** A car sitting `frac` of the way round, `lat` px right of the centreline, pointing along the track. */
@@ -210,6 +212,7 @@ export type RaceEvent =
   | { type: 'glitch'; lost: number }
   | { type: 'gateWarn'; gate: Gate }
   | { type: 'heat'; heat: number }
+  | { type: 'record'; time: number }
   | { type: 'armed'; mine: Mine };
 
 export interface PlayerInput {
@@ -229,6 +232,10 @@ export interface RaceOptions {
   up?: Readonly<Record<Upgrade, number>>;
   heat?: number;
   league?: number;
+  /** Rival pace multiplier on top of the league's (the season's ramp). */
+  ramp?: number;
+  /** Your best lap on this track and league so far, if any: beating it scores. */
+  record?: number | null;
   /** The player's car drives itself (title attract race, balance probes). */
   autopilot?: boolean;
 }
@@ -264,15 +271,23 @@ export class Race {
   heat: number;
   /** Retries won in this race (OVERDRIVE in the Mk III). */
   retriesWon = 0;
+  /** Best lap on this track and league: the stored record, then any lap of yours that beats it. */
+  record: number | null;
+  readonly ramp: number;
   autopilot: boolean;
   /** Dev: rivals hold still. */
   frozen = false;
   readonly league: number;
+  /** Laps in this race (by track and league). */
+  readonly laps: number;
   private events: RaceEvent[] = [];
   private readonly rng: () => number;
 
   constructor(readonly def: TrackDef, opts: RaceOptions) {
     this.league = opts.league ?? 0;
+    this.laps = def.laps[this.league];
+    this.ramp = opts.ramp ?? 1;
+    this.record = opts.record ?? null;
     this.track = buildTrack(def.ctrl, LEAGUES[this.league].reverse);
     this.rng = mulberry32(opts.seed);
     this.mk = opts.mk ?? 0;
@@ -291,10 +306,15 @@ export class Race {
     };
     this.player = racer('player', this.machine.slot, PLAYER_PILOT, 1);
     this.cars = [this.player, ...RIVALS.map((r) => racer(r.kind, r.slot, r, r.pace))];
-    this.pickups = def.pickups.map(([k, f, lat]) => this.makePickup(k, f, lat));
+    // Track data is ground positions along the forward direction; a reversed track meets them from the other side.
+    const rev = LEAGUES[this.league].reverse;
+    const ground = (f: number, lat: number): [number, number] => (rev ? [(1 - f) % 1, -lat] : [f, lat]);
+    this.pickups = def.pickups.map(([k, f, lat]) => this.makePickup(k, ...ground(f, lat)));
     const missing = this.letters.map((got, i) => (got ? -1 : i)).filter((i) => i >= 0);
-    def.letters.forEach(([f, lat], k) => { if (k < missing.length) this.pickups.push(this.makePickup('letter', f, lat, missing[k])); });
-    for (const [kind, f, lat, from = 0] of def.hazards) if (this.league >= from) this.spawn(kind, f, lat);
+    // The letters you still need, in the word's order as you come to them.
+    def.letters.map(([f, lat]) => ground(f, lat)).sort((a, b) => a[0] - b[0])
+      .forEach(([f, lat], k) => { if (k < missing.length) this.pickups.push(this.makePickup('letter', f, lat, missing[k])); });
+    for (const [kind, f, lat, from = 0] of def.hazards) if (this.league >= from) this.spawn(kind, ...ground(f, lat));
   }
 
   get machine(): Machine {
@@ -329,7 +349,7 @@ export class Race {
     const behind = Math.max(0, -this.progressGap(this.player, c) / this.track.n);
     const catchUp = 1 + Math.min(RIVAL.catchUpMax, behind * RIVAL.catchUp);
     const grudge = c.kind === 'dynamo' && this.heat >= HEAT.max ? HEAT.boost : 1;
-    return { top: RIVAL.top * c.pace * LEAGUES[this.league].pace * catchUp * grudge, accel: RIVAL.accel, turn: RIVAL.turn, grip: RIVAL.grip };
+    return { top: RIVAL.top * c.pace * LEAGUES[this.league].pace * this.ramp * catchUp * grudge, accel: RIVAL.accel, turn: RIVAL.turn, grip: RIVAL.grip };
   }
 
   /** Samples `b` is ahead of `a`, counting laps. */
@@ -415,8 +435,16 @@ export class Race {
     if (c.finished) return;
     const lapTime = this.raceT - c.lapStart;
     c.lapStart = this.raceT;
-    if (c === this.player) this.lapTimes.push(lapTime);
-    if (c.laps >= this.def.laps) {
+    if (c === this.player) {
+      this.lapTimes.push(lapTime);
+      // A lap record scores only when it beats one already set; your first lap on a track just sets it.
+      if (this.record !== null && lapTime < this.record) {
+        this.addScore(SCORE.record, `LAP RECORD +${SCORE.record.toLocaleString('en')}`, c.x, c.y - 12);
+        this.emit({ type: 'record', time: lapTime });
+      }
+      if (this.record === null || lapTime < this.record) this.record = lapTime;
+    }
+    if (c.laps >= this.laps) {
       c.finished = true;
       c.finishT = this.raceT;
       this.finishOrder.push(c);
@@ -429,7 +457,7 @@ export class Race {
       }
       this.emit({ type: 'finish', car: c, place, points });
     } else if (c === this.player) {
-      this.emit(c.laps === this.def.laps - 1 ? { type: 'finalLap' } : { type: 'lap', time: lapTime });
+      this.emit(c.laps === this.laps - 1 ? { type: 'finalLap' } : { type: 'lap', time: lapTime });
     }
   }
 
@@ -464,18 +492,32 @@ export class Race {
       }
     }
     const margin = pilot ? 15 : 14, swerve = pilot ? 20 : 18;
-    const dodge = (lat: number) => { if (Math.abs(lane - lat) < margin) lane = lat > 0 ? lat - swerve : lat + swerve; };
+    // Everything to steer round in the next stretch; a drone counts where it will be when we get there.
     const near = (seg: number) => { const d = (seg - c.seg + n) % n; return d > 0 && d < look + (pilot ? 20 : 16) ? d : 0; };
+    let ahead: Array<[number, number]> = [];
     for (const hz of this.hazards) {
-      if (hz.kind === 'boost' || (hz.kind === 'glitch' && !pilot)) continue;
-      if (near(hz.seg)) dodge(hz.lat);
+      const d = hz.kind !== 'boost' && (hz.kind !== 'glitch' || pilot) ? near(hz.seg) : 0;
+      if (d) ahead.push([d, hz.lat]);
     }
-    // A drone is dodged where it will be when we get there.
     for (const dr of this.drones) {
       const d = near(dr.seg);
-      if (d) dodge(droneLat(dr.ph + (d * TRACK.step) / Math.max(sp, 40)));
+      if (d) ahead.push([d, droneLat(dr.ph + (d * TRACK.step) / Math.max(sp, 40))]);
     }
-    lane = clamp(lane, -TRACK.halfWidth + 6, TRACK.halfWidth - 6);
+    // One thing at a time: the nearest, and anything close enough behind it to need clearing in the same move.
+    const first = Math.min(...ahead.map(([d]) => d));
+    ahead = ahead.filter(([d]) => d <= first + 8);
+    const avoid = ahead.map(([, lat]) => lat);
+    // Take the lane that clears all of them, as close to the preferred one as it can be.
+    if (avoid.some((a) => Math.abs(lane - a) < margin)) {
+      let best = lane, bestCost = Infinity;
+      for (let cand = -LANE_MAX; cand <= LANE_MAX; cand += 2) {
+        let cost = Math.abs(cand - lane) * 0.05;
+        for (const a of avoid) cost += Math.max(0, swerve - Math.abs(cand - a)) * 10;
+        if (cost < bestCost) { bestCost = cost; best = cand; }
+      }
+      lane = best;
+    }
+    lane = clamp(lane, -LANE_MAX, LANE_MAX);
     // Chasing a point L ahead round a bend of curvature κ settles L²κ/2 inside the line, so aim that much wide.
     const L = look * TRACK.step, kappa = this.ahead(c, look >> 1).curv / (10 * TRACK.step);
     const aim = lane - (L * L * kappa) / 2;

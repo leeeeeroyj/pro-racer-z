@@ -173,7 +173,13 @@ export const SPIN = { rate: 11, fwdDrag: 2.4, sideDrag: 1.2 } as const;
 /** Cars are circles: closer than `dist` they push apart and share `transfer` of the closing speed. */
 export const CONTACT = { dist: 11, transfer: 0.5, hard: 40 } as const;
 
-export const SCORE = { place: [5000, 3000, 1500, 0], hit: 200, pickup: 100, letter: 250 } as const;
+export const SCORE = { place: [5000, 3000, 1500, 0], hit: 200, pickup: 100, letter: 250, record: 1000 } as const;
+
+/**
+ * The season: finish in the top `qualify` to go on; 4th spends one of `retries`. Rival pace rises by `ramp` each race
+ * within a league. The high-score table keeps `table` entries.
+ */
+export const SEASON = { retries: 2, qualify: 3, ramp: 0.005, table: 8 } as const;
 
 export const SPRITES = [
   'player', 'player_mk2', 'player_mk3', 'rival_halo', 'rival_vex', 'rival_dynamo',

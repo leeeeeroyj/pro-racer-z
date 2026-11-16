@@ -22,7 +22,8 @@ A top-down arcade racer on raised circuits high above the streets. It runs in th
 
 Pro Racer Z is an original arcade game inspired by the mechanics of Rare's 1988 NES game *R.C. Pro-Am*. You pilot a hover car round circuits built on the rooftops of a city at night.
 
-- **Four to a race.** You against three rival pilots, each with a way of driving: Halo, Vex and Dynamo. Finish in the top three to score.
+- **A season of 24 races.** Eight circuits in three leagues: Neon, Storm (every track in reverse) and Blackout (the lights go down).
+- **Four to a race.** You against three rival pilots, each with a way of driving: Halo, Vex and Dynamo. Finish in the top three to go on.
 - **Darts and mines.** Fire darts that home in on the car ahead, or leave a mine behind you. A hit spins them out.
 - **OVERDRIVE.** Collect the nine letters of OVERDRIVE, a few a race, to step up to a faster machine.
 - **Upgrades that carry.** Thrusters, cores and grip kits stack up from race to race.
@@ -33,13 +34,19 @@ Pro Racer Z is an original arcade game inspired by the mechanics of Rare's 1988 
 
 ## How to play
 
-The track for now is **Antenna Row**: two laps against Halo, Vex and Dynamo.
+**The season** is 24 races: the eight tracks in the Neon league, then the same eight in Storm, then in Blackout. Finish every race in the top three to win the **league crown**.
+
+- **The pit board** comes before each race: the race number, league, track, laps and your lap record there, and everything you're carrying (machine, upgrades, score, charges, retries, Dynamo's heat and your letters).
+- **4th place** costs a **retry**: the race runs again from where it started, and nothing you scored or picked up in it is kept. You start the season with 2. With none left, 4th place is **game over**.
+- **The rivals** get a little quicker with each race in a league, and each league is quicker than the last.
+- **High scores:** the best 8 seasons are kept in this browser, and the title shows the best. The table marks your entry with `>`.
+- **Lap records** are kept per track and league. Beating one scores 1,000; your first lap on a track just sets it.
 
 - **The start:** four cars on the grid behind the chequered line. Three lights come on a second apart, then **GO**. You start on the second row.
 - **The apron,** the dark strip between the white edge line and the wall, slows the car to 62 % of its top speed and makes it slide more.
 - **The walls** stop you leaving the track. Hit one hard and you bounce off it.
 - **Laps:** each lap time shows as you cross the line, and the last lap is called **FINAL LAP**.
-- **The finish:** the others get a few seconds to cross the line, then the results board shows the order and the times. From there, race again or go back to the title.
+- **The finish:** the others get a few seconds to cross the line, then the results board shows the order and the times, and whether you go on, retry or it's game over.
 - **Charges** power your weapons. You start with 4 and can hold 9. Each dart or mine costs one.
 - **Darts** fly ahead and bend toward the nearest car in front. **Mines** drop behind you and arm after half a second; until then they're harmless. Either one spins the car it hits for about a second.
 - **Contact:** cars bump and push each other, but only weapons and hazards spin them.
@@ -48,9 +55,9 @@ The track for now is **Antenna Row**: two laps against Halo, Vex and Dynamo.
   - **Vex** moves across in front of you when you're close behind him.
   - **Dynamo** holds a grudge. Each rival you spin adds one heat; at five he overdrives at 1.3× his top speed for the rest of the race. His heat drops by one each race.
 - **Letters:** each race lays out the next three letters of OVERDRIVE you still need. Letters you've collected stay collected between races. The top bar shows them: a solid tile for each one you hold.
-- **OVERDRIVE:** the ninth letter steps you up to the next machine with fresh upgrades, and scores 25,000. In the Mk III it scores 50,000 instead.
+- **OVERDRIVE:** the ninth letter steps you up to the next machine with fresh upgrades, and scores 25,000. In the Mk III it scores 50,000 and adds a retry instead.
 - **Upgrades:** each kind goes up to 3 and stays with you between races until your next OVERDRIVE.
-- **What carries to the next race:** your score, charges, machine, letters, upgrades and Dynamo's heat.
+- **What carries to the next race:** your score, charges, machine, letters, upgrades, retries and Dynamo's heat.
 
 **Machines**
 
@@ -74,7 +81,11 @@ You start in the Mk I.
 | **Letter** | A pink tile with a letter on it. |
 | **Boost pad** | Three bright chevrons. Drive over it for a burst to 1.35× top speed that eases off. |
 | **Coolant spill** | A pale pool. Drive through it and your top speed drops to 60 % until it dries off, a moment after you leave it. |
-| **Oil slick** | A black blot with a light rim. Drive on to it at speed and you spin. |
+| **Oil slick** | A black blot with a light rim. Drive on to it at speed and you spin. Storm adds more. |
+| **Storm cloud** | Storm and Blackout. A cloud that drifts round the track, raining on the asphalt below it: top speed drops to 85 % and the car slides much more. |
+| **Laser gate** | Blackout. Two posts across the track. Dashed lines blink for a second before the beam comes on; touch the beam and you spin. |
+| **Drone** | Blackout. Sweeps from wall to wall with a dashed scan line. Touch it and you spin. |
+| **Glitch skull** | Blackout. Drive into it and it eats 2 of your charges. |
 
 | | Points |
 | --- | --- |
@@ -82,7 +93,21 @@ You start in the Mk I.
 | Spinning a rival with a dart or mine | 200 |
 | Any pickup | 100 |
 | Letter | 250 |
+| Beating your lap record | 1,000 |
 | OVERDRIVE | 25,000 (50,000 in the Mk III) |
+
+**Tracks**
+
+| | Laps in Neon / Storm / Blackout |
+| --- | --- |
+| Antenna Row | 2 / 2 / 2 |
+| Coolant Bay | 3 / 3 / 3 |
+| Billboard Bend | 2 / 3 / 3 |
+| Helipad Loop | 3 / 3 / 3 |
+| Night Market | 3 / 3 / 3 |
+| Tower Nine | 3 / 3 / 3 |
+| Static Heights | 3 / 3 / 3 |
+| Zenith Spire | 3 / 3 / 3 |
 
 ## Controls
 
@@ -94,10 +119,10 @@ You start in the Mk I.
 | Brake, then reverse | Down or S | B or LT |
 | Fire a dart | Z or Space | X |
 | Drop a mine | X or Shift | Y |
-| Start | Enter or Space, or click **START** | A or Start |
-| Next race (results board) | Enter or Space, or click **NEXT RACE** | A or Start |
+| Start (title, pit board) | Enter or Space, or click **START** | A or Start |
+| Continue (results board) | Enter or Space, or click the pink button | A or Start |
 | Sound on / off | M, or click the speaker (top right) | — |
-| Back to the title | Esc, or click **TITLE** on the results board | Back |
+| Back to the title | Esc, or click **TITLE** | Back |
 
 Controllers show up once you press a button. Touch controls aren't in the game yet.
 
@@ -122,7 +147,8 @@ src/
   data/tracks.ts     the tracks: control points, laps, pickups and hazards
   track.ts           the track spline, nearest-point lookup and lap crossing
   race.ts            one race: hover physics, rival driving, weapons, pickups, hazards, standings
-  season.ts          what carries from race to race
+  season.ts          the season: races, leagues, retries, the crown, the high-score table
+  store.ts           high scores and lap records in localStorage
   rng.ts             seeded random numbers
   clock.ts           real-time frame steps
   bake.ts            the city, the track and the hazards, drawn in code
@@ -130,7 +156,7 @@ src/
   raceView.ts        cars, weapons, pickups and hazards on screen
   controls.ts        keyboard and controller input
   sfx.ts             procedural sound effects
-  scenes/            title screen with an attract race, the race, and the HUD
+  scenes/            title with an attract race, pit board, race, HUD, final screen
 assets/sprites/      the game's 16 × 16 sprites
 design/              concept sheet and build plan
 tools/sprites.py     sprite search and export script

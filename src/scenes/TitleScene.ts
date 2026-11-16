@@ -7,7 +7,8 @@ import { Race } from '../race';
 import { RaceView } from '../raceView';
 import { playSound, registerSounds, restoreMute, toggleMute } from '../sfx';
 import { TrackView } from '../trackView';
-import { newCareer } from '../season';
+import { leagueOf, newCareer, trackOf } from '../season';
+import { loadScores } from '../store';
 import { CAREER } from './RaceScene';
 
 export class TitleScene extends Phaser.Scene {
@@ -59,6 +60,8 @@ export class TitleScene extends Phaser.Scene {
     this.start.setInteractive({ hitArea: new Phaser.Geom.Rectangle(-24, -8, this.start.width + 48, this.start.height + 16), hitAreaCallback: Phaser.Geom.Rectangle.Contains, useHandCursor: true });
     this.start.on('pointerdown', () => this.begin());
     text(cx, 122, 'PRESS ENTER OR A, OR CLICK START', 8, TEXT.dim);
+    const best = loadScores()[0];
+    if (best) text(cx, 4, `BEST ${best.score.toLocaleString('en')}`, 8, TEXT.amber);
 
     const column = (x: number, title: string, keys: string, actions: string) => {
       text(x, 142, title, 8, TEXT.kerb);
@@ -70,12 +73,12 @@ export class TitleScene extends Phaser.Scene {
     this.padStatus = text(cx, 214, '', 8, TEXT.dim);
   }
 
-  /** An attract race behind the title: the autopilot drives your car against the three rivals, from GO. */
+  /** An attract race behind the title: the autopilot drives your car against the three rivals, from GO, on each race of the season in turn. */
   private startDemo() {
-    const def = TRACKS[0];
-    this.race = new Race(def, { seed: 1000 + this.demo++, autopilot: true });
+    const n = this.demo++, def = TRACKS[trackOf(n % 24)], league = leagueOf(n % 24);
+    this.race = new Race(def, { seed: 1000 + n, autopilot: true, league });
     this.race.go();
-    this.view = new RaceView(this, this.race, new TrackView(this, def, this.race.track));
+    this.view = new RaceView(this, this.race, new TrackView(this, def, this.race.track, league));
   }
 
   update(time: number) {
@@ -100,6 +103,6 @@ export class TitleScene extends Phaser.Scene {
     playSound(this, 'start');
     this.registry.set(CAREER, newCareer());
     this.cameras.main.fadeOut(250);
-    this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => this.scene.start('race', { track: 0, league: 0 }));
+    this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => this.scene.start('pit'));
   }
 }

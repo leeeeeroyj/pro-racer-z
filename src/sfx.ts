@@ -50,6 +50,7 @@ export const SOUNDS = {
   overdrive: { wave: 'square', freq: 392, steps: [0, 4, 7, 12, 16, 19, 24, 28], sustain: 0.9, decay: 0.3, duty: 0.25, volume: 0.28 },
   glitch: { wave: 'noise', freq: 120, slide: 2, vibrato: [40, 0.4], sustain: 0.2, decay: 0.1, smooth: 0.7, volume: 0.3 },
   warn: { wave: 'square', freq: 1200, steps: [0, 5, 0, 5], sustain: 0.3, duty: 0.5, volume: 0.1 },
+  record: { wave: 'square', freq: 523, steps: [0, 7, 12, 7, 12, 19], sustain: 0.5, decay: 0.2, duty: 0.25, volume: 0.25 },
   grudge: { wave: 'saw', freq: 110, slide: 1, vibrato: [8, 0.1], sustain: 0.45, decay: 0.2, smooth: 0.4, volume: 0.32 },
 } satisfies Record<string, Voice>;
 

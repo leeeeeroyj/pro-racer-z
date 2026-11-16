@@ -5,7 +5,8 @@ import { Controls, type Device } from '../controls';
 import { TRACKS, type TrackDef } from '../data/tracks';
 import { NO_INPUT, Race, lightsLit, speedOf, type RaceEvent } from '../race';
 import { RaceView } from '../raceView';
-import { heatForNextRace, newCareer, type Career } from '../season';
+import { RACES, afterRace, leagueOf, newCareer, rampOf, trackOf, type Career, type Verdict } from '../season';
+import { loadLap, saveLap } from '../store';
 import { playSound, registerSounds, restoreMute, toggleMute, type SoundName } from '../sfx';
 import { TrackView } from '../trackView';
 
@@ -23,6 +24,9 @@ export interface ResultRow {
 export interface HudState {
   track: string;
   league: string;
+  /** 1-based race number in the season, and how many there are. */
+  race: number;
+  races: number;
   place: number;
   of: number;
   /** 1-based lap shown on the HUD, clamped to the race's laps. */
@@ -41,7 +45,7 @@ export interface HudState {
   /** Grid lights lit, 0–3, or null once the race is on. */
   lights: number | null;
   banner: { text: string; color: string } | null;
-  results: { rows: ResultRow[]; points: number; total: number; ready: boolean } | null;
+  results: { rows: ResultRow[]; points: number; total: number; ready: boolean; verdict: Verdict; retries: number } | null;
 }
 
 export const fmtTime = (t: number) => `${Math.floor(t / 60)}:${(t % 60).toFixed(1).padStart(4, '0')}`;
@@ -57,6 +61,8 @@ export class RaceScene extends Phaser.Scene {
   private trackIndex = 0;
   private league = 0;
   private career!: Career;
+  /** What the results decided: set when the board comes up. */
+  private verdict: Verdict = 'next';
   private banner: { text: string; color: string; until: number } | null = null;
   private clock = 0;
   private resultsAt = 0;
@@ -68,19 +74,22 @@ export class RaceScene extends Phaser.Scene {
     super('race');
   }
 
+  /** The career's next race; `track` and `league` override it (dev and tests). */
   create(data: { track?: number; league?: number; seed?: number }) {
-    this.trackIndex = data.track ?? 0;
-    this.league = data.league ?? 0;
+    if (!this.registry.has(CAREER)) this.registry.set(CAREER, newCareer());
+    this.career = this.registry.get(CAREER) as Career;
+    const k = this.career;
+    this.trackIndex = data.track ?? trackOf(k.race);
+    this.league = data.league ?? leagueOf(k.race);
     this.def = TRACKS[this.trackIndex];
     this.controls = new Controls(this);
     registerSounds(this);
     restoreMute(this);
-    if (!this.registry.has(CAREER)) this.registry.set(CAREER, newCareer());
-    this.career = this.registry.get(CAREER) as Career;
-    const k = this.career;
+    this.verdict = 'next';
     this.race = new Race(this.def, {
       seed: data.seed ?? Math.floor(Math.random() * 2 ** 31),
       mk: k.mk, charges: k.charges, letters: k.letters, up: k.up, heat: k.heat, league: this.league,
+      ramp: rampOf(k.race), record: loadLap(this.def.id, this.league),
     });
     const track = new TrackView(this, this.def, this.race.track, this.race.league);
     this.view = new RaceView(this, this.race, track);
@@ -130,14 +139,18 @@ export class RaceScene extends Phaser.Scene {
         break;
       case 'results': {
         this.resultsAt = this.clock;
-        const k = this.career;
-        Object.assign(k, {
-          score: k.score + r.score, charges: r.charges, mk: r.mk, letters: [...r.letters], up: { ...r.up },
-          heat: heatForNextRace(r.heat), retries: k.retries + r.retriesWon,
+        const place = r.results!.indexOf(you) + 1;
+        const { career, verdict } = afterRace(this.career, {
+          place, score: r.score, charges: r.charges, mk: r.mk, letters: r.letters, up: r.up, heat: r.heat, retriesWon: r.retriesWon,
         });
+        this.verdict = verdict;
+        this.registry.set(CAREER, career);
+        const best = loadLap(this.def.id, this.league);
+        if (r.record !== null && (best === null || r.record < best)) saveLap(this.def.id, this.league, r.record);
         this.banner = null;
         break;
       }
+      case 'record': this.cue('record'); break;
       case 'wall': if (e.car === you) this.cue('bump', { volume: Math.min(1, e.speed / 150) }); break;
       case 'bump': if (e.a === you || e.b === you) this.cue('clunk'); break;
       case 'fire': this.cue('dart'); break;
@@ -165,14 +178,18 @@ export class RaceScene extends Phaser.Scene {
   private publishHud(device: Device) {
     const r = this.race, c = r.player;
     if (this.banner && this.clock > this.banner.until) this.banner = null;
-    const score = this.career.score + (r.phase === 'results' ? 0 : r.score);
+    const k = this.registry.get(CAREER) as Career;
+    // Once the results are in, the career already holds this race's points (or, after a 4th, doesn't).
+    const score = r.phase === 'results' ? k.score : this.career.score + r.score;
     const hud: HudState = {
       track: this.def.name,
       league: LEAGUES[r.league].name,
+      race: this.career.race + 1,
+      races: RACES,
       place: r.placeOf(c),
       of: r.cars.length,
-      lap: Phaser.Math.Clamp(c.laps + 1, 1, this.def.laps),
-      laps: this.def.laps,
+      lap: Phaser.Math.Clamp(c.laps + 1, 1, r.laps),
+      laps: r.laps,
       raceTime: c.finishT ?? r.raceT,
       charges: r.charges,
       score,
@@ -191,6 +208,8 @@ export class RaceScene extends Phaser.Scene {
         points: r.score,
         total: score,
         ready: this.clock - this.resultsAt > RACE.resultsLock,
+        verdict: this.verdict,
+        retries: k.retries,
       },
     };
     this.registry.set(HUD_STATE, hud);
@@ -205,23 +224,19 @@ export class RaceScene extends Phaser.Scene {
     if (import.meta.env.DEV) this.played = [...this.played.slice(-39), name];
   }
 
-  /** The next race: the same track again for now, keeping score and charges. */
+  /** From the results board: the pit board before the next race (or the retry), or the end of the season. */
   next() {
     if (this.race.phase !== 'results') return;
-    this.leave('race');
+    this.leave(this.verdict === 'crown' || this.verdict === 'over' ? 'final' : 'pit');
   }
 
-  leave(to: 'title' | 'race' = 'title') {
+  leave(to: 'title' | 'pit' | 'final' = 'title') {
     if (this.leaving) return;
     this.leaving = true;
     this.cameras.main.fadeOut(250);
     this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
-      if (to === 'title') {
-        this.scene.stop('hud');
-        this.scene.start('title');
-      } else {
-        this.scene.restart({ track: this.trackIndex, league: this.league });
-      }
+      this.scene.stop('hud');
+      this.scene.start(to, { verdict: this.verdict });
     });
   }
 
@@ -234,7 +249,8 @@ export class RaceScene extends Phaser.Scene {
       x: c.x, y: c.y, a: c.a, vx: c.vx, vy: c.vy, speed: speedOf(c), seg: c.seg, lat: c.lat, laps: c.laps, spin: c.spin, wet: c.wet,
       finished: c.finished, n: r.track.n, lapTimes: [...r.lapTimes], phase: r.phase, raceT: r.raceT, charges: r.charges, score: r.score,
       top: r.statsOf(c).top, machine: r.machine.name, mk: r.mk, slot: c.slot, place: r.placeOf(c), shield: c.shield, heat: r.heat,
-      letters: r.letters.map((l) => (l ? 1 : 0)).join(''), up: { ...r.up }, word: WORD,
+      letters: r.letters.map((l) => (l ? 1 : 0)).join(''), up: { ...r.up }, word: WORD, track: this.def.id, league: r.league, raceLaps: r.laps,
+      race: this.career.race, verdict: this.verdict, record: r.record, ramp: r.ramp,
       cars: r.cars.map((o) => ({ kind: o.kind, seg: o.seg, laps: o.laps, lat: o.lat, spin: o.spin, finished: o.finished, x: o.x, y: o.y })),
       darts: r.darts.length, mines: r.mines.map((m) => ({ arm: m.arm, x: m.x, y: m.y })),
     };

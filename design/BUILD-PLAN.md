@@ -172,6 +172,12 @@ Each one ends playable, tested, committed, pushed and live. Default rhythm: show
 - **Rivals dodge drones where they will be (2026-11-15),** from the drone's sweep and their own speed. Drone spins in six Blackout races fell from 88 to 24.
 - **The HUD's top bar carries the OVERDRIVE letters and the shield (2026-11-15).** Collected letters are solid pink tiles, missing ones outlines; the shield icon is bright with a shield and dim without. The track name and league moved under the grid lights.
 - **Warning lines are light pink, not red (2026-11-15).** The gate's warning dashes and the drone's scan line read by brightness and by being dashed and blinking. A live beam is a thick line with a white core.
+- **Laps per track and league (2026-11-15),** chosen so a race takes 45–75 s: the seven new tracks run 2–3 laps. Antenna Row stays 2 laps in every league.
+- **Placements are fixed to the ground (2026-11-15).** Storm meets the same pickups and hazards from the other side rather than at mirrored fractions; letters are re-ordered so they still come in the word's order.
+- **The seven new tracks were generated (2026-11-15),** relaxed until every bend radius is ≥ 41 px and every section ≥ 100 px from the others, then given Antenna Row's placement template shifted round the track. Hazards to steer round sit on fairly straight track, not just out of a tight bend, and at least 24 samples apart; twisty tracks drop the items that don't fit (Night Market and Zenith Spire carry fewer).
+- **Rivals pick one lane round everything close ahead (2026-11-15),** instead of swerving from each hazard in turn, which could steer them into the next. With this and the spacing rule above, hazard spins across the 24 seeded autopilot races fell from 149 to 37.
+- **A lap record scores only when beaten (2026-11-15).** The first lap on a track sets it for nothing, so a new player's first season isn't padded with records.
+- **A retry replays from the state before the race (2026-11-15):** its points, pickups, letters and upgrades are lost, as in the original.
 
 ## Open questions
 
@@ -181,7 +187,7 @@ Each one ends playable, tested, committed, pushed and live. Default rhythm: show
   - Fine for a free personal project. Search USPTO directly before any commercial use.
 - **Repo and Pages URL:** `leeeeeroyj/pro-racer-z`, `https://leeeeeroyj.github.io/pro-racer-z/`.
 
-## Status (2026-11-15: milestone 3 done)
+## Status (2026-11-15: milestone 4 done)
 
 - **Folder set up (A1).**
   - `git init -b main` with repo-local leeeeeroyj identity, the leeeeeroyj SSH key, and `origin` on the `github-leeeeeroyj` alias.
@@ -238,4 +244,9 @@ Each one ends playable, tested, committed, pushed and live. Default rhythm: show
   - `tools/m3-test.mjs` 47/47, `m2` 36/36, `m1` 29/29. Six autopilot races in each league finish with everyone inside 54 s (Neon), 62 s (Storm) and 63 s (Blackout). The gate's warning precedes the beam by 1.000 s every cycle, and it only ever spun a car while the beam was on. Dynamo's top speed ratio over six hits is 1, 1, 1, 1, 1.3, 1.3.
   - Test fixes: m2's kit keeps only its own milestone's items on the track; m2 records the grid lights every frame in the page, since polling could miss the 0.2 s dark beat; m2's wait-for-everyone loop no longer blocks the race's own all-home exit.
   - Storm and Blackout are built and tested here but not reachable in play until the season (milestone 4).
-- **Next:** milestone 4 (season structure).
+- **Milestone 3 published (2026-11-15):** committed and pushed as leeeeeroyj, deploy green.
+- **Milestone 4 built (2026-11-15):**
+  - Eight tracks (`data/tracks.ts`), with laps per league; `season.ts` runs 24 races, the rival pace ramp (+0.5 % a race within a league), retries (2), game over and the crown, and the high-score table (top 8). `store.ts` keeps high scores and lap records in `localStorage`, every access in try/catch.
+  - Pit board (`PitScene`) before every race and a final screen (`FinalScene`) with the table; the title shows the best score and its attract race cycles the season.
+  - `tools/m4-test.mjs` 36/36; `m3` 47/47, `m2` 36/36, `m1` 71/71 (every track's geometry, both directions). The autopilot finishes all 24 races in 45–68 s with every pilot home; every placement sits inside the asphalt with no overlaps. Retry, game over, crown, lap records and the table are checked pure and live, and with storage blocked.
+- **Next:** milestone 5 (HUD and feedback).

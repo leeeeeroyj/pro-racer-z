@@ -75,7 +75,10 @@ check('the wall holds at any speed (300 random runs)', phys.worst <= phys.wall +
 check('the car never jumps to another part of the track', phys.jumps === 0, `${phys.jumps} jumps`);
 
 // ---- The live game ----
+/** The pit board comes before every race: wait for it, then Enter. */
+const throughPit = async () => { await until(() => evaluate(`${G}.scene.isActive('pit')`)); await sleep(300); await tap('Enter'); };
 await tap('Enter');
+await throughPit();
 await until(() => evaluate(`${G}.scene.isActive('race') && ${G}.scene.isActive('hud')`));
 await sleep(600);
 const s0 = await snap();
@@ -172,6 +175,7 @@ check('Esc on the results board returns to the title', true);
 
 // Esc leaves a race; M toggles sound.
 await tap('Enter');
+await throughPit();
 await until(() => evaluate(`${G}.scene.isActive('race')`));
 await sleep(400);
 const m0 = await evaluate(`${G}.registry.get('muted')`);

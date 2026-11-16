@@ -3,6 +3,7 @@ import { COLORS, FONT, HEIGHT, HUD_H, HUD_SCALE, HUD_STATE, TEXT, WIDTH, WORD } 
 import type { Device } from '../controls';
 import { MUTED, toggleMute } from '../sfx';
 import { fitCamera } from '../view';
+import type { Verdict } from '../season';
 import { fmtTime, ordinal, type HudState } from './RaceScene';
 
 // HUD space is the design size × HUD_SCALE (832×456): 16 px text here is 8 game pixels.
@@ -14,10 +15,12 @@ const HINTS: Record<Device, string> = {
   touch: 'TOUCH CONTROLS ARRIVE IN A LATER BUILD',
 };
 const RESULT_HINTS: Record<Device, string> = {
-  kbm: 'ENTER NEXT RACE  ·  ESC TITLE',
-  pad: 'A NEXT RACE  ·  BACK TITLE',
+  kbm: 'ENTER CONTINUE  ·  ESC TITLE',
+  pad: 'A CONTINUE  ·  BACK TITLE',
   touch: 'TAP A BUTTON',
 };
+/** The results board's main button, by what the race decided. */
+const VERDICT_BUTTON: Record<Verdict, string> = { next: 'NEXT RACE', crown: 'CROWN', retry: 'RETRY', over: 'GAME OVER' };
 const SPEAKER = { x: W - 28, y: 6, w: 20, h: 16 };
 /** The OVERDRIVE letter row: one box per letter, collected ones solid. */
 const LETTERS = { x: 548, y: 5, w: 16, gap: 2 };
@@ -47,6 +50,7 @@ export class HudScene extends Phaser.Scene {
   private boardRows: Phaser.GameObjects.Text[][] = [];
   private boardPoints!: Phaser.GameObjects.Text;
   private boardHint!: Phaser.GameObjects.Text;
+  private primary!: Phaser.GameObjects.Text;
   private buttons: Phaser.GameObjects.Zone[] = [];
   private buttonArt: Phaser.GameObjects.GameObject[] = [];
 
@@ -113,10 +117,15 @@ export class HudScene extends Phaser.Scene {
     this.boardHint = label(x, top + h - 34, '').setOrigin(0.5, 0);
     this.board = this.add.container(0, 0, [
       bg, this.boardTitle, ...this.boardRows.flat(), this.boardPoints,
-      ...button(x - 95, 'NEXT RACE', true, () => race().next()),
+      ...this.keepPrimary(button(x - 95, 'NEXT RACE', true, () => race().next())),
       ...button(x + 95, 'TITLE', false, () => race().leave('title')),
       this.boardHint,
     ]).setVisible(false);
+  }
+
+  private keepPrimary(parts: Phaser.GameObjects.GameObject[]) {
+    this.primary = parts[1] as Phaser.GameObjects.Text;
+    return parts;
   }
 
   update() {
@@ -129,7 +138,7 @@ export class HudScene extends Phaser.Scene {
     this.clock.setText(fmtTime(s.raceTime));
     this.charges.setText(`×${s.charges}`).setColor(s.charges ? TEXT.ink : TEXT.hurt);
     this.score.setText(String(s.score).padStart(7, '0'));
-    this.trackName.setVisible(s.lights !== null && !s.results).setText(`${s.track}  ·  ${s.league}`);
+    this.trackName.setVisible(s.lights !== null && !s.results).setText(`RACE ${s.race}/${s.races}  ·  ${s.track}  ·  ${s.league}`);
     this.trackBg.setVisible(this.trackName.visible).setSize(this.trackName.width + 24, 26).setOrigin(0.5);
     this.shield.setAlpha(s.shield ? 1 : 0.18);
     s.letters.forEach((got, i) => {
@@ -164,7 +173,13 @@ export class HudScene extends Phaser.Scene {
         n.setText(row.you ? `> ${row.name}` : row.name).setColor(row.color);
         t.setText(row.time).setColor(TEXT.dim);
       });
-      this.boardPoints.setText(`RACE +${pts(s.results.points)}  ·  SCORE ${pts(s.results.total)}`);
+      const res = s.results, left = `${res.retries} ${res.retries === 1 ? 'RETRY' : 'RETRIES'} LEFT`;
+      this.boardPoints.setText(
+        res.verdict === 'retry' ? `RACE POINTS LOST  ·  ${left}`
+          : res.verdict === 'over' ? `NO RETRIES LEFT  ·  SCORE ${pts(res.total)}`
+            : `RACE +${pts(res.points)}  ·  SCORE ${pts(res.total)}`,
+      ).setColor(res.verdict === 'retry' || res.verdict === 'over' ? TEXT.hurt : TEXT.ink);
+      this.primary.setText(VERDICT_BUTTON[res.verdict]);
       this.boardHint.setText(RESULT_HINTS[s.device]);
     }
 
