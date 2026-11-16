@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
-import { CAMERA, FONT, HAZARD, HEIGHT, TRACK, WIDTH, spriteAngle } from './config';
+import { CAMERA, FONT, FX, HAZARD, HEIGHT, TRACK, WIDTH, spriteAngle } from './config';
+import { reducedMotion } from './motion';
 import { bakeProps } from './bake';
 import { gateLeft, gateState, type Race, type RaceEvent, type Racer } from './race';
 import type { TrackView } from './trackView';
@@ -10,13 +11,22 @@ const FLASH = 0.15;
 const blink = (t: number, hz: number) => Math.floor(t * hz) % 2 === 0;
 /** Warning lines: light, so they read by brightness, not by being red. */
 const WARN = 0xffb0bc;
+const SPARK = 0xffd27a;
+
+interface Spark { x: number; y: number; vx: number; vy: number; life: number; max: number; color: number }
+interface Ring { x: number; y: number; r0: number; r1: number; life: number; max: number; color: number }
 
 /**
  * Draws a race on its track: hazards, pickups, mines, cars and their shadows, darts, gates, drones, storm clouds and
  * score popups. Owns the camera follow. Every warning reads by shape or brightness as well as colour.
  */
 export class RaceView {
-  private readonly cars = new Map<Racer, { img: Phaser.GameObjects.Image; shadow: Phaser.GameObjects.Image; flash: number }>();
+  private readonly cars = new Map<Racer, { img: Phaser.GameObjects.Image; shadow: Phaser.GameObjects.Image; flash: number; trail: number[]; color: number }>();
+  private sparks: Spark[] = [];
+  private popups: Phaser.GameObjects.Text[] = [];
+  private rings: Ring[] = [];
+  /** Dev: effects started so far, for tests. */
+  readonly fxCount = { sparks: 0, rings: 0, shakes: 0 };
   private readonly things = new Map<object, Phaser.GameObjects.Image>();
   private readonly darts: Phaser.GameObjects.Image[] = [];
   private readonly mines: Phaser.GameObjects.Image[] = [];
@@ -33,6 +43,8 @@ export class RaceView {
         shadow: scene.add.image(0, 0, c.slot).setTint(0x000000).setAlpha(0.45).setDepth(DEPTH.shadow),
         img: scene.add.image(0, 0, c.slot).setDepth(DEPTH.car + (c === race.player ? 0.5 : 0)),
         flash: 0,
+        trail: [],
+        color: c === race.player ? 0xff3ea5 : parseInt(c.color.slice(1), 16),
       });
     }
     this.snapCamera();
@@ -58,6 +70,7 @@ export class RaceView {
     this.clock += dt;
     const r = this.race, t = this.clock;
     for (const e of events) {
+      this.effect(e);
       if (e.type === 'spin') this.cars.get(e.car)!.flash = FLASH;
       if (e.type === 'score') this.popup(e.x, e.y - 10, e.label);
       if (e.type === 'glitch') this.popup(r.player.x, r.player.y - 12, e.lost ? `-${e.lost} CHARGE` : 'GLITCH');
@@ -100,7 +113,14 @@ export class RaceView {
       v.flash = Math.max(0, v.flash - dt);
       v.img.setPosition(c.x, c.y).setRotation(angle).setTint(0xffffff).setTintMode(v.flash > 0 ? Phaser.TintModes.FILL : Phaser.TintModes.MULTIPLY);
       v.shadow.setPosition(c.x + 1.5, c.y + 2.5).setRotation(angle);
+      // A hover trail when it's flying: the last few positions, fading.
+      if (on && Math.hypot(c.vx, c.vy) > r.statsOf(c).top * FX.trail) v.trail.push(c.x - Math.cos(c.a) * 6, c.y - Math.sin(c.a) * 6);
+      else v.trail.splice(0, 2);
+      if (v.trail.length > FX.trailLen * 2) v.trail.splice(0, v.trail.length - FX.trailLen * 2);
     }
+    this.sparks = this.sparks.filter((s) => (s.life -= dt) > 0);
+    for (const s of this.sparks) { s.x += s.vx * dt; s.y += s.vy * dt; s.vx *= 1 - 4 * dt; s.vy *= 1 - 4 * dt; }
+    this.rings = this.rings.filter((g) => (g.life -= dt) > 0);
     this.pool(this.darts, r.darts.length, 'dart', DEPTH.dart).forEach((img, i) => {
       const d = r.darts[i];
       img.setPosition(d.x, d.y).setRotation(spriteAngle('dart', d.a));
@@ -148,6 +168,15 @@ export class RaceView {
       const p = r.track.pts[dr.seg];
       if (blink(t, 4)) this.dashed(u, p.x + p.nx * TRACK.halfWidth, p.y + p.ny * TRACK.halfWidth, p.x - p.nx * TRACK.halfWidth, p.y - p.ny * TRACK.halfWidth, 1, WARN, 0.7);
     }
+    for (const v of this.cars.values()) {
+      const tr = v.trail, k = tr.length / 2;
+      for (let i = 1; i < k; i++) u.lineStyle(2, v.color, (0.4 * i) / k).lineBetween(tr[i * 2 - 2], tr[i * 2 - 1], tr[i * 2], tr[i * 2 + 1]);
+    }
+    for (const s of this.sparks) o.fillStyle(s.color, Math.min(1, (s.life / s.max) * 1.5)).fillRect(s.x - 0.5, s.y - 0.5, 1, 1);
+    for (const g of this.rings) {
+      const f = 1 - g.life / g.max;
+      o.lineStyle(1, g.color, 1 - f).strokeCircle(g.x, g.y, g.r0 + (g.r1 - g.r0) * f);
+    }
     const you = r.player;
     if (you.shield) o.lineStyle(1, 0x36e2ff, 0.6 + 0.4 * Math.sin(t * 6)).strokeCircle(you.x, you.y, 10);
     for (const c of r.cars) {
@@ -156,6 +185,54 @@ export class RaceView {
       o.lineStyle(1, 0xa8ff4f, 0.8);
       for (const s of [-3, 3]) o.lineBetween(c.x - bx * 8 - by * s, c.y - by * 8 + bx * s, c.x - bx * 14 - by * s, c.y - by * 14 + bx * s);
     }
+  }
+
+  /** Sparks, rings and shake for what just happened. */
+  private effect(e: RaceEvent) {
+    const you = this.race.player;
+    switch (e.type) {
+      case 'wall':
+        if (e.speed > 30) this.burst(e.x, e.y, Math.min(10, Math.round(e.speed / 15)), SPARK, e.speed * 0.6);
+        if (e.car === you && e.speed > FX.wallShake) this.shake(FX.shake.wall);
+        break;
+      case 'bump': this.burst(e.x, e.y, 4, 0xffffff, 50); break;
+      case 'spin':
+        this.ring(e.x, e.y, 4, 18, 0.35, 0xffffff);
+        this.burst(e.x, e.y, 8, SPARK, 80);
+        if (e.car === you) this.shake(FX.shake.spin);
+        break;
+      case 'shield': this.ring(e.car.x, e.car.y, 8, 20, 0.3, 0x36e2ff); break;
+      case 'pickup': this.ring(e.x, e.y, 3, 14, 0.3, e.kind === 'letter' ? 0xff3ea5 : 0xe9efff); break;
+      case 'boost': this.ring(e.car.x, e.car.y, 4, 16, 0.25, 0xa8ff4f); break;
+      case 'overdrive':
+        this.ring(you.x, you.y, 4, 48, 0.7, 0xff3ea5);
+        this.ring(you.x, you.y, 2, 30, 0.5, 0xffffff);
+        this.burst(you.x, you.y, 16, 0xff3ea5, 120);
+        this.shake(FX.shake.overdrive);
+        break;
+      case 'glitch': this.burst(you.x, you.y, 10, 0xa979ff, 70); break;
+      case 'armed': if (this.race.mines.includes(e.mine)) this.ring(e.mine.x, e.mine.y, 2, 8, 0.25, 0xe9efff); break;
+    }
+  }
+
+  private burst(x: number, y: number, n: number, color: number, speed: number) {
+    if (reducedMotion()) n = Math.ceil(n / 2);
+    for (let i = 0; i < n; i++) {
+      const a = Math.random() * Math.PI * 2, v = speed * (0.4 + Math.random() * 0.6), max = 0.25 + Math.random() * 0.2;
+      this.sparks.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, life: max, max, color });
+    }
+    this.fxCount.sparks += n;
+  }
+
+  private ring(x: number, y: number, r0: number, r1: number, secs: number, color: number) {
+    this.rings.push({ x, y, r0, r1, life: secs, max: secs, color });
+    this.fxCount.rings++;
+  }
+
+  private shake([secs, amount]: readonly [number, number]) {
+    if (reducedMotion()) return;
+    this.scene.cameras.main.shake(secs * 1000, amount);
+    this.fxCount.shakes++;
   }
 
   private dashed(g: Phaser.GameObjects.Graphics, ax: number, ay: number, bx: number, by: number, w: number, color: number, alpha: number) {
@@ -173,9 +250,13 @@ export class RaceView {
     return imgs.slice(0, count);
   }
 
+  /** Score text that floats up and fades; one that starts near another stacks above it. */
   private popup(x: number, y: number, text: string) {
+    this.popups = this.popups.filter((p) => p.active);
+    while (this.popups.some((p) => Math.abs(p.x - x) < 30 && Math.abs(p.y - y) < 8)) y -= 9;
     const t = this.scene.add.text(x, y, text, { fontFamily: FONT, fontSize: '8px', color: '#e9efff', stroke: '#04050b', strokeThickness: 2 })
       .setOrigin(0.5).setDepth(DEPTH.popup);
+    this.popups.push(t);
     this.scene.tweens.add({ targets: t, y: y - 14, alpha: 0, delay: 500, duration: 600, onComplete: () => t.destroy() });
   }
 }

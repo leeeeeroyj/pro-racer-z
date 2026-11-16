@@ -94,7 +94,7 @@ export class PitScene extends Phaser.Scene {
   private go(to: 'race' | 'title') {
     if (this.leaving) return;
     this.leaving = true;
-    if (to === 'race') playSound(this, 'start');
+    playSound(this, to === 'race' ? 'start' : 'select');
     this.cameras.main.fadeOut(200);
     this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => this.scene.start(to));
   }

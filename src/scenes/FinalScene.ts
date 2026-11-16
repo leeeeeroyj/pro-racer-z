@@ -46,7 +46,7 @@ export class FinalScene extends Phaser.Scene {
     });
     if (rank < 0) label(this, W / 2, 208 + table.length * 22 + 4, 'NOT IN THE TOP 8 THIS TIME', TEXT.dim).setOrigin(0.5, 0);
     button(this, W / 2, 396, 'TITLE', true, () => this.leave());
-    playSound(this, crown ? 'overdrive' : 'lose');
+    playSound(this, crown ? 'finish' : 'lose');
     this.cameras.main.fadeIn(300);
   }
 
@@ -59,6 +59,7 @@ export class FinalScene extends Phaser.Scene {
   private leave() {
     if (this.leaving) return;
     this.leaving = true;
+    playSound(this, 'select');
     this.cameras.main.fadeOut(200);
     this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => this.scene.start('title'));
   }

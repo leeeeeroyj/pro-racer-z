@@ -42,6 +42,10 @@ Pro Racer Z is an original arcade game inspired by the mechanics of Rare's 1988 
 - **High scores:** the best 8 seasons are kept in this browser, and the title shows the best. The table marks your entry with `>`.
 - **Lap records** are kept per track and league. Beating one scores 1,000; your first lap on a track just sets it.
 
+- **The screen:** the top bar shows your place, lap, race time, charges, score, the OVERDRIVE letters and your shield. Under it:
+  - **top left,** your speed, your thruster, core and grip levels, and Dynamo's heat (his pips flash when he overdrives)
+  - **top right,** the minimap: you're the pink arrow, the rivals are their initials (H, V, D), and a laser gate shows as a bar with a post at each end while it warns or fires
+- **Reduced motion:** if your device is set to reduce motion, the screen doesn't shake or flash and there are fewer sparks.
 - **The start:** four cars on the grid behind the chequered line. Three lights come on a second apart, then **GO**. You start on the second row.
 - **The apron,** the dark strip between the white edge line and the wall, slows the car to 62 % of its top speed and makes it slide more.
 - **The walls** stop you leaving the track. Hit one hard and you bounce off it.
@@ -156,6 +160,7 @@ src/
   raceView.ts        cars, weapons, pickups and hazards on screen
   controls.ts        keyboard and controller input
   sfx.ts             procedural sound effects
+  motion.ts          the reduced-motion setting
   scenes/            title with an attract race, pit board, race, HUD, final screen
 assets/sprites/      the game's 16 × 16 sprites
 design/              concept sheet and build plan

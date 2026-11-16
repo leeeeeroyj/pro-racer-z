@@ -178,6 +178,9 @@ Each one ends playable, tested, committed, pushed and live. Default rhythm: show
 - **Rivals pick one lane round everything close ahead (2026-11-15),** instead of swerving from each hazard in turn, which could steer them into the next. With this and the spacing rule above, hazard spins across the 24 seeded autopilot races fell from 149 to 37.
 - **A lap record scores only when beaten (2026-11-15).** The first lap on a track sets it for nothing, so a new player's first season isn't padded with records.
 - **A retry replays from the state before the race (2026-11-15):** its points, pickups, letters and upgrades are lost, as in the original.
+- **The minimap and the strip sit in the top corners (2026-11-15),** under the bar, so the bottom corners stay free for the touch controls (milestone 6). On the minimap you're an arrow and the rivals are initials; gates are bars with end posts, so they can't be taken for the start line's tick.
+- **Banners are a short headline plus a smaller line (2026-11-15),** e.g. "OVERDRIVE!" over "MK II STRIKER", so they fit between the strip and the minimap.
+- **Headless Chrome renders in software (2026-11-15):** about 15–20 frames a second whatever is on screen. The race scene's own update takes 0.2 ms (p95 under 1 ms) with four cars and a storm cloud, and the storm grid is no slower than a plain Neon one, so frame time there says nothing about the effects. A real device check belongs to milestone 6.
 
 ## Open questions
 
@@ -187,7 +190,7 @@ Each one ends playable, tested, committed, pushed and live. Default rhythm: show
   - Fine for a free personal project. Search USPTO directly before any commercial use.
 - **Repo and Pages URL:** `leeeeeroyj/pro-racer-z`, `https://leeeeeroyj.github.io/pro-racer-z/`.
 
-## Status (2026-11-15: milestone 4 done)
+## Status (2026-11-15: milestone 5 done)
 
 - **Folder set up (A1).**
   - `git init -b main` with repo-local leeeeeroyj identity, the leeeeeroyj SSH key, and `origin` on the `github-leeeeeroyj` alias.
@@ -249,4 +252,10 @@ Each one ends playable, tested, committed, pushed and live. Default rhythm: show
   - Eight tracks (`data/tracks.ts`), with laps per league; `season.ts` runs 24 races, the rival pace ramp (+0.5 % a race within a league), retries (2), game over and the crown, and the high-score table (top 8). `store.ts` keeps high scores and lap records in `localStorage`, every access in try/catch.
   - Pit board (`PitScene`) before every race and a final screen (`FinalScene`) with the table; the title shows the best score and its attract race cycles the season.
   - `tools/m4-test.mjs` 36/36; `m3` 47/47, `m2` 36/36, `m1` 71/71 (every track's geometry, both directions). The autopilot finishes all 24 races in 45–68 s with every pilot home; every placement sits inside the asphalt with no overlaps. Retry, game over, crown, lap records and the table are checked pure and live, and with storage blocked.
-- **Next:** milestone 5 (HUD and feedback).
+- **Milestone 4 published (2026-11-15):** committed and pushed as leeeeeroyj, deploy green.
+- **Milestone 5 built (2026-11-15):**
+  - HUD: the minimap (track, start tick, gates while they warn or fire, rivals by initial, you as an arrow), the strip (speed bar, thruster / core / grip pips, Dynamo's heat), a panel behind banners, two-line banners, a LAP RECORD banner, and a white flash layer.
+  - `raceView.ts`: sparks on walls, bumps, spins and glitches; rings on spins, shields, pickups, boosts, armed mines and OVERDRIVE; hover trails above 75 % of top speed; camera shake on your spins, hard wall hits and OVERDRIVE; stacked score popups. `motion.ts` reads `prefers-reduced-motion` live: no shake or flash, half the sparks.
+  - Sounds: a new `arm` blip for your mines, shields picked up use `pickup`, the crown plays `finish` and leaving a menu plays `select`, so all 28 voices are in use.
+  - `tools/m5-test.mjs` 16/16 (a spy on the sound manager hears all 28 voices; reduced motion through CDP media emulation); `m4` 36/36, `m3` 47/47, `m2` 36/36, `m1` 71/71.
+- **Next:** milestone 6 (touch and mobile).

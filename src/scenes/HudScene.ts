@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { COLORS, FONT, HEIGHT, HUD_H, HUD_SCALE, HUD_STATE, TEXT, WIDTH, WORD } from '../config';
+import { COLORS, FONT, HEAT, HEIGHT, HUD_H, HUD_SCALE, HUD_STATE, RIVALS, TEXT, UPGRADE, WIDTH, WORD, spriteAngle } from '../config';
 import type { Device } from '../controls';
 import { MUTED, toggleMute } from '../sfx';
 import { fitCamera } from '../view';
@@ -28,6 +28,11 @@ const SHIELD = { x: 740, y: 14 };
 /** Results board, centred below the bar. Buttons are 48 units tall: 36 CSS px or more on a landscape phone. */
 const BOARD = { x: W / 2, y: BAR + (H - BAR) / 2, w: 440, h: 330 };
 const pts = (n: number) => n.toLocaleString('en');
+/** Minimap (top right) and the speed / upgrade / heat strip (top left): the bottom corners stay free for thumbs. */
+const MAP = { x: W - 8 - 150, y: BAR + 8, w: 150, h: 110, pad: 10 };
+const STRIP = { x: 8, y: BAR + 8, w: 178, h: 70 };
+const PIP = 10, PIP_GAP = 3;
+const DYNAMO = RIVALS.find((r) => r.kind === 'dynamo')!;
 
 /** Top bar: place, lap, race time, charges, score, OVERDRIVE letters, shield, sound. Then grid lights, the hint strip, banners and the results board. */
 export class HudScene extends Phaser.Scene {
@@ -53,6 +58,14 @@ export class HudScene extends Phaser.Scene {
   private primary!: Phaser.GameObjects.Text;
   private buttons: Phaser.GameObjects.Zone[] = [];
   private buttonArt: Phaser.GameObjects.GameObject[] = [];
+  private bannerBg!: Phaser.GameObjects.Rectangle;
+  private bannerSub!: Phaser.GameObjects.Text;
+  private flash!: Phaser.GameObjects.Rectangle;
+  private mapArt!: Phaser.GameObjects.Graphics;
+  private mapId = '';
+  private mapFit = { s: 1, ox: 0, oy: 0 };
+  private initials: Phaser.GameObjects.Text[] = [];
+  private gauges!: Phaser.GameObjects.Container;
 
   constructor() {
     super('hud');
@@ -63,6 +76,8 @@ export class HudScene extends Phaser.Scene {
     const label = (x: number, y: number, text: string, color: string = TEXT.dim) =>
       this.add.text(x, y, text, { fontFamily: FONT, fontSize: '16px', color });
 
+    this.flash = this.add.rectangle(0, 0, W, H, 0xffffff, 1).setOrigin(0).setAlpha(0);
+    this.buildGauges();
     const g = this.add.graphics();
     g.fillStyle(COLORS.panel, 0.86).fillRect(0, 0, W, BAR);
     g.fillStyle(COLORS.line).fillRect(0, BAR, W, 2);
@@ -79,13 +94,86 @@ export class HudScene extends Phaser.Scene {
     this.trackName = label(W / 2, 104, '', TEXT.ink).setOrigin(0.5);
     this.hintBg = this.add.rectangle(W / 2, H - 46, 10, 22, COLORS.panel, 0.7);
     this.hint = label(W / 2, H - 46, '').setOrigin(0.5);
+    this.bannerBg = this.add.rectangle(W / 2, 92, 10, 44, COLORS.panel, 0.8);
     this.banner = this.add.text(W / 2, 92, '', { fontFamily: FONT, fontSize: '32px', color: TEXT.amber, stroke: '#04050b', strokeThickness: 6 }).setOrigin(0.5);
+    this.bannerSub = label(W / 2, 124, '', TEXT.ink).setOrigin(0.5);
     this.dynamic = this.add.graphics();
     this.buildBoard(label);
 
     // Phones have no M key: the speaker is a tap target, padded for a thumb.
     this.add.zone(W - 64, 0, 64, BAR + 16).setOrigin(0).setInteractive({ useHandCursor: true })
       .on('pointerdown', () => toggleMute(this));
+  }
+
+  /** The strip's icons and the minimap's panel; the bars, pips and markers are drawn each frame. */
+  private buildGauges() {
+    const bg = this.add.graphics();
+    bg.fillStyle(COLORS.panel, 0.72).fillRect(STRIP.x, STRIP.y, STRIP.w, STRIP.h).fillRect(MAP.x, MAP.y, MAP.w, MAP.h);
+    this.mapArt = this.add.graphics();
+    const icons = (['thruster', 'core', 'grip'] as const).map((k, i) => this.add.image(STRIP.x + 14 + i * 58, STRIP.y + 34, k));
+    const dyn = this.add.image(STRIP.x + 14, STRIP.y + 56, DYNAMO.slot).setRotation(spriteAngle(DYNAMO.slot, -Math.PI / 2));
+    this.initials = RIVALS.map((r) => this.add.text(0, 0, r.initial, { fontFamily: FONT, fontSize: '16px', color: r.color, stroke: '#04050b', strokeThickness: 4 }).setOrigin(0.5));
+    this.gauges = this.add.container(0, 0, [bg, this.mapArt, ...icons, dyn, ...this.initials]).setVisible(false);
+  }
+
+  /** Fits the track into the minimap and draws it: the centreline and a tick at the start line. */
+  private drawMap(map: HudState['map']) {
+    this.mapId = map.id;
+    const p = map.pts, xs = p.filter((_, i) => i % 2 === 0), ys = p.filter((_, i) => i % 2 === 1);
+    const x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys);
+    const s = Math.min((MAP.w - MAP.pad * 2) / (x1 - x0), (MAP.h - MAP.pad * 2) / (y1 - y0));
+    this.mapFit = { s, ox: MAP.x + (MAP.w - (x1 - x0) * s) / 2 - x0 * s, oy: MAP.y + (MAP.h - (y1 - y0) * s) / 2 - y0 * s };
+    const g = this.mapArt.clear(), f = this.mapFit;
+    g.lineStyle(4, 0x4a5078).beginPath().moveTo(p[0] * s + f.ox, p[1] * s + f.oy);
+    for (let i = 2; i < p.length; i += 2) g.lineTo(p[i] * s + f.ox, p[i + 1] * s + f.oy);
+    g.closePath().strokePath();
+    const a = Math.atan2(p[3] - p[1], p[2] - p[0]), sx = p[0] * s + f.ox, sy = p[1] * s + f.oy, nx = -Math.sin(a) * 6, ny = Math.cos(a) * 6;
+    g.lineStyle(2, COLORS.ink).lineBetween(sx - nx, sy - ny, sx + nx, sy + ny);
+  }
+
+  /** Speed bar, upgrade pips, Dynamo's heat; then gates and cars on the minimap. */
+  private drawGauges(g: Phaser.GameObjects.Graphics, s: HudState) {
+    if (s.map.id !== this.mapId) this.drawMap(s.map);
+    const blinkOn = Math.floor(this.time.now / 150) % 2 === 0;
+    const bx = STRIP.x + 8, by = STRIP.y + 8, bw = STRIP.w - 16, f = Math.min(1, s.speed / s.top);
+    g.lineStyle(2, COLORS.line).strokeRect(bx, by, bw, 10);
+    g.fillStyle(s.boosting ? COLORS.lime : COLORS.ink).fillRect(bx + 2, by + 2, (bw - 4) * f, 6);
+    const pips = (x: number, y: number, n: number, on: number, color: number) => {
+      for (let i = 0; i < n; i++) {
+        const px = x + i * (PIP + PIP_GAP);
+        if (i < on) g.fillStyle(color).fillRect(px, y, PIP, PIP);
+        else g.lineStyle(2, COLORS.line).strokeRect(px + 1, y + 1, PIP - 2, PIP - 2);
+      }
+    };
+    (['thruster', 'core', 'grip'] as const).forEach((k, i) => pips(STRIP.x + 24 + i * 58, STRIP.y + 29, UPGRADE.max, s.up[k], COLORS.kerb));
+    const hot = s.heat >= HEAT.max;
+    // At full heat the pips flash between filled and empty.
+    pips(STRIP.x + 24, STRIP.y + 51, HEAT.max, hot && !blinkOn ? 0 : s.heat, COLORS.ink);
+
+    const m = this.mapFit, P = (x: number, y: number) => [x * m.s + m.ox, y * m.s + m.oy] as const;
+    for (const gt of s.gates) {
+      if (gt.state === 'off') continue;
+      // A gate is a bar with a post at each end, so it can't be taken for the start line's plain tick.
+      const [x, y] = P(gt.x, gt.y), on = gt.state === 'on', color = on ? 0xffffff : 0xffb0bc;
+      if (!on && !blinkOn) continue;
+      const ax = x - gt.nx * 8, ay = y - gt.ny * 8, bx = x + gt.nx * 8, by = y + gt.ny * 8;
+      g.lineStyle(on ? 3 : 2, color).lineBetween(ax, ay, bx, by);
+      g.fillStyle(color).fillRect(ax - 3, ay - 3, 6, 6).fillRect(bx - 3, by - 3, 6, 6);
+    }
+    let k = 0;
+    for (const d of s.dots) {
+      const [x, y] = P(d.x, d.y);
+      if (!d.you) { this.initials[k++]?.setPosition(x, y).setText(d.initial).setColor(d.color); continue; }
+    }
+    for (; k < this.initials.length; k++) this.initials[k].setPosition(-99, -99);
+    // You: a pink arrow with a white edge, drawn last so it's on top.
+    const you = s.dots.find((d) => d.you);
+    if (you) {
+      const [x, y] = P(you.x, you.y), c = Math.cos(you.a), n = Math.sin(you.a);
+      const pts = [[9, 0], [-6, 6], [-3, 0], [-6, -6]].map(([u, v]) => new Phaser.Math.Vector2(x + u * c - v * n, y + u * n + v * c));
+      g.fillStyle(COLORS.kerb).fillPoints(pts, true);
+      g.lineStyle(2, COLORS.ink).strokePoints(pts, true);
+    }
   }
 
   private buildBoard(label: (x: number, y: number, text: string, color?: string) => Phaser.GameObjects.Text) {
@@ -151,6 +239,12 @@ export class HudScene extends Phaser.Scene {
     this.hintBg.setVisible(s.hint && !s.results).setSize(this.hint.width + 20, 22).setOrigin(0.5);
     this.banner.setVisible(!!s.banner && !s.results);
     if (s.banner) this.banner.setText(s.banner.text).setColor(s.banner.color);
+    this.bannerSub.setVisible(this.banner.visible && !!s.banner?.sub).setText(s.banner?.sub ?? '');
+    const subH = this.bannerSub.visible ? 26 : 0;
+    this.bannerBg.setVisible(this.banner.visible).setSize(Math.max(this.banner.width, this.bannerSub.visible ? this.bannerSub.width : 0) + 24, 44 + subH).setOrigin(0.5, 0).setY(70);
+    this.flash.setAlpha(s.flash);
+    this.gauges.setVisible(!s.results);
+    if (this.gauges.visible) this.drawGauges(g, s);
 
     // Grid lights: dark until lit, then bright, so they read by brightness as well as colour.
     if (s.lights !== null) {

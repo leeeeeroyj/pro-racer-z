@@ -287,13 +287,13 @@ await evaluate(`${R}.scene.resume()`);
 await evaluate(`(() => { const r = ${R}.race, p = r.player; r.spawnPickup('letter', p.seg / r.track.n, p.lat, 8); })()`);
 await until(() => evaluate(`${G}.registry.get('hud')?.banner?.text?.startsWith('OVERDRIVE')`), 4000);
 const s1 = await snap(), h2 = await hud();
-check('OVERDRIVE live: banner, the Mk II sprite, letters cleared', h2.banner.text.includes('MK II') && s1.slot === 'player_mk2' && s1.letters === '000000000', `${h2.banner.text}, ${s1.slot}, ${s1.letters}`);
+check('OVERDRIVE live: banner, the Mk II sprite, letters cleared', h2.banner.sub.includes('MK II') && s1.slot === 'player_mk2' && s1.letters === '000000000', `${h2.banner.text} ${h2.banner.sub}, ${s1.slot}, ${s1.letters}`);
 await sleep(200);
 await shot('8-overdrive');
 
 // Dynamo's grudge, live.
 await evaluate(`(() => { const r = ${R}.race, halo = window.__rivals.find((c) => c.kind === 'halo'); r.heat = 4; halo.spin = 0; r.spinOut(halo, r.player, 0.2); })()`);
-await until(() => evaluate(`${G}.registry.get('hud')?.banner?.text === 'DYNAMO OVERDRIVE'`), 3000);
+await until(() => evaluate(`${G}.registry.get('hud')?.banner?.text === 'DYNAMO'`), 3000);
 check('five hits bring up DYNAMO OVERDRIVE', true);
 const played = await evaluate(`${R}.played`);
 check('letter, OVERDRIVE and grudge sounds', ['letter', 'overdrive', 'grudge'].every((s) => played.includes(s)), played.slice(-12).join(','));

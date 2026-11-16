@@ -173,6 +173,16 @@ export const SPIN = { rate: 11, fwdDrag: 2.4, sideDrag: 1.2 } as const;
 /** Cars are circles: closer than `dist` they push apart and share `transfer` of the closing speed. */
 export const CONTACT = { dist: 11, transfer: 0.5, hard: 40 } as const;
 
+/** Effects. Shake is `[seconds, intensity]`; flashes are white, at `alpha`, fading over `secs`. */
+export const FX = {
+  shake: { spin: [0.18, 0.006], wall: [0.12, 0.004], overdrive: [0.35, 0.008] },
+  wallShake: 90,
+  flash: { spin: 0.18, overdrive: 0.4, secs: 0.25 },
+  /** Cars leave a fading trail above this share of their top speed. */
+  trail: 0.75,
+  trailLen: 8,
+} as const;
+
 export const SCORE = { place: [5000, 3000, 1500, 0], hit: 200, pickup: 100, letter: 250, record: 1000 } as const;
 
 /**
