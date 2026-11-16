@@ -2,9 +2,9 @@
   "player": {"subjects": ["hover car", "go-kart"], "picks": [627205, 627201, 627213, 627215, 627202, 627204, 627211, 627197], "browse": 260, "chosen": 627201, "nose": "up"},
   "player_mk2": {"subjects": ["sports car", "car"], "picks": [1178050, 981933, 1177829, 193880, 194102, 627199, 627210, 627217], "browse": 260, "chosen": 981933, "nose": "up"},
   "player_mk3": {"subjects": ["race car"], "picks": [981934, 981724, 981717, 981937, 536331, 536329, 627025, 981935], "browse": 260, "chosen": 981935, "nose": "down"},
-  "rival_halo": {"subjects": ["hover car", "race car"], "picks": [536543, 627202, 627207, 981937, 194102, 627020, 627216, 627203], "browse": 260, "chosen": 627020, "nose": "up"},
-  "rival_vex": {"subjects": ["sports car", "car"], "picks": [981935, 981721, 627208, 194105, 536326, 627214, 627206, 1177834], "browse": 260, "chosen": 627208, "nose": "up"},
-  "rival_dynamo": {"subjects": ["go-kart", "dune buggy"], "picks": [536528, 536327, 981936, 193879, 536555, 536325, 627218, 194101], "browse": 260, "chosen": 536325, "nose": "up"},
+  "rival_halo": {"subjects": ["hover car", "race car"], "picks": [536543, 627202, 627207, 981937, 194102, 627020, 627216, 627203], "browse": 260, "chosen": 627020, "nose": "down"},
+  "rival_vex": {"subjects": ["sports car", "car"], "picks": [981935, 981721, 627208, 194105, 536326, 627214, 627206, 1177834], "browse": 260, "chosen": 627208, "nose": "down"},
+  "rival_dynamo": {"subjects": ["go-kart", "dune buggy"], "picks": [536528, 536327, 981936, 193879, 536555, 536325, 627218, 194101], "browse": 260, "chosen": 536325, "nose": "down"},
   "cell": {"subjects": ["energy cell", "battery"], "picks": [76929, 414448, 76903, 414447, 414455, 76906, 76907, 76922], "browse": 64, "chosen": 76929},
   "dart": {"subjects": ["missile", "rocket"], "picks": [787337, 787333, 787361, 787362, 787356, 787312, 787311, 787320], "browse": 64, "chosen": 787361},
   "mine": {"subjects": ["proximity mine", "landmine"], "picks": [696012, 967963, 967970, 967973, 696001, 696005, 696011, 696050], "browse": 64, "chosen": 696012},
@@ -16,7 +16,7 @@
   "glitch": {"subjects": ["floating skull", "skull icon"], "picks": [1118902, 1118940, 1118925, 1118959, 467137, 467141, 1118910, 1118938], "browse": 64, "chosen": 1118902},
   "drone": {"subjects": ["drone"], "picks": [378907, 378911, 378959, 378962, 378981, 378982, 378913, 378909], "browse": 96, "chosen": 378911},
   "ac_unit": {"subjects": ["air conditioner", "vent grille"], "picks": [1333291, 1333281, 1333287, 1333297, 1333279, 1333304, 6589, 6590], "browse": 64, "chosen": 1333291},
-  "dish": {"subjects": ["satellite dish", "solar panel"], "picks": [1056229, 1056241, 1056230, 1148968, 1148974, 1148991, 1148969, 1056227], "browse": 64, "chosen": 1056229},
-  "tower": {"subjects": ["water tower", "chimney"], "picks": [1360023, 1359999, 1360038, 1360041, 1359996, 1360022, 1360036, 1360037], "browse": 64, "chosen": 1360023},
+  "dish": {"subjects": ["satellite dish", "solar panel"], "picks": [1056229, 1056241, 1056230, 1148968, 1148974, 1148991, 1148969, 1056227], "browse": 64, "chosen": 1056241},
+  "tower": {"subjects": ["water tower", "chimney"], "picks": [1360023, 1359999, 1360038, 1360041, 1359996, 1360022, 1360036, 1360037], "browse": 64, "chosen": 1360038},
   "trophy": {"subjects": ["lidded trophy cup", "globe trophy"], "picks": [714621, 714628, 714636, 714638, 532405, 714666, 714659, 714665], "browse": 64, "chosen": 714621}
 }

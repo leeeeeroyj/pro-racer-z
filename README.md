@@ -14,7 +14,7 @@ A top-down arcade racer on raised circuits high above the streets. It runs in th
 ![Vite](https://img.shields.io/badge/Vite-8-646cff?logo=vite&logoColor=white)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-![Four hover cars sweep through a long bend on Antenna Row, a raised track with pink and white kerbs high above dark rooftops; a pale coolant spill sits on the inside line and a charge cell floats ahead](docs/screenshot.png)
+![Three hover cars sweep through a long bend on a raised track with pink and white kerbs, high above dark rooftops and water towers; a pale, rippling coolant spill sits ahead on the outside line, a dark oil slick with a light swirl lies behind them, and a pink O letter tile floats on the track](docs/screenshot.png)
 
 </div>
 
@@ -85,8 +85,8 @@ You start in the Mk I.
 | **Grip kit** | Sharper turning and less slide, per level. |
 | **Letter** | A pink tile with a letter on it. |
 | **Boost pad** | Three bright chevrons. Drive over it for a burst to 1.35× top speed that eases off. |
-| **Coolant spill** | A pale pool. Drive through it and your top speed drops to 60 % until it dries off, a moment after you leave it. |
-| **Oil slick** | A black blot with a light rim. Drive on to it at speed and you spin. Storm adds more. |
+| **Coolant spill** | A pale, rippling pool. Drive through it and your top speed drops to 60 % until it dries off, a moment after you leave it. |
+| **Oil slick** | A black pool with a light rim and a swirl turning in it. Drive on to it at speed and you spin. Storm adds more. |
 | **Storm cloud** | Storm and Blackout. A cloud that drifts round the track, raining on the asphalt below it: top speed drops to 85 % and the car slides much more. |
 | **Laser gate** | Blackout. Two posts across the track. Dashed lines blink for a second before the beam comes on; touch the beam and you spin. |
 | **Drone** | Blackout. Sweeps from wall to wall with a dashed scan line. Touch it and you spin. |

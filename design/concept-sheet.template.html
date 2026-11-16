@@ -345,7 +345,7 @@ const NOSE_ARROW = { up: "↑", right: "→", down: "↓", left: "←" };
 // Picks: first candidate by default (the build puts the chosen sprite first). Remembered per viewer when storage allows.
 const picks = {};
 for (const slot in SPRITES) picks[slot] = SPRITES[slot][0]?.id;
-const nose = { player: "up", player_mk2: "up", player_mk3: "down", rival_halo: "up", rival_vex: "up", rival_dynamo: "up" };
+const nose = { player: "up", player_mk2: "up", player_mk3: "down", rival_halo: "down", rival_vex: "down", rival_dynamo: "down" };
 try {
   const saved = JSON.parse(localStorage.getItem("pro-racer-z-picks") || "{}");
   for (const slot in saved) if (SPRITES[slot]?.some((s) => s.id === saved[slot])) picks[slot] = saved[slot];

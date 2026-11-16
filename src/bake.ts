@@ -138,23 +138,96 @@ export function bakeTrack(scene: Phaser.Scene, def: TrackDef, t: Track, dark = f
   });
 }
 
+/** Animated hazards: how many frames each loop has and how fast it plays. Texture keys are `hz-<kind>-<frame>`. */
+export const HAZARD_FRAMES = { coolant: { n: 12, fps: 10 }, slick: { n: 16, fps: 8 } } as const;
+
+type RGBA = [number, number, number, number];
+
 /**
- * Small code-drawn sprites. Coolant is a pale, see-through pool; a slick is a near-black blot with a light rim. They
- * differ in brightness, not just hue.
+ * Draws a texture a pixel at a time, so code-drawn art stays crisp at the camera's zoom. `px` returns the colour of
+ * pixel (x, y), or null for clear.
+ */
+function pixels(scene: Phaser.Scene, key: string, w: number, h: number, px: (x: number, y: number) => RGBA | null) {
+  canvas(scene, key, w, h, (g) => {
+    const img = g.createImageData(w, h);
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+      const c = px(x, y);
+      if (!c) continue;
+      const i = (y * w + x) * 4;
+      img.data[i] = c[0]; img.data[i + 1] = c[1]; img.data[i + 2] = c[2]; img.data[i + 3] = Math.round(c[3] * 255);
+    }
+    g.putImageData(img, 0, 0);
+  });
+}
+
+/** A lumpy round blob, so it needs no turning to sit on any stretch of track: inside test and normalised radius. */
+function blob(cx: number, cy: number, rx: number, ry: number, lumps: number[]) {
+  const shape = (x: number, y: number) => {
+    const dx = (x + 0.5 - cx) / rx, dy = (y + 0.5 - cy) / ry;
+    const th = Math.atan2(dy, dx);
+    const edge = 1 + lumps[0] * Math.sin(3 * th + 0.7) + lumps[1] * Math.sin(5 * th + 2.1);
+    return { rho: Math.hypot(dx, dy) / edge, th };
+  };
+  const inside = (x: number, y: number) => shape(x, y).rho <= 1;
+  /** Edge pixels, split by which side faces the light (top left). */
+  const rim = (x: number, y: number) => {
+    if (!inside(x, y)) return 0;
+    if (!inside(x - 1, y) || !inside(x, y - 1)) return 1;
+    if (!inside(x + 1, y) || !inside(x, y + 1)) return -1;
+    return 0;
+  };
+  return { shape, inside, rim };
+}
+
+/**
+ * Small code-drawn sprites. Coolant is a pale, see-through pool that ripples; a slick is a near-black pool of oil with
+ * a light rim and a light swirl turning in it. They differ in brightness and motion, not just hue.
  */
 export function bakeProps(scene: Phaser.Scene) {
-  canvas(scene, 'hz-coolant', 30, 20, (g) => {
-    g.fillStyle = 'rgba(90,200,255,0.38)';
-    g.beginPath(); g.ellipse(15, 10, 14, 9, 0, 0, Math.PI * 2); g.fill();
-    g.fillStyle = 'rgba(200,240,255,0.55)';
-    g.fillRect(9, 7, 4, 1); g.fillRect(17, 12, 5, 1); g.fillRect(12, 14, 2, 1);
-  });
-  canvas(scene, 'hz-slick', 24, 18, (g) => {
-    g.fillStyle = 'rgba(3,3,8,0.92)';
-    g.beginPath(); g.ellipse(12, 9, 11, 8, 0, 0, Math.PI * 2); g.fill();
-    g.strokeStyle = 'rgba(233,239,255,0.55)'; g.lineWidth = 1;
-    g.beginPath(); g.ellipse(12, 9, 7, 4.5, 0, 0, Math.PI * 2); g.stroke();
-  });
+  // Coolant: drips land in two spots and ripple out, glints twinkle, and a faint shimmer runs across.
+  const cool = blob(15, 12, 12.5, 10.5, [0.09, 0.06]);
+  const drips = [{ x: 11, y: 9, at: 0 }, { x: 19, y: 15, at: 0.5 }];
+  const glints = [{ x: 8, y: 8, at: 0.1 }, { x: 18, y: 7, at: 0.45 }, { x: 14, y: 17, at: 0.75 }];
+  const CN = HAZARD_FRAMES.coolant.n;
+  for (let f = 0; f < CN; f++) {
+    const u = f / CN;
+    pixels(scene, `hz-coolant-${f}`, 30, 24, (x, y) => {
+      if (!cool.inside(x, y)) return null;
+      const edge = cool.rim(x, y);
+      if (edge > 0) return [190, 240, 255, 0.85];
+      if (edge < 0) return [40, 130, 190, 0.65];
+      for (const g of glints) {
+        const k = (u - g.at + 1) % 1;
+        if (k < 0.16 && x === g.x && y === g.y) return [255, 255, 255, 0.95];
+        if (k < 0.08 && Math.abs(x - g.x) + Math.abs(y - g.y) === 1) return [235, 250, 255, 0.8];
+      }
+      for (const d of drips) {
+        const k = (u - d.at + 1) % 1, r = k * 9;
+        if (k > 0.05 && Math.abs(Math.hypot(x - d.x, (y - d.y) * 1.15) - r) < 0.55) return [205, 245, 255, 0.75 * (1 - k)];
+      }
+      const shimmer = Math.sin(0.55 * x + 0.35 * y - u * Math.PI * 2) > 0.7 ? 0.18 : 0;
+      return [80, 190, 240, 0.4 + shimmer];
+    });
+  }
+
+  // Oil slick: a black eye with two light arms of sheen winding round it, turning clockwise, and a light rim.
+  const oil = blob(12, 11, 10.5, 9.5, [0.07, 0.05]);
+  const SN = HAZARD_FRAMES.slick.n;
+  for (let f = 0; f < SN; f++) {
+    const u = f / SN;
+    pixels(scene, `hz-slick-${f}`, 24, 22, (x, y) => {
+      if (!oil.inside(x, y)) return null;
+      if (oil.rim(x, y) > 0) return [233, 239, 255, 0.7];
+      const { rho, th } = oil.shape(x, y);
+      if (rho < 0.22) return [0, 0, 0, 0.97];
+      const arm = Math.sin(2 * th - 6.5 * rho + u * Math.PI * 2);
+      // The sheen's hue drifts outward (violet, teal, pale); its brightness is the cue.
+      const sheen: RGBA = rho < 0.5 ? [120, 90, 170, 0.95] : rho < 0.78 ? [90, 170, 175, 0.95] : [200, 210, 235, 0.95];
+      if (arm > 0.55) return sheen;
+      if (arm > 0.2) return [Math.round(sheen[0] * 0.45), Math.round(sheen[1] * 0.45), Math.round(sheen[2] * 0.45), 0.95];
+      return [8, 8, 16, 0.95];
+    });
+  }
   // Boost pad: three bright chevrons pointing along the track (drawn pointing right; the image turns with the track).
   canvas(scene, 'hz-boost', 20, 20, (g) => {
     g.strokeStyle = '#a8ff4f'; g.lineWidth = 2; g.lineCap = 'square';

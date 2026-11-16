@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import { CAMERA, FONT, FX, HAZARD, HEIGHT, TRACK, WIDTH, spriteAngle } from './config';
 import { reducedMotion } from './motion';
-import { bakeProps } from './bake';
+import { HAZARD_FRAMES, bakeProps } from './bake';
 import { gateLeft, gateState, type Race, type RaceEvent, type Racer } from './race';
 import type { TrackView } from './trackView';
 
@@ -84,15 +84,21 @@ export class RaceView {
       return img.setTexture(key);
     };
 
-    for (const hz of r.hazards) {
+    r.hazards.forEach((hz, i) => {
+      if (hz.kind === 'coolant' || hz.kind === 'slick') {
+        // Animated pools, upright (turning pixel art makes it jagged); each starts at its own point in the loop.
+        const a = HAZARD_FRAMES[hz.kind];
+        thing(hz, `hz-${hz.kind}-${Math.floor(t * a.fps + i * 5) % a.n}`, DEPTH.hazard).setPosition(hz.x, hz.y);
+        return;
+      }
       const img = thing(hz, hz.kind === 'glitch' ? 'glitch' : `hz-${hz.kind}`, DEPTH.hazard).setPosition(hz.x, hz.y);
       if (hz.kind === 'glitch') {
         // A skull that jitters while it's hungry and fades while it rests.
         img.setAlpha(hz.rest > 0 ? 0.35 : 1).setPosition(hz.x + (blink(t, 7) && hz.rest <= 0 ? 0.5 : 0), hz.y);
       } else {
-        img.setRotation(hz.h + (hz.kind === 'slick' ? 0.6 : 0)).setAlpha(hz.kind === 'boost' ? 0.6 + 0.4 * Math.abs(Math.sin(t * 5)) : 1);
+        img.setRotation(hz.h).setAlpha(0.6 + 0.4 * Math.abs(Math.sin(t * 5)));
       }
-    }
+    });
     r.pickups.forEach((pk, i) => {
       const img = thing(pk, pk.kind === 'letter' ? `letter-${pk.idx}` : pk.kind, DEPTH.pickup);
       img.setVisible(!pk.gone && pk.t <= 0).setPosition(pk.x, pk.y + Math.round(Math.sin(t * 4 + i) * 1.5));

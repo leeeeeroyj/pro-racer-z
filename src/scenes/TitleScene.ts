@@ -51,7 +51,7 @@ export class TitleScene extends Phaser.Scene {
     fixed(this.add.rectangle(ox, oy, WIDTH, HEIGHT, 0x04050b, 0.72).setOrigin(0)).setDepth(20);
     const text = (x: number, y: number, str: string, size: number, color: string) =>
       fixed(this.add.text(ox + x, oy + y, str, { fontFamily: FONT, fontSize: `${size}px`, color, align: 'center' }).setOrigin(0.5, 0));
-    const sprite = (key: SpriteKey, x: number, y: number) => fixed(this.add.image(ox + x, oy + y, key).setRotation(spriteAngle(key, -Math.PI / 2)));
+    const sprite = (key: SpriteKey, x: number, y: number) => fixed(this.add.image(ox + x, oy + y, key).setRotation(spriteAngle(key, 0)));
 
     const cx = WIDTH / 2;
     text(cx, 14, 'ROOFTOP HOVER RACING  ·  NEON CITY', 8, TEXT.dim);

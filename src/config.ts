@@ -202,7 +202,7 @@ export type SpriteKey = (typeof SPRITES)[number];
 const UP = -Math.PI / 2, DOWN = Math.PI / 2;
 export const NOSE: Partial<Record<SpriteKey, number>> = {
   player: UP, player_mk2: UP, player_mk3: DOWN,
-  rival_halo: UP, rival_vex: UP, rival_dynamo: UP,
+  rival_halo: DOWN, rival_vex: DOWN, rival_dynamo: DOWN,
   dart: UP,
 };
 /** Sprite rotation that points `key`'s nose along `heading`. */
