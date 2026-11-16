@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { FONT, HEIGHT, MACHINES, SPRITES, TEXT, WIDTH, spriteAngle, type SpriteKey } from '../config';
+import { FONT, HEIGHT, SPRITES, TEXT, WIDTH } from '../config';
 import { FrameClock } from '../clock';
 import { ATTRACT, attractSeed } from '../attract';
 import { Controls } from '../controls';
@@ -51,13 +51,11 @@ export class TitleScene extends Phaser.Scene {
     fixed(this.add.rectangle(ox, oy, WIDTH, HEIGHT, 0x04050b, 0.72).setOrigin(0)).setDepth(20);
     const text = (x: number, y: number, str: string, size: number, color: string) =>
       fixed(this.add.text(ox + x, oy + y, str, { fontFamily: FONT, fontSize: `${size}px`, color, align: 'center' }).setOrigin(0.5, 0));
-    const sprite = (key: SpriteKey, x: number, y: number) => fixed(this.add.image(ox + x, oy + y, key).setRotation(spriteAngle(key, 0)));
 
     const cx = WIDTH / 2;
     text(cx, 14, 'ROOFTOP HOVER RACING  ·  NEON CITY', 8, TEXT.dim);
     text(cx, 26, 'PRO RACER Z', 24, TEXT.kerb);
     text(cx, 56, 'BEAT THREE RIVAL PILOTS ROUND THE RAISED CIRCUITS.', 8, TEXT.ink);
-    MACHINES.forEach((m, i) => sprite(m.slot, cx - 36 + i * 36, 82));
 
     this.start = text(cx, 100, '> START <', 16, TEXT.kerb);
     this.start.setInteractive({ hitArea: new Phaser.Geom.Rectangle(-24, -8, this.start.width + 48, this.start.height + 16), hitAreaCallback: Phaser.Geom.Rectangle.Contains, useHandCursor: true });

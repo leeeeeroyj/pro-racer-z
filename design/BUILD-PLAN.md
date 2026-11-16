@@ -155,7 +155,8 @@ Each one ends playable, tested, committed, pushed and live. Default rhythm: show
   - storm 1211583, glitch 1118902, drone 378911
   - roof fan 1333291, dish 1056229, water tower 1360023, trophy 714621
 - **Noses (2026-11-14, the user's):** up for every car except the Mk III, which points down. Stored as `"nose"` in `tools/sprite_slots.json`.
-- **Noses and roof scenery revised (2026-11-16, the user's):** Halo, Vex and Dynamo point **down** as drawn (the cars were driving backwards); the player Mk I and Mk II stay up, the Mk III down. Dish 1056241 and water tower 1360038 replace 1056229 and 1360023.
+- **Noses and roof scenery revised (2026-11-16, the user's):** Halo, Vex and Dynamo point **down** as drawn (the cars were driving backwards); the player Mk I and Mk II stay up, the Mk III down. Dish 1056241 and water tower 1360038 replace 1056229 and 1360023. The user checked Vex in play and it looks right nose-down.
+- **No cars on the title (2026-11-16, the user's).** The three machines under the tagline looked upside down pointing up and still looked off turned to face right, so the title is now just text over the attract race.
 - **Coolant and slicks redrawn (2026-11-16).** The user found both dull. They are now drawn a pixel at a time and animated (`HAZARD_FRAMES` in `bake.ts`): coolant is a pale, lumpy, see-through pool with drips rippling out, twinkling glints and a shimmer; a slick is a near-black pool with a light rim and two light arms of sheen turning round a black eye. Both stay upright, round enough to sit on any stretch of track, because turning pixel art by the track heading made the old ones blur. They still differ in brightness, and now in motion. The dataset had usable top-down swirls for the slick (whirlpool, portal swirl marker) but no top-down puddle, so both are code-drawn to match.
 - **No headlights (2026-11-16).** Considered so a spun car shows which way it faces; the user found the hover trail does the job. The trail shows only above 75 % of top speed (`FX.trail`), so a car crawling out of a spin has none.
 - **Rotation (2026-11-14): free turn,** by the user's choice ("feels more modern"). Sprites rotate with Phaser's `rotation` on the 4× canvas; no baked facings.
@@ -195,7 +196,7 @@ Each one ends playable, tested, committed, pushed and live. Default rhythm: show
   - Fine for a free personal project. Search USPTO directly before any commercial use.
 - **Repo and Pages URL:** `leeeeeroyj/pro-racer-z`, `https://leeeeeroyj.github.io/pro-racer-z/`.
 
-## Status (2026-11-16: milestone 6 and attract mode built, waiting on a real phone)
+## Status (2026-11-16: milestones 1–6, attract mode and review fixes published; milestone 7 next)
 
 - **Folder set up (A1).**
   - `git init -b main` with repo-local leeeeeroyj identity, the leeeeeroyj SSH key, and `origin` on the `github-leeeeeroyj` alias.
@@ -273,5 +274,6 @@ Each one ends playable, tested, committed, pushed and live. Default rhythm: show
   - In attract mode Phaser gets no input plugins and no audio (`noAudio`), the scene never cues a sound, there's no visibility pause, and `store.ts` writes nothing. `?attract&seed=<n>` repeats a demo.
   - `pro-racer-z-hi` mirrors the table's top score as a plain number for Arcadia's cabinet; the title backfills it for tables saved before it existed.
   - `tools/cdp.mjs` takes `path` and `init` (a script run before the game). `tools/attract-test.mjs` 14/14: gameplay at 1.1 s, racing among rivals at 2.2 s, a new demo with no input, no sound, no AudioContext, keys / click / a fake gamepad change nothing (the gamepad is never polled), no storage writes, heap +6 % from 10 s to 60 s, full game area at 320 × 176 and 832 × 456. `m1`–`m6` pass (m6's FIRE check failed once and passed on reruns, the same on the code before this change).
-- **Review fixes (2026-11-16), committed, not yet pushed:** the user's revised noses (Halo, Vex, Dynamo down) and dish and water tower picks applied (`sprite_slots.json`, `NOSE` in `config.ts`, the sheet's defaults, `build` re-run); coolant and slicks redrawn as animated pixel art (see Decisions). The title shows the three machines facing right. `m1`–`m6` and `attract` pass.
-- **Next:** the user's real-phone test, then milestone 7 (balance and the user's play-through).
+- **Review fixes (2026-11-16), published:** the user's revised noses (Halo, Vex, Dynamo down) and dish and water tower picks applied (`sprite_slots.json`, `NOSE` in `config.ts`, the sheet's defaults, `build` re-run); coolant and slicks redrawn as animated pixel art; the cars taken off the title (see Decisions). `m1`–`m6` and `attract` pass. README hazard notes and hero screenshot refreshed.
+- **Real phone (2026-11-16, the user):** plays well and the controls work. Pause wasn't tried on the phone; it has been live since milestone 6 (II in the top bar, and automatic when the page is hidden).
+- **Next:** milestone 7: the balance probe and tuning, then the user's play-through, the final README and hero screenshot.
