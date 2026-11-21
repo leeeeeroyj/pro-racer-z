@@ -23,22 +23,32 @@ export const TEXT = {
 } as const;
 
 /**
- * The raised track. Centreline samples every `step` px; asphalt `halfWidth` each side of it, then an apron of
- * `apron` px that slows you, then a wall. Cars stop `wallInset` px short of the wall (about their half-width).
+ * The raised track. Centreline samples every `step` px; asphalt `halfWidth` each side of it (unless the track sets
+ * its own), then an apron of `apron` px that slows you, then a wall. Cars stop `wallInset` px short of the wall (about
+ * their half-width).
  */
 export const TRACK = {
   step: 6,
   halfWidth: 24,
   apron: 12,
   wallInset: 5,
-  /** The city below scrolls at this fraction of the track's speed. */
-  parallax: 0.88,
   /** Top speed and grip multipliers on the apron. */
   apronTop: 0.62,
   apronGrip: 0.8,
 } as const;
-/** Furthest a car can sit from the centreline. */
-export const WALL = TRACK.halfWidth + TRACK.apron - TRACK.wallInset;
+
+/**
+ * The city below. `depth`: how fast each layer slides past, as a fraction of the track's speed; the streets are
+ * furthest down, the towers nearest. `neon`: the rooftop neon drifts once round the colours every `cycle` seconds and
+ * brightens by `pulse` on each beat of the music. `beams`: one searchlight per `area` px² of city, sweeping `swing`
+ * radians either side at `sweep` rad/s, at `alpha`, brighter by `pulse` on the beat. With reduced motion there's no
+ * pulse and the colours and beams move at a quarter of the speed.
+ */
+export const CITY = {
+  depth: { ground: 0.78, low: 0.88, tall: 0.95 },
+  neon: { cycle: 20, alpha: 0.8, pulse: 0.6 },
+  beams: { area: 160_000, sweep: 0.4, swing: 0.9, alpha: 0.15, pulse: 0.8 },
+} as const;
 
 /** The camera leads the player by its velocity × `lead`, capped, and eases toward that point. */
 export const CAMERA = { lead: 0.35, maxX: 70, maxY: 40, ease: 4, down: 8 } as const;
@@ -108,11 +118,14 @@ export interface Pilot {
   /** Grid slot index into GRID. */
   grid: number;
 }
-/** Rival colours follow their sprites and differ in brightness: silver (light), teal (mid), violet (dark). */
+/**
+ * Rival colours follow their sprites and differ in brightness: silver (light), teal (mid), violet (dark). Their paces
+ * are spread out, so beating the slowest (top three) is within reach and beating Halo (a win) is the hard part.
+ */
 export const RIVALS: readonly Pilot[] = [
   { kind: 'halo', slot: 'rival_halo', name: 'HALO', initial: 'H', pace: 1.0, color: '#d4dcf0', grid: 0 },
-  { kind: 'vex', slot: 'rival_vex', name: 'VEX', initial: 'V', pace: 0.97, color: '#5fd4c0', grid: 1 },
-  { kind: 'dynamo', slot: 'rival_dynamo', name: 'DYNAMO', initial: 'D', pace: 0.95, color: '#a979ff', grid: 3 },
+  { kind: 'vex', slot: 'rival_vex', name: 'VEX', initial: 'V', pace: 0.95, color: '#5fd4c0', grid: 1 },
+  { kind: 'dynamo', slot: 'rival_dynamo', name: 'DYNAMO', initial: 'D', pace: 0.9, color: '#a979ff', grid: 3 },
 ];
 /** You start on the second row, so there's someone to chase off the line. */
 export const PLAYER_PILOT = { name: 'YOU', initial: 'P', color: '#ff3ea5', grid: 2 } as const;
@@ -120,10 +133,15 @@ export const PLAYER_PILOT = { name: 'YOU', initial: 'P', color: '#ff3ea5', grid:
 /** Rival handling, before pace. Catch-up: +`catchUp` top speed per lap behind you, up to `catchUpMax`. */
 export const RIVAL = { top: 148, accel: 195, turn: 3.2, grip: 6, catchUp: 0.08, catchUpMax: 0.06 } as const;
 
+/**
+ * Rival pace by league, and how much it rises with each race within the league (`ramp`), so the rivals keep up with
+ * the machine you'd have by then: steeply through Neon as you step up to the Mk II, gently in Blackout. Each league
+ * opens no harder than the last one ended. Tuned with `tools/balance-probe.mjs` (milestone 7).
+ */
 export const LEAGUES = [
-  { name: 'NEON', pace: 1.0, reverse: false },
-  { name: 'STORM', pace: 1.06, reverse: true },
-  { name: 'BLACKOUT', pace: 1.12, reverse: false },
+  { name: 'NEON', pace: 0.95, ramp: 0.05, reverse: false },
+  { name: 'STORM', pace: 1.17, ramp: 0.02, reverse: true },
+  { name: 'BLACKOUT', pace: 1.33, ramp: 0.012, reverse: false },
 ] as const;
 
 export const WEAPONS = {
@@ -186,10 +204,10 @@ export const FX = {
 export const SCORE = { place: [5000, 3000, 1500, 0], hit: 200, pickup: 100, letter: 250, record: 1000 } as const;
 
 /**
- * The season: finish in the top `qualify` to go on; 4th spends one of `retries`. Rival pace rises by `ramp` each race
- * within a league. The high-score table keeps `table` entries.
+ * The season: finish in the top `qualify` to go on; 4th spends one of `retries`. The high-score table keeps `table`
+ * entries.
  */
-export const SEASON = { retries: 2, qualify: 3, ramp: 0.005, table: 8 } as const;
+export const SEASON = { retries: 2, qualify: 3, table: 8 } as const;
 
 export const SPRITES = [
   'player', 'player_mk2', 'player_mk3', 'rival_halo', 'rival_vex', 'rival_dynamo',
@@ -201,7 +219,7 @@ export type SpriteKey = (typeof SPRITES)[number];
 /** Which way each turned sprite's nose points as drawn (radians: 0 = right, -π/2 = up). From the user's picks. */
 const UP = -Math.PI / 2, DOWN = Math.PI / 2;
 export const NOSE: Partial<Record<SpriteKey, number>> = {
-  player: UP, player_mk2: UP, player_mk3: DOWN,
+  player: DOWN, player_mk2: UP, player_mk3: DOWN,
   rival_halo: DOWN, rival_vex: DOWN, rival_dynamo: DOWN,
   dart: UP,
 };

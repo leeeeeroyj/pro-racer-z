@@ -12,6 +12,9 @@ Usage (stdlib only, run from anywhere):
   python3 -I tools/sprites.py build                        # export sprites + write design/concept-sheet.html
 
 Slots live in tools/sprite_slots.json: {"slot": {"subjects": [...], "picks": [ids], "chosen": id}}.
+An optional "recolor": {"from": [lo, hi], "to": hue} repaints the chosen sprite's pixels whose hue (degrees) is in
+[lo, hi] to the hue `to`, keeping their shading; "boost" (default 0) adds saturation and "lift" (default 1)
+scales brightness.
 "browse" (default 48) caps how many sprites per subject the contact sheet shows.
 """
 import base64, gzip, json, os, struct, sys, urllib.request, zlib
@@ -157,6 +160,22 @@ def save_slots(slots):
         handle.write("{\n" + ",\n".join(f'  "{k}": {json.dumps(v)}' for k, v in slots.items()) + "\n}\n")
 
 
+def recolor(rgba, rule):
+    """The chosen sprite with one band of hues moved to another (the player's cars are red)."""
+    import colorsys
+    lo, hi = rule["from"]
+    out = bytearray(rgba)
+    for i in range(0, len(out), 4):
+        if not out[i + 3]:
+            continue
+        h, sat, v = colorsys.rgb_to_hsv(out[i] / 255, out[i + 1] / 255, out[i + 2] / 255)
+        if sat < 0.08 or not lo <= h * 360 <= hi:
+            continue
+        r, g, b = colorsys.hsv_to_rgb((rule["to"] % 360) / 360, min(1, sat + rule.get("boost", 0)), min(1, v * rule.get("lift", 1)))
+        out[i:i + 3] = bytes((round(r * 255), round(g * 255), round(b * 255)))
+    return bytes(out)
+
+
 def build(catalog):
     """Writes candidate PNGs, the chosen sprite per slot to assets/sprites/<slot>.png, and the sheet."""
     slots = load_slots()
@@ -170,7 +189,10 @@ def build(catalog):
         chosen = slot.get("chosen")
         ordered = ([chosen] if chosen in slot["picks"] else []) + [s for s in slot["picks"] if s != chosen]
         for sprite in ordered:
-            data = png(16, 16, catalog.rgba(sprite))
+            rgba = catalog.rgba(sprite)
+            if sprite == chosen and "recolor" in slot:
+                rgba = recolor(rgba, slot["recolor"])
+            data = png(16, 16, rgba)
             with open(os.path.join(folder, f"{sprite}.png"), "wb") as handle:
                 handle.write(data)
             if sprite == chosen:

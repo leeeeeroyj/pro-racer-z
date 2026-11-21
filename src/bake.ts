@@ -1,8 +1,7 @@
-// Code-drawn textures, baked once per track: the city far below and the raised track ribbon. From the concept mockup.
+// Code-drawn textures: the raised track ribbon, baked once per track, and the small hazard and letter sprites. From the concept mockup.
 import Phaser from 'phaser';
-import { FONT, HEIGHT, SCENERY, TEXT, TRACK, WIDTH, WORD } from './config';
+import { FONT, TEXT, TRACK, WORD } from './config';
 import type { TrackDef } from './data/tracks';
-import { mulberry32 } from './rng';
 import type { Track } from './track';
 
 function canvas(scene: Phaser.Scene, key: string, w: number, h: number, draw: (g: CanvasRenderingContext2D) => void) {
@@ -11,71 +10,6 @@ function canvas(scene: Phaser.Scene, key: string, w: number, h: number, draw: (g
   draw(tex.getContext());
   tex.refresh();
   return key;
-}
-
-/** The city texture's size: big enough to cover the view anywhere at the parallax scale, with a margin. */
-export const citySize = (def: TrackDef) => ({
-  w: Math.ceil(def.world.w * TRACK.parallax + WIDTH + 40),
-  h: Math.ceil(def.world.h * TRACK.parallax + HEIGHT + 40),
-});
-
-/** Rooftops, street lights, neon strips and roof scenery (fans, dishes, water towers). `dark` is the Blackout league. */
-export function bakeCity(scene: Phaser.Scene, def: TrackDef, dark = false) {
-  const { w, h } = citySize(def);
-  return canvas(scene, `city-${def.id}-${dark ? 'dark' : 'lit'}`, w, h, (g) => {
-    const r = mulberry32(17);
-    g.fillStyle = '#04050b';
-    g.fillRect(0, 0, w, h);
-    const roofs = ['#151830', '#18162b', '#121d2a', '#1a1b2e'];
-    const neon = [TEXT.kerb, TEXT.cyan, '#8b5cff', TEXT.amber];
-    const props: Array<{ x: number; y: number; key: string }> = [];
-    for (let y = 0; y < h;) {
-      const bh = 80 + Math.floor(r() * 110);
-      for (let x = 0; x < w;) {
-        const bw = 80 + Math.floor(r() * 140), gap = 10 + Math.floor(r() * 8);
-        const rx = x + gap, ry = y + gap, rw = bw - gap * 2, rh = bh - gap * 2;
-        g.fillStyle = 'rgba(255,190,90,0.55)';
-        for (let sx = x + 6; sx < x + bw; sx += 22) g.fillRect(sx, y + 3, 1, 1);
-        if (r() < 0.5) {
-          g.fillStyle = r() < 0.5 ? 'rgba(255,70,90,0.7)' : 'rgba(230,240,255,0.7)';
-          g.fillRect(x + r() * bw, y + 4, 3, 1);
-        }
-        g.fillStyle = roofs[Math.floor(r() * roofs.length)];
-        g.fillRect(rx, ry, rw, rh);
-        g.fillStyle = 'rgba(255,255,255,0.06)';
-        g.fillRect(rx, ry, rw, 1); g.fillRect(rx, ry, 1, rh);
-        g.fillStyle = 'rgba(0,0,0,0.35)';
-        g.fillRect(rx, ry + rh - 1, rw, 1); g.fillRect(rx + rw - 1, ry, 1, rh);
-        g.strokeStyle = 'rgba(255,255,255,0.05)';
-        g.strokeRect(rx + 3.5, ry + 3.5, rw - 7, rh - 7);
-        for (let k = 0; k < 3; k++) {
-          g.fillStyle = 'rgba(120,140,190,0.10)';
-          g.fillRect(rx + 6 + r() * (rw - 20), ry + 6 + r() * (rh - 18), 6 + r() * 8, 4 + r() * 5);
-        }
-        if (r() < 0.45) {
-          g.globalAlpha = dark ? 0.25 : 0.7;
-          g.fillStyle = neon[Math.floor(r() * neon.length)];
-          const len = 10 + r() * 24;
-          if (r() < 0.5) g.fillRect(rx + 4, ry + rh - 4, len, 1); else g.fillRect(rx + rw - 4, ry + 4, 1, len);
-          g.globalAlpha = 1;
-        }
-        if (r() < 0.7) props.push({ x: rx + 10 + r() * (rw - 20), y: ry + 10 + r() * (rh - 20), key: SCENERY[Math.floor(r() * SCENERY.length)] });
-        x += bw;
-      }
-      y += bh;
-    }
-    g.imageSmoothingEnabled = false;
-    g.globalAlpha = dark ? 0.45 : 0.8;
-    for (const p of props) {
-      const img = scene.textures.get(p.key).getSourceImage() as CanvasImageSource;
-      g.drawImage(img, Math.round(p.x - 8), Math.round(p.y - 8));
-    }
-    g.globalAlpha = 1;
-    if (dark) {
-      g.fillStyle = 'rgba(2,2,8,0.55)';
-      g.fillRect(0, 0, w, h);
-    }
-  });
 }
 
 function path(g: CanvasRenderingContext2D, t: Track, off: number) {
@@ -89,7 +23,7 @@ function path(g: CanvasRenderingContext2D, t: Track, off: number) {
 
 /** The raised ribbon: drop shadow, wall, apron, asphalt, edge lines, kerbs on the bends, centre dashes, start line. */
 export function bakeTrack(scene: Phaser.Scene, def: TrackDef, t: Track, dark = false, reverse = false) {
-  const HW = TRACK.halfWidth, AP = TRACK.apron;
+  const HW = t.hw, AP = TRACK.apron;
   return canvas(scene, `track-${def.id}-${dark ? 'dark' : 'lit'}${reverse ? '-rev' : ''}`, def.world.w, def.world.h, (g) => {
     const ribbon = (width: number, style: string) => {
       path(g, t, 0);

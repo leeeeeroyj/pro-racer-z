@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { ATTRACT, DEMO_SECS } from '../attract';
 import { FX, HEAT, HUD_STATE, LEAGUES, MACHINES, RACE, SCORE, TEXT, UPGRADE, WORD, type Upgrade } from '../config';
 import { reducedMotion } from '../motion';
+import { LEAGUE_SONGS, pauseMusic, playMusic, prepareMusic, stopMusic } from '../music';
 import { FrameClock } from '../clock';
 import { Controls, type ControlState, type Device } from '../controls';
 import { TRACKS, type TrackDef } from '../data/tracks';
@@ -128,6 +129,9 @@ export class RaceScene extends Phaser.Scene {
       this.controls = new Controls(this);
       registerSounds(this);
       restoreMute(this);
+      // Quiet on the grid; the league's theme starts at GO, rendered now so GO doesn't stutter.
+      stopMusic();
+      prepareMusic(this, LEAGUE_SONGS[this.league]);
     }
     this.verdict = 'next';
     this.race = new Race(this.def, {
@@ -216,11 +220,16 @@ export class RaceScene extends Phaser.Scene {
     const r = this.race, you = r.player;
     switch (e.type) {
       case 'light': this.cue('light'); break;
-      case 'go': this.cue('go'); this.showBanner('GO!', TEXT.lime, 0.8); break;
+      case 'go':
+        this.cue('go');
+        this.showBanner('GO!', TEXT.lime, 0.8);
+        if (!ATTRACT) playMusic(this, LEAGUE_SONGS[this.league]);
+        break;
       case 'lap': this.cue('lap'); this.showBanner(`LAP ${fmtTime(e.time)}`, TEXT.ink, 1.6); break;
       case 'finalLap': this.cue('finalLap'); this.showBanner('FINAL LAP', TEXT.amber, 1.6); break;
       case 'finish':
         if (e.car !== you) break;
+        stopMusic();
         this.cue(e.place <= 3 ? 'place' : 'lose');
         this.showBanner(e.place <= 3 ? `${ordinal(e.place)}!  +${pts(e.points)}` : `${ordinal(e.place)}  ·  NO POINTS`, e.place <= 3 ? TEXT.kerb : TEXT.hurt, RACE.doneHold);
         break;
@@ -346,6 +355,7 @@ export class RaceScene extends Phaser.Scene {
   setPaused(on: boolean) {
     if (ATTRACT || on === this.paused || (on && (this.race.phase === 'results' || this.leaving))) return;
     this.paused = on;
+    pauseMusic(on);
     this.cue('select');
     if (on) touchControls.show(false);
   }
@@ -359,6 +369,7 @@ export class RaceScene extends Phaser.Scene {
   leave(to: 'title' | 'pit' | 'final' = 'title') {
     if (this.leaving) return;
     this.leaving = true;
+    if (!ATTRACT) stopMusic();
     this.cameras.main.fadeOut(250);
     this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
       this.scene.stop('hud');

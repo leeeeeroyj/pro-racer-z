@@ -28,7 +28,7 @@ export function newCareer(): Career {
 export const leagueOf = (race: number) => Math.floor(race / TRACKS.length);
 export const trackOf = (race: number) => race % TRACKS.length;
 /** Rival pace creeps up through each league, on top of the league's own pace. */
-export const rampOf = (race: number) => 1 + SEASON.ramp * trackOf(race);
+export const rampOf = (race: number) => 1 + LEAGUES[leagueOf(race)].ramp * trackOf(race);
 
 /** Dynamo cools off by one between races. */
 export const heatForNextRace = (heat: number) => Math.max(0, heat - HEAT.perRace);

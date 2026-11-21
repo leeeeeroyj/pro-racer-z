@@ -45,14 +45,14 @@ check('a tie goes below the score already there', rules.tieRank === 4 && rules.t
 
 // ---- Every track and league: placements, laps, the autopilot ----
 const tracks = await evaluate(`(async () => { ${MODS}
-  const HW = C.TRACK.halfWidth, R = { cell: C.PICKUP.r, shield: C.PICKUP.r, thruster: C.PICKUP.r, core: C.PICKUP.r, grip: C.PICKUP.r, letter: C.PICKUP.r,
+  const R = { cell: C.PICKUP.r, shield: C.PICKUP.r, thruster: C.PICKUP.r, core: C.PICKUP.r, grip: C.PICKUP.r, letter: C.PICKUP.r,
     coolant: C.HAZARD.coolant.r, slick: C.HAZARD.slick.r, boost: C.HAZARD.boost.r, glitch: C.HAZARD.glitch.r };
   const out = [];
   for (let race = 0; race < S.RACES; race++) {
     const def = TRACKS[S.trackOf(race)], league = S.leagueOf(race);
     const r = new Rc.Race(def, { seed: 40 + race, autopilot: true, league, ramp: S.rampOf(race) });
     const things = [...r.pickups, ...r.hazards];
-    const outside = things.filter((o) => Math.abs(o.lat) + R[o.kind] > HW + 1e-9).map((o) => o.kind + '@' + (o.seg / r.track.n).toFixed(2));
+    const outside = things.filter((o) => Math.abs(o.lat) + R[o.kind] > r.track.hw + 1e-9).map((o) => o.kind + '@' + (o.seg / r.track.n).toFixed(2));
     const overlaps = [];
     for (let i = 0; i < things.length; i++) for (let j = i + 1; j < things.length; j++) {
       const a = things[i], b = things[j];
@@ -76,7 +76,7 @@ const outside = tracks.filter((x) => x.outside.length);
 check('every pickup, letter and hazard sits inside the asphalt, every league', outside.length === 0, outside.map((x) => `race ${x.race}: ${x.outside.join(' ')}`).join(' | '));
 const over = tracks.filter((x) => x.overlaps.length);
 check('no two pickups or hazards overlap', over.length === 0, over.map((x) => `race ${x.race}: ${x.overlaps.join(' ')}`).join(' | '));
-check('each race lays out O, V, E in the order you reach them', tracks.every((x) => x.letters === '012'), tracks.filter((x) => x.letters !== '012').map((x) => `race ${x.race} ${x.letters}`).join(' '));
+check('each race lays out O, V in the order you reach them', tracks.every((x) => x.letters === '01'), tracks.filter((x) => x.letters !== '01').map((x) => `race ${x.race} ${x.letters}`).join(' '));
 const stalled = tracks.filter((x) => !x.all || x.last > 100);
 check('the autopilot race finishes with all four pilots, all 24 races', stalled.length === 0, stalled.map((x) => `race ${x.race} ${x.id}/${x.league}: ${x.last.toFixed(0)} s`).join(' | '));
 const times = tracks.map((x) => x.you);

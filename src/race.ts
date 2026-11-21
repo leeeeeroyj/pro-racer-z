@@ -2,7 +2,7 @@
 // The scene draws it and turns its events into sounds and effects. Tests run whole races here without rendering.
 import {
   CAR, CONTACT, GRID, HAZARD, HEAT, LEAGUES, MACHINES, OVERDRIVE, PICKUP, PLAYER_PILOT, RACE, RIVAL, RIVALS, SCORE, SPIN,
-  TRACK, UPGRADE, WALL, WEAPONS, WORD, type Kind, type Machine, type SpriteKey, type Upgrade,
+  TRACK, UPGRADE, WEAPONS, WORD, type Kind, type Machine, type SpriteKey, type Upgrade,
 } from './config';
 import type { HazardKind, PickupKind, TrackDef } from './data/tracks';
 import { mulberry32 } from './rng';
@@ -44,7 +44,7 @@ const HOLD: Control = { ...IDLE, hold: true };
 
 const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v));
 /** The rivals keep this far inside the asphalt's edge. */
-const LANE_MAX = TRACK.halfWidth - 6;
+const LANE_IN = 6;
 const dist = (a: { x: number; y: number }, b: { x: number; y: number }) => Math.hypot(a.x - b.x, a.y - b.y);
 
 /** A car sitting `frac` of the way round, `lat` px right of the centreline, pointing along the track. */
@@ -75,7 +75,7 @@ const CLEAR: Env = { top: 1, grip: 1 };
  */
 export function drive(track: Track, c: Car, ctl: Control, st: Stats, dt: number, env: Env = CLEAR): DriveResult {
   let topMul = env.top, gripMul = env.grip, accelMul = 1;
-  if (Math.abs(c.lat) > TRACK.halfWidth) { topMul *= TRACK.apronTop; gripMul *= TRACK.apronGrip; }
+  if (Math.abs(c.lat) > track.hw) { topMul *= TRACK.apronTop; gripMul *= TRACK.apronGrip; }
   if (c.wet > 0) topMul *= HAZARD.coolant.factor;
   if (c.boost > 0) { topMul *= HAZARD.boost.top; accelMul = HAZARD.boost.accel; }
   const fx = Math.cos(c.a), fy = Math.sin(c.a);
@@ -113,11 +113,11 @@ export function drive(track: Track, c: Car, ctl: Control, st: Stats, dt: number,
   const crossed = locate(track, c);
 
   let wall = 0, sideHit = 0;
-  if (Math.abs(c.lat) > WALL) {
-    const p = track.pts[c.seg], s = Math.sign(c.lat), over = c.lat - s * WALL;
+  if (Math.abs(c.lat) > track.wall) {
+    const p = track.pts[c.seg], s = Math.sign(c.lat), over = c.lat - s * track.wall;
     c.x -= p.nx * over;
     c.y -= p.ny * over;
-    c.lat = s * WALL;
+    c.lat = s * track.wall;
     const vn = c.vx * p.nx + c.vy * p.ny;
     if (vn * s > 0) {
       c.vx = (c.vx - p.nx * vn * CAR.wallBounce) * CAR.wallKeep;
@@ -180,8 +180,8 @@ export const gateLeft = (g: Gate) => {
   return t < GATE.off ? GATE.off - t : t < GATE.off + GATE.warn ? GATE.off + GATE.warn - t : CYCLE - t;
 };
 
-/** A drone's lateral offset at phase `ph`: it sweeps the track's width and back. */
-export const droneLat = (ph: number) => Math.sin(ph * HAZARD.drone.rate) * (TRACK.halfWidth - HAZARD.drone.edge);
+/** A drone's lateral offset at phase `ph` on asphalt `hw` px each side: it sweeps the track's width and back. */
+export const droneLat = (ph: number, hw: number) => Math.sin(ph * HAZARD.drone.rate) * (hw - HAZARD.drone.edge);
 
 export type Phase = 'grid' | 'race' | 'done' | 'results';
 
@@ -288,7 +288,7 @@ export class Race {
     this.laps = def.laps[this.league];
     this.ramp = opts.ramp ?? 1;
     this.record = opts.record ?? null;
-    this.track = buildTrack(def.ctrl, LEAGUES[this.league].reverse);
+    this.track = buildTrack(def.ctrl, LEAGUES[this.league].reverse, def.halfWidth);
     this.rng = mulberry32(opts.seed);
     this.mk = opts.mk ?? 0;
     this.charges = clamp(opts.charges ?? WEAPONS.startCharges, 0, WEAPONS.maxCharges);
@@ -474,7 +474,7 @@ export class Race {
    * The autopilot also drives through pickups.
    */
   aiControl(c: Racer, st: Stats, pilot = false): Control {
-    const n = this.track.n, sp = speedOf(c), you = this.player;
+    const n = this.track.n, sp = speedOf(c), you = this.player, laneMax = this.track.hw - LANE_IN;
     const look = 6 + Math.floor(sp / 14);
     const bendAhead = this.ahead(c, look + 6).curv;
     let lane = c.lane;
@@ -492,8 +492,10 @@ export class Race {
       }
     }
     const margin = pilot ? 15 : 14, swerve = pilot ? 20 : 18;
-    // Everything to steer round in the next stretch; a drone counts where it will be when we get there.
-    const near = (seg: number) => { const d = (seg - c.seg + n) % n; return d > 0 && d < look + (pilot ? 20 : 16) ? d : 0; };
+    // Everything to steer round in the next stretch (further ahead the faster we go, so there's time to move across);
+    // a drone counts where it will be when we get there.
+    const reach = look + Math.round((pilot ? 20 : 16) * Math.max(1, sp / 150));
+    const near = (seg: number) => { const d = (seg - c.seg + n) % n; return d > 0 && d < reach ? d : 0; };
     let ahead: Array<[number, number]> = [];
     for (const hz of this.hazards) {
       const d = hz.kind !== 'boost' && (hz.kind !== 'glitch' || pilot) ? near(hz.seg) : 0;
@@ -501,7 +503,7 @@ export class Race {
     }
     for (const dr of this.drones) {
       const d = near(dr.seg);
-      if (d) ahead.push([d, droneLat(dr.ph + (d * TRACK.step) / Math.max(sp, 40))]);
+      if (d) ahead.push([d, droneLat(dr.ph + (d * TRACK.step) / Math.max(sp, 40), this.track.hw)]);
     }
     // One thing at a time: the nearest, and anything close enough behind it to need clearing in the same move.
     const first = Math.min(...ahead.map(([d]) => d));
@@ -510,14 +512,14 @@ export class Race {
     // Take the lane that clears all of them, as close to the preferred one as it can be.
     if (avoid.some((a) => Math.abs(lane - a) < margin)) {
       let best = lane, bestCost = Infinity;
-      for (let cand = -LANE_MAX; cand <= LANE_MAX; cand += 2) {
+      for (let cand = -laneMax; cand <= laneMax; cand += 2) {
         let cost = Math.abs(cand - lane) * 0.05;
         for (const a of avoid) cost += Math.max(0, swerve - Math.abs(cand - a)) * 10;
         if (cost < bestCost) { bestCost = cost; best = cand; }
       }
       lane = best;
     }
-    lane = clamp(lane, -LANE_MAX, LANE_MAX);
+    lane = clamp(lane, -laneMax, laneMax);
     // Chasing a point L ahead round a bend of curvature κ settles L²κ/2 inside the line, so aim that much wide.
     const L = look * TRACK.step, kappa = this.ahead(c, look >> 1).curv / (10 * TRACK.step);
     const aim = lane - (L * L * kappa) / 2;
@@ -630,7 +632,7 @@ export class Race {
       d.y += Math.sin(d.a) * d.v * dt;
       d.life -= dt;
       locate(this.track, d);
-      if (Math.abs(d.lat) > TRACK.halfWidth + TRACK.apron) d.life = 0;
+      if (Math.abs(d.lat) > this.track.hw + TRACK.apron) d.life = 0;
       for (const c of this.cars) {
         if (c === d.owner || d.life <= 0 || dist(c, d) >= D.hitR) continue;
         this.spinOut(c, d.owner, D.spin);
@@ -676,6 +678,7 @@ export class Race {
       if (this.letters.every(Boolean)) this.overdrive();
       return;
     }
+    // Charge cells and shields come back; an upgrade is yours for good, so it's gone for the rest of the race.
     pk.t = PICKUP.respawn;
     if (pk.kind === 'cell') {
       this.charges = Math.min(WEAPONS.maxCharges, this.charges + PICKUP.cellCharges);
@@ -684,6 +687,7 @@ export class Race {
       this.player.shield = true;
       this.addScore(SCORE.pickup, 'SHIELD', pk.x, pk.y);
     } else {
+      pk.gone = true;
       const k = pk.kind, maxed = this.up[k] >= UPGRADE.max;
       if (!maxed) this.up[k]++;
       this.addScore(SCORE.pickup, `${k.toUpperCase()} ${maxed ? 'MAX' : this.up[k]}`, pk.x, pk.y);
@@ -775,7 +779,7 @@ export class Race {
 
   private placeDrone(dr: Drone) {
     const p = this.track.pts[dr.seg];
-    dr.lat = droneLat(dr.ph);
+    dr.lat = droneLat(dr.ph, this.track.hw);
     Object.assign(dr, { x: p.x + p.nx * dr.lat, y: p.y + p.ny * dr.lat, h: p.h });
   }
 

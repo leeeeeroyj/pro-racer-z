@@ -21,6 +21,10 @@ export interface Track {
   pts: Sample[];
   n: number;
   length: number;
+  /** Asphalt half-width, px. */
+  hw: number;
+  /** Furthest a car can sit from the centreline: the asphalt, the apron, less the car's half-width. */
+  wall: number;
 }
 
 /** Anything that rides the track: `seg` is its nearest sample, `lat` its signed offset, `laps` lines crossed. */
@@ -39,8 +43,8 @@ export const angDiff = (a: number, b: number) => {
   return d;
 };
 
-/** `reverse` runs the other way round from the same start line (the first control point). */
-export function buildTrack(ctrl: ReadonlyArray<readonly [number, number]>, reverse = false): Track {
+/** `reverse` runs the other way round from the same start line (the first control point). `hw` is the asphalt half-width. */
+export function buildTrack(ctrl: ReadonlyArray<readonly [number, number]>, reverse = false, hw: number = TRACK.halfWidth): Track {
   const P = reverse ? [ctrl[0], ...ctrl.slice(1).reverse()] : ctrl, n = P.length, raw: Array<[number, number]> = [];
   for (let i = 0; i < n; i++) {
     const p0 = P[(i - 1 + n) % n], p1 = P[i], p2 = P[(i + 1) % n], p3 = P[(i + 2) % n];
@@ -70,7 +74,7 @@ export function buildTrack(ctrl: ReadonlyArray<readonly [number, number]>, rever
     p.tx = (b.x - a.x) / l; p.ty = (b.y - a.y) / l; p.nx = -p.ty; p.ny = p.tx; p.h = Math.atan2(p.ty, p.tx);
   });
   pts.forEach((p, i) => { p.curv = angDiff(pts[(i + 5) % m].h, pts[(i - 5 + m) % m].h); });
-  return { pts, n: m, length };
+  return { pts, n: m, length, hw, wall: hw + TRACK.apron - TRACK.wallInset };
 }
 
 /** The point `frac` of the way round (0 = start line), `lat` px to the right of the centreline. */

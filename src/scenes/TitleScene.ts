@@ -4,6 +4,7 @@ import { FrameClock } from '../clock';
 import { ATTRACT, attractSeed } from '../attract';
 import { Controls } from '../controls';
 import { TRACKS } from '../data/tracks';
+import { playMusic } from '../music';
 import { Race } from '../race';
 import { RaceView } from '../raceView';
 import { playSound, registerSounds, restoreMute, toggleMute } from '../sfx';
@@ -40,6 +41,7 @@ export class TitleScene extends Phaser.Scene {
     this.controls = new Controls(this);
     registerSounds(this);
     restoreMute(this);
+    playMusic(this, 'title');
     this.frames = new FrameClock();
     this.startDemo();
     this.cameras.main.fadeIn(250);

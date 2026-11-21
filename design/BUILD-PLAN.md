@@ -11,23 +11,23 @@ A top-down hover-racing game re-imagined from Rare's *R.C. Pro-Am* (NES, 1988). 
   - **Halo** drives the ideal line, taking the inside of bends.
   - **Vex** moves across to block when you are close behind.
   - **Dynamo** carries a grudge: each rival you hit adds 1 heat; at 5 he overdrives at 1.3× pace for the rest of the race. Heat drops by 1 each race.
-  - Rival pace is 100 / 106 / 112 % by league, plus a small per-race ramp and mild catch-up when far behind.
+  - Rival pace by league and a per-race ramp within it (`LEAGUES` in `config.ts`, tuned in milestone 7), Halo / Vex / Dynamo at 100 / 95 / 90 %, and mild catch-up when far behind.
 - **Machines:** Mk I Glider → Mk II Striker → Mk III Zenith (top speed, acceleration, turn and grip in `config.ts`). Spelling OVERDRIVE steps up a machine; after the Mk III it pays 50,000 points and a retry.
 - **Weapons:** darts fly ahead with light homing; mines drop behind and arm after 0.5 s. Both cost one charge (hold 9). Charges carry between races.
-- **Pickups** (only the player collects them; they respawn after 6 s):
+- **Pickups** (only the player collects them; cells and shields respawn after 6 s, upgrades and letters are taken for the race):
   - charge cell: +2 charges
   - shield: absorbs one spin or crash
   - thruster, core, grip: acceleration, top speed, cornering; up to level 3 each, kept until the machine changes
-  - letters: 2–3 per track; collected letters persist
+  - letters: 2 per race; collected letters persist
 - **Hazards:** coolant (slows), slick (spin), boost pad, storm cloud (rain cuts grip and speed), laser gate (cycles off → flashing warning → beam), security drone (sweeps the width behind a red scan line), glitch skull (eats 2 charges). Every one warns before it can hurt you.
-- **Track model:** each track is a closed Catmull-Rom spline resampled every 6 px. It is drawn as a raised ribbon: 48 px asphalt, a 12 px apron each side (slow), then a wall that bounces you back. Below it, a parallax city at 0.88× scroll. There is no falling off.
+- **Track model:** each track is a closed Catmull-Rom spline resampled every 6 px. It is drawn as a raised ribbon: 48 px asphalt (56 px on Antenna Row), a 12 px apron each side (slow), then a wall that bounces you back. Below it, the city in layers that scroll at 0.78–0.95× (`CITY` in `config.ts`). There is no falling off.
 - **Handling:** hover physics. Forward and sideways velocity are kept separately and grip bleeds off the sideways part. You can turn on the spot, so you never get stuck on a wall.
 - **Camera:** follows the player and leads with velocity (up to 70 × 40 px). The minimap sits in the HUD.
 - **Scoring:** 1st/2nd/3rd 5,000/3,000/1,500; a hit 200; a pickup 100; a letter 250; OVERDRIVE 25,000; a new lap record 1,000. A high-score table (top 8) and per-track lap records live in `localStorage`.
-- Keyboard + mouse, controller and touch from the start. Procedural sound. Deployed to GitHub Pages.
+- Keyboard + mouse, controller and touch from the start. Procedural sound and music. Deployed to GitHub Pages.
 
 **Later**
-- Crossover bridges (track passing over itself), music, a ghost of your best lap, time-trial mode, two-player split screen, more tracks.
+- Crossover bridges (track passing over itself), a ghost of your best lap, time-trial mode, two-player split screen, more tracks.
 
 **Explicitly not taken from the original:**
 - its title, the NINTENDO/CHAMPION bonus word, the truck → 4-wheeler → off-roader vehicles
@@ -54,7 +54,10 @@ A top-down hover-racing game re-imagined from Rare's *R.C. Pro-Am* (NES, 1988). 
 | `track.ts` | new, pure | Build the spline, resample, tangents, normals, curvature; `locate` (nearest sample in a window, lateral offset, lap crossing); validation helpers. From the mockup. |
 | `race.ts` | new, pure | Car step (hover physics, surfaces, walls), AI control per personality, darts, mines, hazard and pickup effects, standings, finish order. Emits events for the scene to play. From the mockup. |
 | `season.ts` | new, pure | League and race index, rival pace per race, retries, letters and machine steps, upgrades, Dynamo heat, points, lap records. |
-| `bake.ts` | from the mockup | City layer and ribbon textures. |
+| `bake.ts` | from the mockup | Ribbon, hazard and letter textures. |
+| `city.ts` | new (milestone 7) | The city below: a seeded street grid and rooftops per track, baked per league into four layers (streets, low roofs, neon, towers); traffic, beacons, searchlights and the neon's colour and beat drawn live. |
+| `music.ts` | new (milestone 7) | Four chiptune themes as notes, rendered into looping buffers when first needed; title / pit board, and one per league from GO to the finish. |
+| `probe.ts` | new (milestone 7), dev only | The balance probe's handicapped drivers and whole-season runs (`tools/balance-probe.mjs`). |
 | `controls.ts` | adapted from SE | Rotate steering (keys, D-pad) or point steering (stick); go, brake, fire, mine, pause, mute; last-used device for hints. |
 | `touch.ts` | adapted from SE | Left: point-to-steer stick with throttle from deflection. Right: FIRE and MINE. In the side bars on wide phones, otherwise over the bottom corners. |
 | `effects.ts`, `sfx.ts`, `view.ts` | copied | Sparks, rings, shake in game pixels, flash, trails; synth voices (new set); camera fit at 4× (game) and 2× (HUD). |
@@ -162,7 +165,7 @@ Each one ends playable, tested, committed, pushed and live. Default rhythm: show
 - **Rotation (2026-11-14): free turn,** by the user's choice ("feels more modern"). Sprites rotate with Phaser's `rotation` on the 4× canvas; no baked facings.
 - **Race length (2026-11-14): 45–75 s a race** is right, per the user.
 - **No rival weapons (2026-11-14),** confirmed by the user for every league, Blackout included.
-- **Vex is the grey hover car 627208 (2026-11-14, the user's),** nose up. The first pick (981721) was green like the Mk III.
+- **Vex is the grey hover car 627208 (2026-11-14, the user's),** nose up. The first pick (981721) was green like the Mk III. Superseded on 2026-11-20, below.
 - **The user is colour blind (2026-11-14).** Nothing may be told apart by hue alone: rivals carry letters or labels on the minimap and results, warnings flash or change shape, and paired colours differ in brightness too. The bend kerbs alternate pink and white (the mockup's pink and cyan were close in brightness).
 - **Rival colours follow the sprites (2026-11-15):** Halo silver `#d4dcf0`, Vex teal `#5fd4c0`, Dynamo violet `#a979ff`, you pink. Light, mid and dark, so they differ in brightness; names always go with them (results board), initials on the minimap.
 - **Races step by real time (2026-11-15).** Phaser's `delta` is smoothed toward 60 fps, so a slow device (and headless Chrome at about 35 fps) ran races in slow motion. `clock.ts` measures the frame from its timestamp and splits it into steps of at most 1/60 s, the rate the physics is tested at.
@@ -188,6 +191,14 @@ Each one ends playable, tested, committed, pushed and live. Default rhythm: show
 - **Pause on every device (2026-11-15):** P, a controller's Start, or II in the top bar; the race also pauses when the page is hidden (a call, a tab switch, the screen locking). Esc and Back still go straight to the title.
 - **Headless Chrome renders in software (2026-11-15):** about 15–20 frames a second whatever is on screen. The race scene's own update takes 0.2 ms (p95 under 1 ms) with four cars and a storm cloud, and the storm grid is no slower than a plain Neon one, so frame time there says nothing about the effects. A real device check belongs to milestone 6.
 
+- **Per-track width (2026-11-20, the user's ask).** Antenna Row, the first race, has 56 px of asphalt (`halfWidth: 28` in `data/tracks.ts`); the others keep 48. The track carries its own `hw` and `wall`, so the rivals' lanes, drones and darts follow it.
+- **A slower economy (2026-11-20, the user's choice).** Upgrades on the track can be taken once a race (charge cells and shields still come back), and each race lays out two letters instead of three. The probe showed full upgrades by about race 5 before, which made every league easy.
+- **Rival pace per league (2026-11-20).** Each league has its own pace and per-race ramp (`LEAGUES`): Neon 0.95 + 5 % a race, Storm 1.17 + 2 %, Blackout 1.33 + 1.2 %, so no league opens harder than the last ended. Vex and Dynamo run at 95 and 90 % of Halo. Tuned with `tools/balance-probe.mjs`, which races whole seasons with a handicapped driver (reaction lag, steering wobble, lapses) at three skill levels.
+- **Rivals look further ahead at speed (2026-11-20).** At Storm's pace they reached slicks too late to change lanes; the hazard look-ahead now grows with speed. m3 allows up to four slick spins in six Storm races (about one in 24 car-races).
+- **Music (2026-11-20).** Four chiptune themes written as notes in `music.ts` and rendered to looping buffers: the title theme on the title and pit board, one per league from GO to the line, then the place jingle. The one sound toggle covers music and effects. Silent in attract mode.
+- **The city (2026-11-20, the user's ask for a more interesting map, then a wilder one).** A seeded street grid per track with eight roof types, traffic, lamps and tower beacons. It's four layers at depths 0.78 (streets), 0.88 (low roofs and their neon) and 0.95 (towers), each pinned to the view's centre, so the towers lean out over the streets like a city seen from above. The neon drifts through the colours and brightens on the music's beat, and searchlights sweep under the track. All of it stays under the track. Reduced motion: no pulse, and colours and beams at a quarter speed. Fine detail is drawn as repeating tiles, and a new city bakes one layer a frame after the race first shows, so the demo still shows gameplay in 1.5 s. Only the current track's textures are kept.
+- **Your car is red (2026-11-20, the user's picks).** Mk I is the hover car 627208 (nose down), Mk II the sports car 981933, Mk III the race car 981721, as in the original where the player's car was always red whatever it was. Both new picks were green, so `tools/sprites.py` repaints a band of hues in the chosen sprite (`"recolor"` in `sprite_slots.json`). Vex, who drove 627208, now drives the dark hover car 627214 (nose down), so he differs from you in shape and brightness, not only hue.
+
 ## Open questions
 
 - **Name check.**
@@ -195,8 +206,9 @@ Each one ends playable, tested, committed, pushed and live. Default rhythm: show
   - Nearby: Sega's *Pro-Racer* (1978 arcade, also a top-down racer), Tamsoft's *Pro Racer* (PlayStation, 1999, Europe), Codemasters' *Pro Race Driver* (2002). Third-party trademark aggregators show only dead marks ("RACE Z", "Z RACING") and "RACER X", a separate mark.
   - Fine for a free personal project. Search USPTO directly before any commercial use.
 - **Repo and Pages URL:** `leeeeeroyj/pro-racer-z`, `https://leeeeeroyj.github.io/pro-racer-z/`.
+- **For the user (milestone 7):** a separate music toggle, or is one sound toggle enough? Is Helipad Loop at race 4 too hard for weaker players (the weak probe driver makes the top three 0–13 % there)? Are two retries right for a whole season?
 
-## Status (2026-11-16: milestones 1–6, attract mode and review fixes published; milestone 7 next)
+## Status (2026-11-20: milestones 1–6, attract mode and review fixes published; milestone 7 built, the user's play-through next)
 
 - **Folder set up (A1).**
   - `git init -b main` with repo-local leeeeeroyj identity, the leeeeeroyj SSH key, and `origin` on the `github-leeeeeroyj` alias.
@@ -276,4 +288,9 @@ Each one ends playable, tested, committed, pushed and live. Default rhythm: show
   - `tools/cdp.mjs` takes `path` and `init` (a script run before the game). `tools/attract-test.mjs` 14/14: gameplay at 1.1 s, racing among rivals at 2.2 s, a new demo with no input, no sound, no AudioContext, keys / click / a fake gamepad change nothing (the gamepad is never polled), no storage writes, heap +6 % from 10 s to 60 s, full game area at 320 × 176 and 832 × 456. `m1`–`m6` pass (m6's FIRE check failed once and passed on reruns, the same on the code before this change).
 - **Review fixes (2026-11-16), published:** the user's revised noses (Halo, Vex, Dynamo down) and dish and water tower picks applied (`sprite_slots.json`, `NOSE` in `config.ts`, the sheet's defaults, `build` re-run); coolant and slicks redrawn as animated pixel art; the cars taken off the title (see Decisions). `m1`–`m6` and `attract` pass. README hazard notes and hero screenshot refreshed.
 - **Real phone (2026-11-16, the user):** plays well and the controls work. Pause wasn't tried on the phone; it has been live since milestone 6 (II in the top bar, and automatic when the page is hidden).
-- **Next:** milestone 7: the balance probe and tuning, then the user's play-through, the final README and hero screenshot.
+- **Milestone 7 built (2026-11-20):**
+  - Balance: the slower economy, rival pace per league, and `src/probe.ts` with `tools/balance-probe.mjs`. Twelve seasons per level, top-three rate by league (Neon / Storm / Blackout): average driver 87 / 71 / 50 %, strong 100 / 100 / 98 %, weak 20 / 4 / 0 %. In Blackout, fully upgraded, the Mk III makes the top three 78 % of the time (27 % wins) and the Mk II 46 % (5 %).
+  - Antenna Row widened, the layered city, music, the red player cars and Vex's new car (see Decisions).
+  - `tools/m7-test.mjs` 29/29 (width, economy, letters, pace ramps, every song renders a clean loop, music through title, pit, grid, GO, pause and finish, each league's theme, the city's roofs and layouts, the layers' depths, texture freeing, the beat pulse and mute). `m1` 71/71, `m2` 36/36, `m3` 47/47, `m4` 36/36, `m5` 16/16, `m6` 25/25, `attract` 14/14 (gameplay at 1.5 s).
+  - README and the hero screenshot refreshed.
+- **Next:** the user's play-through of milestone 7 on a phone, and answers to the three questions under Open questions.

@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { COLORS, HUD_SCALE, TEXT } from '../config';
 import { Controls } from '../controls';
+import { stopMusic } from '../music';
 import { RACES, addHighScore, newCareer, type Career, type Verdict } from '../season';
 import { playSound, registerSounds, restoreMute, toggleMute } from '../sfx';
 import { loadScores, saveScores } from '../store';
@@ -46,6 +47,7 @@ export class FinalScene extends Phaser.Scene {
     });
     if (rank < 0) label(this, W / 2, 208 + table.length * 22 + 4, 'NOT IN THE TOP 8 THIS TIME', TEXT.dim).setOrigin(0.5, 0);
     button(this, W / 2, 396, 'TITLE', true, () => this.leave());
+    stopMusic();
     playSound(this, crown ? 'finish' : 'lose');
     this.cameras.main.fadeIn(300);
   }

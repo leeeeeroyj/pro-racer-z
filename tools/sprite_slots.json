@@ -1,9 +1,9 @@
 {
-  "player": {"subjects": ["hover car", "go-kart"], "picks": [627205, 627201, 627213, 627215, 627202, 627204, 627211, 627197], "browse": 260, "chosen": 627201, "nose": "up"},
+  "player": {"subjects": ["hover car", "go-kart"], "picks": [627208, 627205, 627201, 627213, 627215, 627202, 627204, 627211, 627197], "browse": 260, "chosen": 627208, "nose": "down", "recolor": {"from": [50, 200], "to": 356, "boost": 0.5, "lift": 1.3}},
   "player_mk2": {"subjects": ["sports car", "car"], "picks": [1178050, 981933, 1177829, 193880, 194102, 627199, 627210, 627217], "browse": 260, "chosen": 981933, "nose": "up"},
-  "player_mk3": {"subjects": ["race car"], "picks": [981934, 981724, 981717, 981937, 536331, 536329, 627025, 981935], "browse": 260, "chosen": 981935, "nose": "down"},
+  "player_mk3": {"subjects": ["race car"], "picks": [981721, 981934, 981724, 981717, 981937, 536331, 536329, 627025, 981935], "browse": 260, "chosen": 981721, "nose": "down", "recolor": {"from": [50, 200], "to": 356, "boost": 0.15, "lift": 1.1}},
   "rival_halo": {"subjects": ["hover car", "race car"], "picks": [536543, 627202, 627207, 981937, 194102, 627020, 627216, 627203], "browse": 260, "chosen": 627020, "nose": "down"},
-  "rival_vex": {"subjects": ["sports car", "car"], "picks": [981935, 981721, 627208, 194105, 536326, 627214, 627206, 1177834], "browse": 260, "chosen": 627208, "nose": "down"},
+  "rival_vex": {"subjects": ["sports car", "car"], "picks": [981935, 981721, 627208, 194105, 536326, 627214, 627206, 1177834], "browse": 260, "chosen": 627214, "nose": "down"},
   "rival_dynamo": {"subjects": ["go-kart", "dune buggy"], "picks": [536528, 536327, 981936, 193879, 536555, 536325, 627218, 194101], "browse": 260, "chosen": 536325, "nose": "down"},
   "cell": {"subjects": ["energy cell", "battery"], "picks": [76929, 414448, 76903, 414447, 414455, 76906, 76907, 76922], "browse": 64, "chosen": 76929},
   "dart": {"subjects": ["missile", "rocket"], "picks": [787337, 787333, 787361, 787362, 787356, 787312, 787311, 787320], "browse": 64, "chosen": 787361},

@@ -14,7 +14,7 @@ A top-down arcade racer on raised circuits high above the streets. It runs in th
 ![Vite](https://img.shields.io/badge/Vite-8-646cff?logo=vite&logoColor=white)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-![Three hover cars sweep through a long bend on a raised track with pink and white kerbs, high above dark rooftops and water towers; a pale, rippling coolant spill sits ahead on the outside line, a dark oil slick with a light swirl lies behind them, and a pink O letter tile floats on the track](docs/screenshot.png)
+![Three cars sweep through a long bend on a raised track with pink and white kerbs: a purple kart in a pale coolant spill, the player's red hover car, and a dark rival just ahead, with a charge cell further round. Far below, a city of streets and rooftops: a garden, a helipad, lit skylights and street lamps](docs/screenshot.png)
 
 </div>
 
@@ -25,12 +25,12 @@ Pro Racer Z is an original arcade game inspired by the mechanics of Rare's 1988 
 - **A season of 24 races.** Eight circuits in three leagues: Neon, Storm (every track in reverse) and Blackout (the lights go down).
 - **Four to a race.** You against three rival pilots, each with a way of driving: Halo, Vex and Dynamo. Finish in the top three to go on.
 - **Darts and mines.** Fire darts that home in on the car ahead, or leave a mine behind you. A hit spins them out.
-- **OVERDRIVE.** Collect the nine letters of OVERDRIVE, a few a race, to step up to a faster machine.
+- **OVERDRIVE.** Collect the nine letters of OVERDRIVE, two a race, to step up to a faster machine.
 - **Upgrades that carry.** Thrusters, cores and grip kits stack up from race to race.
 - **Free steering.** The car turns smoothly to any angle, and it slides a little through the bends, like a hovercraft.
-- **A track above the city.** The streets and rooftops far below scroll slower than the track, so it feels high up.
+- **A track above the city.** A different city under every track: streets with traffic and lamp light, rooftop signs, skylights, gardens, pools, helipads and towers with blinking beacons. It's built in layers that slide past at different speeds, so the towers lean out over the streets as you race. The rooftop neon drifts through the colours and pulses with the music, and searchlights sweep the sky below you.
 - **A camera that looks ahead.** The view leads the car the way it's going, so you see the next bend sooner.
-- **Sound with no audio files.** Sound effects are generated in code, sfxr style, when the game loads.
+- **Music and sound with no audio files.** Four chiptune themes (the title, and one per league) and every sound effect are written in code and rendered when the game needs them.
 
 ## How to play
 
@@ -38,7 +38,8 @@ Pro Racer Z is an original arcade game inspired by the mechanics of Rare's 1988 
 
 - **The pit board** comes before each race: the race number, league, track, laps and your lap record there, and everything you're carrying (machine, upgrades, score, charges, retries, Dynamo's heat and your letters).
 - **4th place** costs a **retry**: the race runs again from where it started, and nothing you scored or picked up in it is kept. You start the season with 2. With none left, 4th place is **game over**.
-- **The rivals** get a little quicker with each race in a league, and each league is quicker than the last.
+- **The rivals** get quicker with each race in a league, and each league is quicker than the last. Each league opens a little easier than the last one ended.
+- **Music:** the title theme plays on the title and pit board. Each league has its own race theme, which starts at GO and stops when you cross the line. The sound toggle covers music and effects.
 - **High scores:** the best 8 seasons are kept in this browser, and the title shows the best. The table marks your entry with `>`.
 - **Attract mode:** add `?attract` to the address for a silent demo that races itself, one race of the season after another, and ignores input. `?attract&seed=<n>` repeats the same demos.
 - **Lap records** are kept per track and league. Beating one scores 1,000; your first lap on a track just sets it.
@@ -46,8 +47,9 @@ Pro Racer Z is an original arcade game inspired by the mechanics of Rare's 1988 
 - **The screen:** the top bar shows your place, lap, race time, charges, score, the OVERDRIVE letters and your shield. Under it:
   - **top left,** your speed, your thruster, core and grip levels, and Dynamo's heat (his pips flash when he overdrives)
   - **top right,** the minimap: you're the pink arrow, the rivals are their initials (H, V, D), and a laser gate shows as a bar with a post at each end while it warns or fires
-- **Reduced motion:** if your device is set to reduce motion, the screen doesn't shake or flash and there are fewer sparks.
+- **Reduced motion:** if your device is set to reduce motion, the screen doesn't shake or flash, there are fewer sparks, the neon doesn't pulse, and the city's colours and searchlights move slower.
 - **The start:** four cars on the grid behind the chequered line. Three lights come on a second apart, then **GO**. You start on the second row.
+- **The track** is a little wider on Antenna Row, the first race.
 - **The apron,** the dark strip between the white edge line and the wall, slows the car to 62 % of its top speed and makes it slide more.
 - **The walls** stop you leaving the track. Hit one hard and you bounce off it.
 - **Laps:** each lap time shows as you cross the line, and the last lap is called **FINAL LAP**.
@@ -59,9 +61,9 @@ Pro Racer Z is an original arcade game inspired by the mechanics of Rare's 1988 
   - **Halo** is the quickest and takes the inside of every bend.
   - **Vex** moves across in front of you when you're close behind him.
   - **Dynamo** holds a grudge. Each rival you spin adds one heat; at five he overdrives at 1.3× his top speed for the rest of the race. His heat drops by one each race.
-- **Letters:** each race lays out the next three letters of OVERDRIVE you still need. Letters you've collected stay collected between races. The top bar shows them: a solid tile for each one you hold.
+- **Letters:** each race lays out the next two letters of OVERDRIVE you still need. Letters you've collected stay collected between races. The top bar shows them: a solid tile for each one you hold.
 - **OVERDRIVE:** the ninth letter steps you up to the next machine with fresh upgrades, and scores 25,000. In the Mk III it scores 50,000 and adds a retry instead.
-- **Upgrades:** each kind goes up to 3 and stays with you between races until your next OVERDRIVE.
+- **Upgrades:** each kind goes up to 3 and stays with you between races until your next OVERDRIVE. Each upgrade on the track can be taken once a race.
 - **What carries to the next race:** your score, charges, machine, letters, upgrades, retries and Dynamo's heat.
 
 **Machines**
@@ -72,13 +74,13 @@ Pro Racer Z is an original arcade game inspired by the mechanics of Rare's 1988 
 | Mk II Striker | 170 | 215 | 3.25 | 6.0 |
 | Mk III Zenith | 190 | 240 | 3.4 | 6.6 |
 
-You start in the Mk I.
+You start in the Mk I, a hover car; the Mk II is a sports car and the Mk III a race car. Yours is always the red one.
 
 **On the track**
 
 | | |
 | --- | --- |
-| **Charge cell** | +2 charges, up to 9. Comes back 6 seconds after you take it, like every pickup except letters. |
+| **Charge cell** | +2 charges, up to 9. Comes back 6 seconds after you take it, like the shield. Upgrades and letters don't come back in the same race. |
 | **Shield** | Soaks up the next spin, from a weapon or a hazard. A ring round your car shows it's on, and the shield icon in the top bar lights up. |
 | **Thruster** | +10 % acceleration per level. |
 | **Core** | +8 top speed per level. |
@@ -157,11 +159,14 @@ src/
   store.ts           high scores and lap records in localStorage
   rng.ts             seeded random numbers
   clock.ts           real-time frame steps
-  bake.ts            the city, the track and the hazards, drawn in code
-  trackView.ts       city parallax and the camera
+  bake.ts            the track, the hazards and the letter tiles, drawn in code
+  city.ts            the city below: its layout, its layers, traffic, beacons, neon and searchlights
+  trackView.ts       the city's layers at their depths, and the camera
   raceView.ts        cars, weapons, pickups and hazards on screen
   controls.ts        keyboard, controller and touch input
   sfx.ts             procedural sound effects
+  music.ts           the music: four chiptune themes as notes, rendered to loops
+  probe.ts           the balance probe's handicapped drivers (dev only)
   motion.ts          the reduced-motion setting
   touch.ts           the touch stick and FIRE / MINE buttons
   attract.ts         the ?attract demo mode's settings
@@ -171,6 +176,7 @@ design/              concept sheet and build plan
 tools/sprites.py     sprite search and export script
 tools/cdp.mjs        headless Chrome harness for the tests
 tools/m*-test.mjs    checks for each milestone
+tools/balance-probe.mjs  races whole seasons with three driver levels and sums up the balance
 tools/attract-test.mjs  checks for the ?attract demo
 ```
 

@@ -156,7 +156,7 @@ const kit = await evaluate(`(async () => { ${MODS}
   let lo = 99, hi = -99;
   const droneHit = run(r, 6, () => Rc.NO_INPUT, () => { lo = Math.min(lo, dr.lat); hi = Math.max(hi, dr.lat); return you.spin > 0; });
   run(r, 6, () => Rc.NO_INPUT, () => { lo = Math.min(lo, dr.lat); hi = Math.max(hi, dr.lat); return false; });
-  res.drone = { lo, hi, hit: droneHit, edge: C.TRACK.halfWidth - C.HAZARD.drone.edge };
+  res.drone = { lo, hi, hit: droneHit, edge: r.track.hw - C.HAZARD.drone.edge };
 
   // Vex blocks: close behind him, he moves across in front of you. Further back, he doesn't.
   const block = (behind) => {
@@ -179,7 +179,7 @@ check('upgrades stop at 3 each', u.thruster === 3 && u.core === 3 && u.grip === 
 check('thrusters raise acceleration, cores top speed, grip turning and grip', Math.abs(u.now.accel - u.m.accel * (1 + 3 * u.U.accel)) < 1e-9 && u.now.top === u.m.top + 3 * u.U.top
   && Math.abs(u.now.turn - (u.m.turn + 3 * u.U.turn)) < 1e-9 && Math.abs(u.now.grip - (u.m.grip + 3 * u.U.grip)) < 1e-9, JSON.stringify(u.now));
 check('three thrusters pull away faster from a standstill', kit.accel.boosted > kit.accel.plain * 1.2, `${kit.accel.plain.toFixed(0)} → ${kit.accel.boosted.toFixed(0)} px/s after 0.5 s`);
-check('a race lays out the next three letters you need', kit.layout.none === '012' && kit.layout.three === '345' && kit.layout.eight === '8' && kit.layout.all === '', JSON.stringify(kit.layout));
+check('a race lays out the next two letters you need', kit.layout.none === '01' && kit.layout.three === '34' && kit.layout.eight === '8' && kit.layout.all === '', JSON.stringify(kit.layout));
 check('OVERDRIVE in the Mk I: the Mk II, its sprite and stats, upgrades reset', kit.od1.mk === 1 && kit.od1.slot === 'player_mk2' && kit.od1.letters === 0
   && Object.values(kit.od1.up).every((v) => v === 0) && kit.od1.top === 170 && kit.od1.events.includes('overdrive'), JSON.stringify(kit.od1));
 check('OVERDRIVE scores the letter and 25,000', kit.od1.score === 250 + 25000, String(kit.od1.score));
@@ -242,7 +242,7 @@ for (const [i, name] of ['Neon', 'Storm', 'Blackout'].entries()) {
   const x = races[i];
   check(`${name}: autopilot races finish, everyone inside 75 s`, x.times.every((s) => s < 75), x.times.map((s) => s.toFixed(0)).join(' '));
 }
-check('Neon and Storm: rivals steer round slicks (no hazard spins in six races each)', races[0].hazardSpins + races[1].hazardSpins === 0, `${races[0].hazardSpins} + ${races[1].hazardSpins}`);
+check('Neon and Storm: rivals steer round slicks (none in six Neon races; in Storm, at its quicker pace, at most four in six races of four cars)', races[0].hazardSpins === 0 && races[1].hazardSpins <= 4, `${races[0].hazardSpins} + ${races[1].hazardSpins}`);
 check('Blackout: gates and drones catch someone now and then, not constantly (≤ 8 a race)', races[2].hazardSpins > 0 && races[2].hazardSpins <= 6 * 8, `${races[2].hazardSpins} in 6 races`);
 
 /** The pit board comes before every race: wait for it, then Enter. */
@@ -309,7 +309,7 @@ await throughPit();
 await until(() => evaluate(`${R}.race?.phase === 'grid' && ${G}.registry.get('hud')?.results === null`), 5000);
 const s2 = await snap(), h3 = await hud();
 check('the next race (race 2) starts in the Mk II with the heat carried', s2.mk === 1 && s2.slot === 'player_mk2' && h3.race === 2 && s2.heat === 4, JSON.stringify({ mk: s2.mk, slot: s2.slot, race: h3.race, heat: s2.heat }));
-check('the next race lays out the first three letters again', await evaluate(`${R}.race.pickups.filter((p) => p.kind === 'letter').map((p) => p.idx).join('')`) === '012');
+check('the next race lays out the first two letters again', await evaluate(`${R}.race.pickups.filter((p) => p.kind === 'letter').map((p) => p.idx).join('')`) === '01');
 await sleep(600);
 await shot('9-next-race-mk2');
 

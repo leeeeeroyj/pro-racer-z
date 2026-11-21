@@ -21,13 +21,13 @@ check('every sprite slot loaded', missing.length === 0, missing.join(', '));
 const geo = await evaluate(`(async () => {
   const T = await import('/src/track.ts'), { TRACKS } = await import('/src/data/tracks.ts'), C = await import('/src/config.ts');
   return TRACKS.flatMap((def) => [false, true].map((rev) => {
-    const tr = T.buildTrack(def.ctrl, rev), bad = [];
-    for (let i = 0; i < tr.n; i++) for (const lat of [0, C.WALL, -C.WALL]) {
+    const tr = T.buildTrack(def.ctrl, rev, def.halfWidth), bad = [];
+    for (let i = 0; i < tr.n; i++) for (const lat of [0, tr.wall, -tr.wall]) {
       const p = tr.pts[i], r = { x: p.x + p.nx * lat, y: p.y + p.ny * lat, seg: (i - 3 + tr.n) % tr.n, lat: 0, laps: 0 };
       T.locate(tr, r);
       if (r.seg !== i || Math.abs(r.lat - lat) > 0.01) bad.push(i + '@' + lat + '→' + r.seg);
     }
-    const ribbonHalf = C.TRACK.halfWidth + C.TRACK.apron + 2;
+    const ribbonHalf = tr.hw + C.TRACK.apron + 2;
     return { id: def.id + (rev ? ' rev' : ''), n: tr.n, length: Math.round(tr.length), bad: bad.slice(0, 5), badCount: bad.length,
       radius: T.minRadius(tr).radius, sep: T.minSeparation(tr).dist, ribbonHalf };
   }));
@@ -53,11 +53,11 @@ const phys = await evaluate(`(async () => {
   });
   // Walls: random starts, headings, speeds and steering on the real track, two seconds flat out each.
   const { TRACKS } = await import('/src/data/tracks.ts');
-  const tr = T.buildTrack(TRACKS[0].ctrl);
+  const tr = T.buildTrack(TRACKS[0].ctrl, false, TRACKS[0].halfWidth);
   let seed = 7; const rnd = () => ((seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648);
   let worst = 0, jumps = 0, hits = 0;
   for (let trial = 0; trial < 300; trial++) {
-    const m = C.MACHINES[trial % 3], c = Rc.carAt(tr, rnd(), (rnd() * 2 - 1) * C.WALL);
+    const m = C.MACHINES[trial % 3], c = Rc.carAt(tr, rnd(), (rnd() * 2 - 1) * tr.wall);
     c.a += (rnd() * 2 - 1) * Math.PI;
     const v = 100 + rnd() * 400, d = rnd() * Math.PI * 2; c.vx = Math.cos(d) * v; c.vy = Math.sin(d) * v;
     const turn = Math.round(rnd() * 2 - 1);
@@ -68,7 +68,7 @@ const phys = await evaluate(`(async () => {
       if (Math.abs(T.segGap(tr, before, c.seg)) > 12) jumps++;
     }
   }
-  return { tops, worst, wall: C.WALL, jumps, hits };
+  return { tops, worst, wall: tr.wall, jumps, hits };
 })()`);
 for (const p of phys.tops) check(`${p.name} holds its top speed (±5 %)`, Math.abs(p.speed - p.top) <= p.top * 0.05, `${p.speed.toFixed(1)} of ${p.top}, 95 % after ${p.reached?.toFixed(2)} s`);
 check('the wall holds at any speed (300 random runs)', phys.worst <= phys.wall + 1e-6 && phys.hits > 0, `worst |lat| ${phys.worst.toFixed(2)} ≤ ${phys.wall}, ${phys.hits} wall hits`);
@@ -134,8 +134,8 @@ for (const [side, turn] of [['right', Math.PI / 2], ['left', -Math.PI / 2]]) {
   const w0 = Date.now();
   while (Date.now() - w0 < 1300) { worst = Math.max(worst, Math.abs((await snap()).lat)); await sleep(30); }
   await up('ArrowUp');
-  const played = await evaluate(`${R}.played`);
-  check(`the ${side} wall stops the car`, worst <= 31 + 1e-6 && played.includes('bump'), `worst |lat| ${worst.toFixed(2)}, sounds ${played.slice(-3).join(',')}`);
+  const played = await evaluate(`${R}.played`), wall = await evaluate(`${R}.race.track.wall`);
+  check(`the ${side} wall stops the car`, worst <= wall + 1e-6 && played.includes('bump'), `worst |lat| ${worst.toFixed(2)} ≤ ${wall}, sounds ${played.slice(-3).join(',')}`);
 }
 
 // In a bend, for the screenshot.

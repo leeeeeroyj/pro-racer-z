@@ -142,7 +142,7 @@ export class RaceView {
   /** Vector effects: cloud shadows and rain, gate posts and beams, drone scan lines, the shield bubble, boost streaks. */
   private drawFx() {
     const r = this.race, t = this.clock, u = this.under.clear(), o = this.over.clear();
-    const HW = TRACK.halfWidth + TRACK.apron;
+    const HW = r.track.hw + TRACK.apron, AW = r.track.hw;
     for (const cl of r.clouds) {
       u.fillStyle(0x000010, 0.38).fillCircle(cl.x, cl.y, HAZARD.cloud.r);
       o.lineStyle(1, 0xb8d8ff, 0.5);
@@ -172,7 +172,7 @@ export class RaceView {
     for (const dr of r.drones) {
       // The scan line spans the track at the drone's post and blinks, so its sweep is visible before it reaches you.
       const p = r.track.pts[dr.seg];
-      if (blink(t, 4)) this.dashed(u, p.x + p.nx * TRACK.halfWidth, p.y + p.ny * TRACK.halfWidth, p.x - p.nx * TRACK.halfWidth, p.y - p.ny * TRACK.halfWidth, 1, WARN, 0.7);
+      if (blink(t, 4)) this.dashed(u, p.x + p.nx * AW, p.y + p.ny * AW, p.x - p.nx * AW, p.y - p.ny * AW, 1, WARN, 0.7);
     }
     for (const v of this.cars.values()) {
       const tr = v.trail, k = tr.length / 2;

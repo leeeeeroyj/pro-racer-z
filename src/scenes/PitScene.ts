@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { COLORS, HUD_SCALE, HEAT, LEAGUES, MACHINES, TEXT, UPGRADE, WORD, spriteAngle } from '../config';
 import { Controls } from '../controls';
 import { TRACKS } from '../data/tracks';
+import { playMusic } from '../music';
 import { RACES, leagueOf, newCareer, trackOf, type Career, type Verdict } from '../season';
 import { playSound, registerSounds, restoreMute, toggleMute } from '../sfx';
 import { loadLap } from '../store';
@@ -33,6 +34,7 @@ export class PitScene extends Phaser.Scene {
     this.controls = new Controls(this);
     registerSounds(this);
     restoreMute(this);
+    playMusic(this, 'title');
     if (!this.registry.has(CAREER)) this.registry.set(CAREER, newCareer());
     const k = this.registry.get(CAREER) as Career;
     const lg = leagueOf(k.race), def = TRACKS[trackOf(k.race)], laps = def.laps[lg], best = loadLap(def.id, lg);
